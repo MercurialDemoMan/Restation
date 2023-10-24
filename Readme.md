@@ -17,6 +17,11 @@ This repository contains a master's thesis focusing on development of a Playstat
 
 ## Build instruction
 
+```bash
+cd Sources/build
+cmake ..
+make
+```
 
 ## Usage instruction
 
