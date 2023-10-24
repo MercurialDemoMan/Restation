@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.5)
 
 project(PSXEmulator)
 
@@ -7,15 +7,27 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED On)
 
 # set optimization level
-set(CMAKE_CXX_FLAGS "$CMAKE_CXX_FLAGS" -O0 -ggdb)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -ggdb")
 
 # set verbose compilers warnings
-set(CMAKE_CXX_FLAGS "$CMAKE_CXX_FLAGS" -Wall -Wextra)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
 # add glm to the project
-add_subdirectory(deps/glm)
+add_subdirectory(${CMAKE_SOURCE_DIR}/deps/glm)
+
+# set current SDL2 path to our local project folder
+set(SDL2_DIR ${CMAKE_SOURCE_DIR}/deps/SDL2)
+
+# find the sdl package
+find_package(SDL2 REQUIRED)
+
+# add the sdl2 include directory to the project
+include_directories(${SDL2_INCLUDE_DIRS})
 
 # include sources
 add_executable(emu 
-	main.cpp)
+	src/main.cpp)
 
+# link executable with the project
+target_link_libraries(emu
+    ${SDL2_LIBRARIES})
