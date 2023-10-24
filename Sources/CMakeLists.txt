@@ -12,6 +12,10 @@ set(CMAKE_CXX_FLAGS "$CMAKE_CXX_FLAGS" -O0 -ggdb)
 # set verbose compilers warnings
 set(CMAKE_CXX_FLAGS "$CMAKE_CXX_FLAGS" -Wall -Wextra)
 
+# add glm to the project
+add_subdirectory(deps/glm)
+
+# include sources
 add_executable(emu 
 	main.cpp)
 
