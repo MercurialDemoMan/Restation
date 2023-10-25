@@ -1,0 +1,5 @@
+*.o
+*.d
+scph1001.bin
+Sources/build/*
+!Sources/build/empty.txt

@@ -17,6 +17,11 @@ This repository contains a master's thesis focusing on development of a Playstat
 
 ## Build instruction
 
+```bash
+cd Sources/build
+cmake ..
+make
+```
 
 ## Usage instruction
 
@@ -24,6 +29,6 @@ This repository contains a master's thesis focusing on development of a Playstat
 ## Author information
 
  * Name: Filip Stupka 
- * Email:
+ * Email: filipstupka420@gmail.com
  * Data: 2023/2024
 
