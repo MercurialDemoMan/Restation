@@ -14,10 +14,32 @@ namespace PSX
     public:
         virtual ~Component() = default;
 
-        virtual void execute(u32 num_steps)        = 0;
-        virtual u32  read(u32 address)             = 0;
+        /**
+         * @brief execute the device for num_steps amount of clock cycles 
+         */
+        virtual void execute(u32 num_steps) = 0;
+
+        /**
+         * @brief read data from the device
+         * 
+         * @arg address relative address in the device
+         * 
+         * @returns read value
+         */
+        virtual u32  read(u32 address) = 0;
+
+        /**
+         * @brief write data itno the device
+         * 
+         * @arg address relative address in the device 
+         * @arg value to be written
+         */
         virtual void write(u32 address, u32 value) = 0;
-        virtual void reset()                       = 0;
+
+        /**
+         * @brief reset device into its' initial state
+         */
+        virtual void reset() = 0;
     };
 }
 
