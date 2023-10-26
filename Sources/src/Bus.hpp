@@ -59,12 +59,13 @@ namespace PSX
 
         void initialize_components();
 
-        std::shared_ptr<CPU>   m_cpu;
-        std::shared_ptr<GPU>   m_gpu;
-        std::shared_ptr<SPU>   m_spu;
-        std::shared_ptr<MDEC>  m_mdec;
-        std::shared_ptr<CDROM> m_cdrom;
-        std::shared_ptr<Timer> m_timer;
+        std::shared_ptr<CPU>           m_cpu;
+        std::shared_ptr<GPU>           m_gpu;
+        std::shared_ptr<SPU>           m_spu;
+        std::shared_ptr<MDEC>          m_mdec;
+        std::shared_ptr<CDROM>         m_cdrom;
+        std::shared_ptr<Timer>         m_timer;
+        std::shared_ptr<DMAController> m_dma_controller;
 
         static constexpr const u32 RamBase          = 0x00000000;
         static constexpr const u32 ExpansionBase    = 0x1F000000;

@@ -38,6 +38,7 @@
 #include "MDEC.hpp"
 #include "CDROM.hpp"
 #include "Timer.hpp"
+#include "DMAController.hpp"
 
 namespace PSX
 {
@@ -56,5 +57,6 @@ namespace PSX
         m_mdec = std::make_shared<MDEC>(shared_from_this());
         m_cdrom = std::make_shared<CDROM>(shared_from_this());
         m_timer = std::make_shared<Timer>(shared_from_this());
+        m_dma_controller = std::make_shared<DMAController>(shared_from_this());
     }
 }

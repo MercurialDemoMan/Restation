@@ -43,6 +43,7 @@ namespace PSX
     class MDEC;
     class CDROM;
     class Timer;
+    class DMAController;
 }
 
 #endif // FORWARD_HPP
