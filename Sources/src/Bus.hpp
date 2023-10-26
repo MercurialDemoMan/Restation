@@ -34,8 +34,10 @@
 #ifndef BUS_HPP
 #define BUS_HPP
 
+#include <memory>
 #include "Types.hpp"
 #include "Constants.hpp"
+#include "Forward.hpp"
 
 namespace PSX
 {
@@ -87,9 +89,11 @@ namespace PSX
         static constexpr const u32 Expansion2Size   = 0x2000;
         static constexpr const u32 BiosSize         = 512 * KiB;
         static constexpr const u32 CacheControlSize = 0x4;
-        
+
     private:
-    
+
+        std::shared_ptr<CPU> m_cpu;
+
     };
 }
 
