@@ -46,6 +46,48 @@ namespace PSX
     {
     public:
 
+        static constexpr const u32 RamBase          = 0x00000000;
+        static constexpr const u32 ExpansionBase    = 0x1F000000;
+        static constexpr const u32 ScratchpadBase   = 0x1F800000;
+        static constexpr const u32 IoBase           = 0x1F801000;
+        static constexpr const u32 MemControlBase   = 0x1F801000;
+        static constexpr const u32 ControllerBase   = 0x1f801040;
+        static constexpr const u32 SerialBase       = 0x1F801050;
+        static constexpr const u32 RamControlBase   = 0x1F801060;
+        static constexpr const u32 InterruptBase    = 0x1F801070;
+        static constexpr const u32 DmaBase          = 0x1F801080;
+        static constexpr const u32 Timer0Base       = 0x1F801100;
+        static constexpr const u32 Timer1Base       = 0x1F801110;
+        static constexpr const u32 Timer2Base       = 0x1F801120;
+        static constexpr const u32 CdromBase        = 0x1F801800;
+        static constexpr const u32 GpuBase          = 0x1F801810;
+        static constexpr const u32 MdecBase         = 0x1F801820;
+        static constexpr const u32 SpuBase          = 0x1F801C00;
+        static constexpr const u32 Expansion2Base   = 0x1F802000;
+        static constexpr const u32 BiosBase         = 0x1FC00000;
+        static constexpr const u32 CacheControlBase = 0x1FFE0130;
+        
+        static constexpr const u32 RamSize          = 2   * MiB;
+        static constexpr const u32 ExpansionSize    = 1   * MiB;
+        static constexpr const u32 ScratchpadSize   = 1   * KiB;
+        static constexpr const u32 IoSize           = 8   * KiB;
+        static constexpr const u32 MemControlSize   = 0x24;
+        static constexpr const u32 ControllerSize   = 0x10;
+        static constexpr const u32 SerialSize       = 0x10;
+        static constexpr const u32 RamControlSize   = 0x4;
+        static constexpr const u32 InterruptSize    = 0x8;
+        static constexpr const u32 DmaSize          = 0x80;
+        static constexpr const u32 Timer0Size       = 0x10;
+        static constexpr const u32 Timer1Size       = 0x10;
+        static constexpr const u32 Timer2Size       = 0x10;
+        static constexpr const u32 CdromSize        = 0x4;
+        static constexpr const u32 GpuSize          = 0x8;
+        static constexpr const u32 MdecSize         = 0x8;
+        static constexpr const u32 SpuSize          = 0x400;
+        static constexpr const u32 Expansion2Size   = 0x2000;
+        static constexpr const u32 BiosSize         = 512 * KiB;
+        static constexpr const u32 CacheControlSize = 0x4;
+        
     private:
     
     };
