@@ -4,7 +4,7 @@
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Implementation of MIPS R3000 PSX CPU
+ * @brief     Implementation of MIPS R3000 PSX Central processing unit
  *
  * @version   0.1
  *

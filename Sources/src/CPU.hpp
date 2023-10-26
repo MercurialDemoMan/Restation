@@ -4,7 +4,7 @@
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Header for the MIPS R3000 PSX CPU
+ * @brief     Header for the MIPS R3000 PSX Central processing unit
  *
  * @version   0.1
  *
@@ -41,7 +41,7 @@
 namespace PSX
 {
     /**
-     * @brief MIPS R3000 PSX CPU
+     * @brief MIPS R3000 PSX Central processing unit
      */
     class CPU final : public Component
     {
@@ -52,7 +52,7 @@ namespace PSX
         {
             
         }
-        
+
         virtual ~CPU() override = default;
 
         virtual void execute(u32 num_steps) override;

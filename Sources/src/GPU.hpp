@@ -4,7 +4,7 @@
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Header for the PSX GPU
+ * @brief     Header for the PSX Graphics processing unit
  *
  * @version   0.1
  *
@@ -41,7 +41,7 @@
 namespace PSX
 {
     /**
-     * @brief PSX GPU
+     * @brief PSX Graphics processing unit
      */
     class GPU final : public Component
     {

@@ -4,7 +4,7 @@
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Implementation of the PSX GPU
+ * @brief     Implementation of the PSX Graphics processing unit
  *
  * @version   0.1
  *
