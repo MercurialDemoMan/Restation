@@ -61,5 +61,7 @@
  */
 #define DELETE_COPY_CONSTRUCTOR(class_name) class_name(const class_name&) = delete
 #define DELETE_MOVE_CONSTRUCTOR(class_name) class_name(const class_name&&) = delete
+#define DELETE_COPY_ASSIGNMENT(class_name) class_name operator=(const class_name&) = delete
+#define DELETE_MOVE_ASSIGNMENT(class_name) class_name operator=(const class_name&&) = delete
 
 #endif // MACROS_HPP

@@ -49,13 +49,23 @@ namespace PSX
     {
     public:
 
+        /**
+         * @brief allocate bus and initialize all psx components
+         */
         static std::shared_ptr<Bus> create();
 
     private:
 
+        /**
+         * since we are expecting the Bus class to be managed through std::shared_ptr
+         * creating or copying the Bus class makes no sense so we just delete that
+         * functionality
+         */
         explicit Bus() {}
         DELETE_COPY_CONSTRUCTOR(Bus);
         DELETE_MOVE_CONSTRUCTOR(Bus);
+        DELETE_COPY_ASSIGNMENT(Bus);
+        DELETE_MOVE_ASSIGNMENT(Bus);
 
         void initialize_components();
 
