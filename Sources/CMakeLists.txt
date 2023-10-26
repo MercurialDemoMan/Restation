@@ -26,7 +26,8 @@ include_directories(${SDL2_INCLUDE_DIRS})
 
 # include sources
 add_executable(emu 
-	src/main.cpp)
+	src/main.cpp
+    src/CPU.hpp)
 
 # link executable with the project
 target_link_libraries(emu

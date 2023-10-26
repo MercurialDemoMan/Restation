@@ -1,14 +1,14 @@
 /**
- * @file      Forward.hpp
+ * @file      CPU.hpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Forward declaration of all PSX hardware components
+ * @brief     Header for the MIPS R3000 PSX CPU
  *
  * @version   0.1
  *
- * @date      26. 10. 2023, 15:22 (created)
+ * @date      26. 10. 2023, 15:20 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -31,13 +31,38 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef FORWARD_HPP
-#define FORWARD_HPP
+#ifndef CPU_HPP
+#define CPU_HPP
+
+#include <memory>
+#include "Component.hpp"
+#include "Forward.hpp"
 
 namespace PSX
 {
-    class Bus;
-    class CPU;
+    /**
+     * @brief MIPS R3000 PSX CPU
+     */
+    class CPU final : public Component
+    {
+    public:
+
+        CPU(const std::shared_ptr<Bus> bus) :
+            m_bus(bus)
+        {
+            
+        }
+
+        virtual void execute(u32 num_steps) override;
+        virtual u32  read(u32 address) override;
+        virtual void write(u32 address, u32 value) override;
+        virtual void reset() override;
+
+    private:
+
+        std::shared_ptr<Bus> m_bus;
+
+    };
 }
 
-#endif // FORWARD_HPP
+#endif // CPU_HPP
