@@ -40,6 +40,7 @@ namespace PSX
     class CPU;
     class GPU;
     class SPU;
+    class MDEC;
     class Timer;
 }
 
