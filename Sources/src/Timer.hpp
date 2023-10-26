@@ -1,14 +1,14 @@
 /**
- * @file      GPU.hpp
+ * @file      Timer.hpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Header for the PSX GPU
+ * @brief     Header for the PSX Timer clock
  *
  * @version   0.1
  *
- * @date      26. 10. 2023, 16:19 (created)
+ * @date      26. 10. 2023, 16:35 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -31,8 +31,8 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef GPU_HPP
-#define GPU_HPP
+#ifndef TIMER_HPP
+#define TIMER_HPP
 
 #include <memory>
 #include "Component.hpp"
@@ -41,19 +41,19 @@
 namespace PSX
 {
     /**
-     * @brief PSX GPU
+     * @brief PSX Timer
      */
-    class GPU final : public Component
+    class Timer final : public Component
     {
     public:
 
-        GPU(const std::shared_ptr<Bus>& bus) :
+        Timer(const std::shared_ptr<Bus>& bus) :
             m_bus(bus)
         {
             
         }
         
-        virtual ~GPU() override = default;
+        virtual ~Timer() override = default;
 
         virtual void execute(u32 num_steps) override;
         virtual u32  read(u32 address) override;
@@ -67,4 +67,4 @@ namespace PSX
     };
 }
 
-#endif // GPU_HPP
+#endif // TIMER_HPP

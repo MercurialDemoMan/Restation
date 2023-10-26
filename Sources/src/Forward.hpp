@@ -39,6 +39,7 @@ namespace PSX
     class Bus;
     class CPU;
     class GPU;
+    class Timer;
 }
 
 #endif // FORWARD_HPP

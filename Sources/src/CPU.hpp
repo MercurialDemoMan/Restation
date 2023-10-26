@@ -52,6 +52,8 @@ namespace PSX
         {
             
         }
+        
+        virtual ~CPU() override = default;
 
         virtual void execute(u32 num_steps) override;
         virtual u32  read(u32 address) override;

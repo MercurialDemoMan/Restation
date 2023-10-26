@@ -1,14 +1,14 @@
 /**
- * @file      GPU.hpp
+ * @file      Timer.cpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Header for the PSX GPU
+ * @brief     Implementation of the PSX Timer
  *
  * @version   0.1
  *
- * @date      26. 10. 2023, 16:19 (created)
+ * @date      26. 10. 2023, 16:20 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -31,40 +31,32 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef GPU_HPP
-#define GPU_HPP
-
-#include <memory>
-#include "Component.hpp"
-#include "Forward.hpp"
+#include "Timer.hpp"
+#include "Bus.hpp"
 
 namespace PSX
 {
-    /**
-     * @brief PSX GPU
-     */
-    class GPU final : public Component
+    void Timer::execute(u32 num_steps)
     {
-    public:
+        MARK_UNUSED(num_steps);
+        TODO();
+    }
 
-        GPU(const std::shared_ptr<Bus>& bus) :
-            m_bus(bus)
-        {
-            
-        }
-        
-        virtual ~GPU() override = default;
+    u32 Timer::read(u32 address)
+    {
+        MARK_UNUSED(address);
+        TODO();
+    }
 
-        virtual void execute(u32 num_steps) override;
-        virtual u32  read(u32 address) override;
-        virtual void write(u32 address, u32 value) override;
-        virtual void reset() override;
+    void Timer::write(u32 address, u32 value)
+    {
+        MARK_UNUSED(address);
+        MARK_UNUSED(value);
+        TODO();
+    }
 
-    private:
-
-        std::shared_ptr<Bus> m_bus;
-
-    };
+    void Timer::reset()
+    {
+        TODO();
+    }
 }
-
-#endif // GPU_HPP
