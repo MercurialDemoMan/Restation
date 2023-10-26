@@ -44,6 +44,7 @@ namespace PSX
     class CDROM;
     class Timer;
     class DMAController;
+    class InterruptController;
 }
 
 #endif // FORWARD_HPP

@@ -39,6 +39,7 @@
 #include "CDROM.hpp"
 #include "Timer.hpp"
 #include "DMAController.hpp"
+#include "InterruptController.hpp"
 
 namespace PSX
 {
@@ -51,12 +52,13 @@ namespace PSX
 
     void Bus::initialize_components()
     {
-        m_cpu = std::make_shared<CPU>(shared_from_this());
-        m_gpu = std::make_shared<GPU>(shared_from_this());
-        m_spu = std::make_shared<SPU>(shared_from_this());
-        m_mdec = std::make_shared<MDEC>(shared_from_this());
-        m_cdrom = std::make_shared<CDROM>(shared_from_this());
-        m_timer = std::make_shared<Timer>(shared_from_this());
-        m_dma_controller = std::make_shared<DMAController>(shared_from_this());
+        m_cpu                  = std::make_shared<CPU>(shared_from_this());
+        m_gpu                  = std::make_shared<GPU>(shared_from_this());
+        m_spu                  = std::make_shared<SPU>(shared_from_this());
+        m_mdec                 = std::make_shared<MDEC>(shared_from_this());
+        m_cdrom                = std::make_shared<CDROM>(shared_from_this());
+        m_timer                = std::make_shared<Timer>(shared_from_this());
+        m_dma_controller       = std::make_shared<DMAController>(shared_from_this());
+        m_interrupt_controller = std::make_shared<InterruptController>(shared_from_this());
     }
 }

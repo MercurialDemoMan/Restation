@@ -34,6 +34,7 @@ add_executable(emu
     src/CDROM.cpp
     src/Timer.cpp
     src/DMAController.cpp
+    src/InterruptController.cpp
     src/Bus.cpp)
 
 # link executable with the project
