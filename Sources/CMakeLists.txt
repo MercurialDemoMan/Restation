@@ -29,6 +29,7 @@ add_executable(emu
 	src/main.cpp
     src/CPU.cpp
     src/GPU.cpp
+    src/SPU.cpp
     src/Timer.cpp
     src/Bus.cpp)
 
