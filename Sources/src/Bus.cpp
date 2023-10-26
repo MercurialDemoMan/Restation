@@ -32,3 +32,12 @@
  */
 
 #include "Bus.hpp"
+#include "CPU.hpp"
+
+namespace PSX
+{
+    Bus::Bus()
+    {
+        m_cpu = std::make_shared<CPU>(shared_from_this());
+    }
+}

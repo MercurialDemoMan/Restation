@@ -44,9 +44,15 @@ namespace PSX
     /**
      * @brief The core of the PSX. Its' main purpose is dispatching reads and writes.
      */
-    class Bus
+    class Bus : public std::enable_shared_from_this<Bus>
     {
     public:
+
+        Bus();
+
+    private:
+
+        std::shared_ptr<CPU> m_cpu;
 
         static constexpr const u32 RamBase          = 0x00000000;
         static constexpr const u32 ExpansionBase    = 0x1F000000;
@@ -89,11 +95,6 @@ namespace PSX
         static constexpr const u32 Expansion2Size   = 0x2000;
         static constexpr const u32 BiosSize         = 512 * KiB;
         static constexpr const u32 CacheControlSize = 0x4;
-
-    private:
-
-        std::shared_ptr<CPU> m_cpu;
-
     };
 }
 

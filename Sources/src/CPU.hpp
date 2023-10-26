@@ -47,7 +47,7 @@ namespace PSX
     {
     public:
 
-        CPU(const std::shared_ptr<Bus> bus) :
+        CPU(const std::shared_ptr<Bus>& bus) :
             m_bus(bus)
         {
             
