@@ -38,7 +38,14 @@
 
 namespace PSX
 {
-    Bus::Bus()
+    std::shared_ptr<Bus> Bus::create()
+    {
+        auto bus = std::shared_ptr<Bus>(new Bus());
+        bus->initialize_components();
+        return bus;
+    }
+
+    void Bus::initialize_components()
     {
         m_cpu = std::make_shared<CPU>(shared_from_this());
         m_gpu = std::make_shared<GPU>(shared_from_this());

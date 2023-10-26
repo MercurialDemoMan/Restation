@@ -36,6 +36,7 @@
 
 #include <memory>
 #include "Types.hpp"
+#include "Macros.hpp"
 #include "Constants.hpp"
 #include "Forward.hpp"
 
@@ -48,9 +49,15 @@ namespace PSX
     {
     public:
 
-        Bus();
+        static std::shared_ptr<Bus> create();
 
     private:
+
+        explicit Bus() {}
+        DELETE_COPY_CONSTRUCTOR(Bus);
+        DELETE_MOVE_CONSTRUCTOR(Bus);
+
+        void initialize_components();
 
         std::shared_ptr<CPU>   m_cpu;
         std::shared_ptr<GPU>   m_gpu;
