@@ -34,6 +34,7 @@
 #include "Bus.hpp"
 #include "CPU.hpp"
 #include "GPU.hpp"
+#include "Timer.hpp"
 
 namespace PSX
 {
@@ -41,5 +42,6 @@ namespace PSX
     {
         m_cpu = std::make_shared<CPU>(shared_from_this());
         m_gpu = std::make_shared<GPU>(shared_from_this());
+        m_timer = std::make_shared<Timer>(shared_from_this());
     }
 }

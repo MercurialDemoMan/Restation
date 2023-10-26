@@ -28,6 +28,8 @@ include_directories(${SDL2_INCLUDE_DIRS})
 add_executable(emu 
 	src/main.cpp
     src/CPU.cpp
+    src/GPU.cpp
+    src/Timer.cpp
     src/Bus.cpp)
 
 # link executable with the project
