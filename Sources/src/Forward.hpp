@@ -43,6 +43,7 @@ namespace PSX
     class MDEC;
     class CDROM;
     class Timer;
+    class Peripherals;
     class DMAController;
     class InterruptController;
 }

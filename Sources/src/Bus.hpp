@@ -65,6 +65,7 @@ namespace PSX
         std::shared_ptr<MDEC>                m_mdec;
         std::shared_ptr<CDROM>               m_cdrom;
         std::shared_ptr<Timer>               m_timer;
+        std::shared_ptr<Peripherals>         m_peripherals;
         std::shared_ptr<DMAController>       m_dma_controller;
         std::shared_ptr<InterruptController> m_interrupt_controller;
 
@@ -73,7 +74,7 @@ namespace PSX
         static constexpr const u32 ScratchpadBase   = 0x1F800000;
         static constexpr const u32 IoBase           = 0x1F801000;
         static constexpr const u32 MemControlBase   = 0x1F801000;
-        static constexpr const u32 ControllerBase   = 0x1f801040;
+        static constexpr const u32 PeripheralsBase  = 0x1f801040;
         static constexpr const u32 SerialBase       = 0x1F801050;
         static constexpr const u32 RamControlBase   = 0x1F801060;
         static constexpr const u32 InterruptBase    = 0x1F801070;
@@ -94,7 +95,7 @@ namespace PSX
         static constexpr const u32 ScratchpadSize   = 1   * KiB;
         static constexpr const u32 IoSize           = 8   * KiB;
         static constexpr const u32 MemControlSize   = 0x24;
-        static constexpr const u32 ControllerSize   = 0x10;
+        static constexpr const u32 PeripheralsSize  = 0x10;
         static constexpr const u32 SerialSize       = 0x10;
         static constexpr const u32 RamControlSize   = 0x4;
         static constexpr const u32 InterruptSize    = 0x8;
