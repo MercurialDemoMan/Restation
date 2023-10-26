@@ -56,4 +56,10 @@
 #define UNREACHABLE() ABORT_WITH_MESSAGE("\e[1;91munreachable code\e[0m")
 #define TODO()        ABORT_WITH_MESSAGE("\e[1;95mtodo\e[0m")
 
+/**
+ * class manipulation utilities 
+ */
+#define DELETE_COPY_CONSTRUCTOR(class_name) class_name(const class_name&) = delete
+#define DELETE_MOVE_CONSTRUCTOR(class_name) class_name(const class_name&&) = delete
+
 #endif // MACROS_HPP
