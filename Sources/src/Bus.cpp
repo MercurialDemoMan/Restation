@@ -33,11 +33,13 @@
 
 #include "Bus.hpp"
 #include "CPU.hpp"
+#include "GPU.hpp"
 
 namespace PSX
 {
     Bus::Bus()
     {
         m_cpu = std::make_shared<CPU>(shared_from_this());
+        m_gpu = std::make_shared<GPU>(shared_from_this());
     }
 }

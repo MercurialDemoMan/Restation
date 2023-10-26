@@ -38,6 +38,7 @@ namespace PSX
 {
     class Bus;
     class CPU;
+    class GPU;
 }
 
 #endif // FORWARD_HPP
