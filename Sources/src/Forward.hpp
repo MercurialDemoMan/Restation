@@ -41,6 +41,7 @@ namespace PSX
     class GPU;
     class SPU;
     class MDEC;
+    class CDROM;
     class Timer;
 }
 

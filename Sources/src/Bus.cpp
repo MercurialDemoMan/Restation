@@ -36,6 +36,7 @@
 #include "GPU.hpp"
 #include "SPU.hpp"
 #include "MDEC.hpp"
+#include "CDROM.hpp"
 #include "Timer.hpp"
 
 namespace PSX
@@ -53,6 +54,7 @@ namespace PSX
         m_gpu = std::make_shared<GPU>(shared_from_this());
         m_spu = std::make_shared<SPU>(shared_from_this());
         m_mdec = std::make_shared<MDEC>(shared_from_this());
+        m_cdrom = std::make_shared<CDROM>(shared_from_this());
         m_timer = std::make_shared<Timer>(shared_from_this());
     }
 }
