@@ -102,7 +102,7 @@ namespace PSX
     }
 
     /**
-     * @brief check whether result after adding 2 integers had overflow
+     * @brief check whether result after adding 2 signed integers (2s complement) had overflow
      *
      * @arg x first number
      * @arg y second number
@@ -118,7 +118,7 @@ namespace PSX
     }
 
     /**
-     * @brief check whether result after subtracting 2 integers had undeflow
+     * @brief check whether result after subtracting 2 signed integers (2s complement) had undeflow
      * 
      * @arg x first number
      * @arg y second number

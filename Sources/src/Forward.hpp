@@ -10,9 +10,6 @@
  *
  * @date      26. 10. 2023, 15:22 (created)
  *
- * @section   TODO: replace with actual documentation
- * TODO: documentation text
- *
  * @section License
  * This file is part of the TODO: project \n
  *

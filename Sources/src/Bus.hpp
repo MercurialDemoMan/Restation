@@ -67,6 +67,9 @@ namespace PSX
         DELETE_COPY_ASSIGNMENT(Bus);
         DELETE_MOVE_ASSIGNMENT(Bus);
 
+        /**
+         * @brief allocate all components and connect them together 
+         */
         void initialize_components();
 
         std::shared_ptr<CPU>                 m_cpu;
