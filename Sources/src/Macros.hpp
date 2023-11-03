@@ -64,4 +64,25 @@
 #define DELETE_COPY_ASSIGNMENT(class_name) class_name operator=(const class_name&) = delete
 #define DELETE_MOVE_ASSIGNMENT(class_name) class_name operator=(const class_name&&) = delete
 
+/**
+ * logging utilities 
+ */
+#define LOG(message) do \
+{ \
+    auto message_string = std::string(message); \
+    std::fprintf(stdout, "[\e[0;36minfo\e[0m]: %s\n", message_string.c_str()); \
+} while(0)
+
+#define LOG_WARNING(message) do \
+{ \
+    auto message_string = std::string(message); \
+    std::fprintf(stdout, "[\e[0;33mwarning\e[0m]: %s\n", message_string.c_str()); \
+} while(0)
+
+#define LOG_ERROR(message) do \
+{ \
+    auto message_string = std::string(message); \
+    std::fprintf(stderr, "[\e[1;31merror\e[0m]: %s\n", message_string.c_str()); \
+} while(0)
+
 #endif // MACROS_HPP
