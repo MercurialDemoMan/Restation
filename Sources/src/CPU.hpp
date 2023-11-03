@@ -51,7 +51,7 @@ namespace PSX
         CPU(const std::shared_ptr<Bus>& bus) :
             m_bus(bus)
         {
-            
+            reset();
         }
 
         virtual ~CPU() override = default;
@@ -66,79 +66,79 @@ namespace PSX
         /**
          * base instructions
          */
-        void UNK(const CPUInstruction&);
-        void FUN(const CPUInstruction&);
-        void B(const CPUInstruction&);
-        void J(const CPUInstruction&);
-        void JAL(const CPUInstruction&);
-        void BEQ(const CPUInstruction&);
-        void BNE(const CPUInstruction&);
-        void BLEZ(const CPUInstruction&);
-        void BGTZ(const CPUInstruction&);
-        void ADDI(const CPUInstruction&);
-        void ADDIU(const CPUInstruction&);
-        void SLTI(const CPUInstruction&);
-        void SLTIU(const CPUInstruction&);
-        void ANDI(const CPUInstruction&);
-        void ORI(const CPUInstruction&);
-        void XORI(const CPUInstruction&);
-        void LUI(const CPUInstruction&);
-        void COP0(const CPUInstruction&);
-        void COP1(const CPUInstruction&);
-        void COP2(const CPUInstruction&);
-        void COP3(const CPUInstruction&);
-        void LB(const CPUInstruction&);
-        void LH(const CPUInstruction&);
-        void LWL(const CPUInstruction&);
-        void LW(const CPUInstruction&);
-        void LBU(const CPUInstruction&);
-        void LHU(const CPUInstruction&);
-        void LWR(const CPUInstruction&);
-        void SB(const CPUInstruction&);
-        void SH(const CPUInstruction&);
-        void SWL(const CPUInstruction&);
-        void SW(const CPUInstruction&);
-        void SWR(const CPUInstruction&);
-        void LWC0(const CPUInstruction&);
-        void LWC1(const CPUInstruction&);
-        void LWC2(const CPUInstruction&);
-        void LWC3(const CPUInstruction&);
-        void SWC0(const CPUInstruction&);
-        void SWC1(const CPUInstruction&);
-        void SWC2(const CPUInstruction&);
-        void SWC3(const CPUInstruction&);
+        void UNK(const CPUInstruction&);   /// Unknown opcode
+        void FUN(const CPUInstruction&);   /// ExtendedFunction opcode
+        void B(const CPUInstruction&);     /// Branch opcode
+        void J(const CPUInstruction&);     /// Jump opcode
+        void JAL(const CPUInstruction&);   /// JumpAndLink opcode
+        void BEQ(const CPUInstruction&);   /// BranchIfEqual opcode
+        void BNE(const CPUInstruction&);   /// BranchIfNotEqual opcode 
+        void BLEZ(const CPUInstruction&);  /// BranchIfLessThanZero opcode
+        void BGTZ(const CPUInstruction&);  /// BranchIfGreaterThanZero opcode
+        void ADDI(const CPUInstruction&);  /// AddImmediate opcode
+        void ADDIU(const CPUInstruction&); /// AddImmediateUnsigned opcode
+        void SLTI(const CPUInstruction&);  /// SetOnLessThanImmediate opcode
+        void SLTIU(const CPUInstruction&); /// SetOnLessThanImmediateUnsigned opcode
+        void ANDI(const CPUInstruction&);  /// AndImmediate opcode
+        void ORI(const CPUInstruction&);   /// OrImmediate opcode
+        void XORI(const CPUInstruction&);  /// XorImmediate opcode
+        void LUI(const CPUInstruction&);   /// LoadUpperImmediate opcode
+        void COP0(const CPUInstruction&);  /// Coprocessor0 opcode
+        void COP1(const CPUInstruction&);  /// Coprocessor1 opcode
+        void COP2(const CPUInstruction&);  /// Coprocessor2 opcode
+        void COP3(const CPUInstruction&);  /// Coprocessor3 opcode
+        void LB(const CPUInstruction&);    /// LoadByte opcode
+        void LH(const CPUInstruction&);    /// LoadHalfWord opcode
+        void LWL(const CPUInstruction&);   /// LoadWordLeft opcode
+        void LW(const CPUInstruction&);    /// LoadWord opcode
+        void LBU(const CPUInstruction&);   /// LoadByteUnsigned opcode
+        void LHU(const CPUInstruction&);   /// LoadHalfWordUnsigned opcode
+        void LWR(const CPUInstruction&);   /// LoadWordRight opcode
+        void SB(const CPUInstruction&);    /// StoreByte opcode
+        void SH(const CPUInstruction&);    /// StoreHalfWord opcode
+        void SWL(const CPUInstruction&);   /// StoreWordLeft opcode
+        void SW(const CPUInstruction&);    /// StoreWord opcode
+        void SWR(const CPUInstruction&);   /// StoreWordRight opcode
+        void LWC0(const CPUInstruction&);  /// LoadWordToCoprocessor0 opcode
+        void LWC1(const CPUInstruction&);  /// LoadWordToCoprocessor1 opcode
+        void LWC2(const CPUInstruction&);  /// LoadWordToCoprocessor2 opcode
+        void LWC3(const CPUInstruction&);  /// LoadWordToCoprocessor3 opcode
+        void SWC0(const CPUInstruction&);  /// StoreWordFromCoprocessor0 opcode
+        void SWC1(const CPUInstruction&);  /// StoreWordFromCoprocessor1 opcode
+        void SWC2(const CPUInstruction&);  /// StoreWordFromCoprocessor2 opcode
+        void SWC3(const CPUInstruction&);  /// StoreWordFromCoprocessor3 opcode
         
         /**
          * extended function instructions
          */
-        void SLL(const CPUInstruction&);
-        void SRL(const CPUInstruction&);
-        void SRA(const CPUInstruction&);
-        void SLLV(const CPUInstruction&);
-        void SRLV(const CPUInstruction&);
-        void SRAV(const CPUInstruction&);
-        void JR(const CPUInstruction&);
-        void JALR(const CPUInstruction&);
-        void SYSCALL(const CPUInstruction&);
-        void BREAK(const CPUInstruction&);
-        void MFHI(const CPUInstruction&);
-        void MTHI(const CPUInstruction&);
-        void MFLO(const CPUInstruction&);
-        void MTLO(const CPUInstruction&);
-        void MULT(const CPUInstruction&);
-        void MULTU(const CPUInstruction&);
-        void DIV(const CPUInstruction&);
-        void DIVU(const CPUInstruction&);
-        void ADD(const CPUInstruction&);
-        void ADDU(const CPUInstruction&);
-        void SUB(const CPUInstruction&);
-        void SUBU(const CPUInstruction&);
-        void AND(const CPUInstruction&);
-        void OR(const CPUInstruction&);
-        void XOR(const CPUInstruction&);
-        void NOR(const CPUInstruction&);
-        void SLT(const CPUInstruction&);
-        void SLTU(const CPUInstruction&);
+        void SLL(const CPUInstruction&);     /// ShiftWordLeftLogical opcode
+        void SRL(const CPUInstruction&);     /// ShiftWordRightLogical opcode
+        void SRA(const CPUInstruction&);     /// ShiftWordRightArithmetic opcode
+        void SLLV(const CPUInstruction&);    /// ShiftWordLeftLogicalVariable opcode
+        void SRLV(const CPUInstruction&);    /// ShiftWordRightLogicalVariable opcode
+        void SRAV(const CPUInstruction&);    /// ShiftWordRightArithmeticVariable opcode
+        void JR(const CPUInstruction&);      /// JumpRegister opcode
+        void JALR(const CPUInstruction&);    /// JumpAndLinkRegister opcode
+        void SYSCALL(const CPUInstruction&); /// SystemCall opcode
+        void BREAK(const CPUInstruction&);   /// Break opcode
+        void MFHI(const CPUInstruction&);    /// MoveFromHigh opcode
+        void MTHI(const CPUInstruction&);    /// MoveToHigh opcode
+        void MFLO(const CPUInstruction&);    /// MoveFromLow opcode
+        void MTLO(const CPUInstruction&);    /// MoveToLow opcode
+        void MULT(const CPUInstruction&);    /// Multiply opcode
+        void MULTU(const CPUInstruction&);   /// MultiplyUnsigned opcode
+        void DIV(const CPUInstruction&);     /// Divide opcode
+        void DIVU(const CPUInstruction&);    /// DivideUnsigned opcode
+        void ADD(const CPUInstruction&);     /// Add opcode
+        void ADDU(const CPUInstruction&);    /// AddUnsigned opcode
+        void SUB(const CPUInstruction&);     /// Subtract opcode
+        void SUBU(const CPUInstruction&);    /// SubtractUnsigned opcode
+        void AND(const CPUInstruction&);     /// And opcode
+        void OR(const CPUInstruction&);      /// Or opcode
+        void XOR(const CPUInstruction&);     /// Xor opcode
+        void NOR(const CPUInstruction&);     /// Nor opcode
+        void SLT(const CPUInstruction&);     /// SetOnLessThan opcode
+        void SLTU(const CPUInstruction&);    /// SetOnLessThanUnsigned opcode
     
         /**
          * base instruction handler map
@@ -172,6 +172,63 @@ namespace PSX
         };
 
         /**
+         * @brief registers names and their purposes 
+         */
+        enum RegisterName
+        {
+            Zero = 0,
+            AssemblerTemporary = 1,
+            Value0 = 2,
+            Value1 = 3,
+            Value3 = 4,
+            Argument0 = 5,
+            Argument1 = 6,
+            Argument2 = 7,
+            Temp0 = 8,
+            Temp1 = 9,
+            Temp2 = 10,
+            Temp3 = 11,
+            Temp4 = 12,
+            Temp5 = 13,
+            Temp6 = 14,
+            Temp7 = 15,
+            Temp8 = 16,
+            Temp9 = 17,
+            SubVariable0 = 18,
+            SubVariable1 = 19,
+            SubVariable2 = 20,
+            SubVariable3 = 21,
+            SubVariable4 = 22,
+            SubVariable5 = 23,
+            SubVariable6 = 24,
+            SubVariable7 = 25,
+            Interrupt0 = 26,
+            Interrupt1 = 27,
+            GlobalPointer = 28,
+            StackPointer = 29,
+            FramePointer = 30,
+            ReturnAddress = 31
+        };
+
+        /**
+         * @brief structure for keeping track of load delays when setting a register 
+         */
+        struct LoadDelaySlot
+        {
+            u32 register_id;
+            u32 value;
+        };
+
+        /**
+         * @brief enumeration for indexing load delay slots
+         */
+        enum LoadDelaySlotIndex
+        {
+            Current = 0,
+            Next    = 1
+        };
+
+        /**
          * @brief set program counter to a specific address
          */
         void set_program_counter(u32 address);
@@ -196,24 +253,6 @@ namespace PSX
          */
         void load_delay_slot(u32 register_id, u32 value);
 
-        /**
-         * @brief structure for keeping track of load delays when setting a register 
-         */
-        struct LoadDelaySlot
-        {
-            u32 register_id;
-            u32 value;
-        };
-
-        /**
-         * @brief enumeration for indexing load delay slots
-         */
-        enum LoadDelaySlotIndex
-        {
-            Current = 0,
-            Next    = 1
-        };
-
         std::shared_ptr<Bus> m_bus;  /// connection to the bus
 
         u32  m_program_counter;      /// pointer to the current instruction
@@ -229,6 +268,7 @@ namespace PSX
 
         static constexpr const u32 LoadDelaySlotEmptyRegister = 0;          /// delay slots that have register id set to 0 will be ignored
         static constexpr const u32 PCResetAddress             = 0xBFC00000; /// default reset address for program counter
+        static constexpr const u32 JumpFilter                 = 0xF0000000;
     };
 }
 
