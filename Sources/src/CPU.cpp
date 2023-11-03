@@ -58,7 +58,22 @@ namespace PSX
 
     void CPU::reset()
     {
-        TODO();
+        // set program counter to point to the bios
+        set_program_counter(PCResetAddress);
+
+        // reset register
+        for(auto& reg: m_register_field)
+            reg = 0;
+
+        m_register_high = 0;
+        m_register_low = 0;
+
+        // reset delays
+        m_branch_delay_active = false;
+
+        for(auto& delay_slot: m_load_delay_slots)
+            delay_slot = { LoadDelaySlotEmptyRegister, 0 };
+        
     }
 
     /**
