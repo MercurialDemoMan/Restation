@@ -41,6 +41,14 @@
 #include "Peripherals.hpp"
 #include "DMAController.hpp"
 #include "InterruptController.hpp"
+#include "Macros.hpp"
+
+#include <vector>
+#include <fstream>
+#include <iterator>
+#include <cstring>
+
+#include <fmt/core.h>
 
 namespace PSX
 {
@@ -53,6 +61,8 @@ namespace PSX
 
     void Bus::initialize_components()
     {
+        LOG("initializing all hardware components");
+
         m_cpu                  = std::make_shared<CPU>(shared_from_this());
         m_gpu                  = std::make_shared<GPU>(shared_from_this());
         m_spu                  = std::make_shared<SPU>(shared_from_this());
@@ -62,5 +72,34 @@ namespace PSX
         m_peripherals          = std::make_shared<Peripherals>(shared_from_this());
         m_dma_controller       = std::make_shared<DMAController>(shared_from_this());
         m_interrupt_controller = std::make_shared<InterruptController>(shared_from_this());
+
+        LOG("initialized all hardware components");
+    }
+
+    void Bus::meta_load_bios(const std::string& bios_path)
+    {
+        LOG(fmt::format("loading bios from {}", bios_path));
+
+        std::ifstream bios_file(bios_path, std::ios::binary);
+
+        if(!bios_file.is_open())
+        {
+            LOG_ERROR("bios file could not be opened");
+            return;
+        }
+
+        std::vector<u8> bios_file_contents((std::istreambuf_iterator<char>(bios_file)),
+                                            std::istreambuf_iterator<char>());
+        
+        
+        if(bios_file_contents.size() != BiosSize)
+        {
+            LOG_ERROR(fmt::format("bios file content does not have the correct size (correct size: {} Bytes)", BiosSize));
+            return;
+        }
+        
+        std::memcpy(m_bios.data(), bios_file_contents.data(), BiosSize);
+
+        LOG("bios loaded");
     }
 }

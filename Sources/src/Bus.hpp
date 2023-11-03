@@ -35,6 +35,7 @@
 #define BUS_HPP
 
 #include <array>
+#include <string>
 #include <memory>
 #include "Types.hpp"
 #include "Macros.hpp"
@@ -54,6 +55,11 @@ namespace PSX
          * @brief allocate bus and initialize all psx components
          */
         static std::shared_ptr<Bus> create();
+
+        /**
+         * @brief reads bios from file and loads it into the bios memory
+         */
+        void meta_load_bios(const std::string& bios_path);
 
     private:
 
