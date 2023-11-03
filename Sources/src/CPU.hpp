@@ -143,7 +143,6 @@ namespace PSX
         /**
          * base instruction handler map
          */
-
         typedef void(CPU::*OpcodeHandler)(const CPUInstruction&);
         OpcodeHandler m_base_handlers[64] =
         {
@@ -172,8 +171,64 @@ namespace PSX
             &CPU::UNK,  &CPU::UNK,   &CPU::UNK,  &CPU::UNK,  &CPU::UNK,     &CPU::UNK,   &CPU::UNK,  &CPU::UNK
         };
 
+        /**
+         * @brief set program counter to a specific address
+         */
+        void set_program_counter(u32 address);
+
+        /**
+         * @brief set register to a specific value 
+         */
+        void set_register(u32 register_id, u32 value);
+
+        /**
+         * @brief make jump and set status flag
+         */
+        void do_jump(u32 address);
+
+        /**
+         * @brief update the delay slots and move any queued registers to the register field
+         */
+        void update_load_delay_slots();
+
+        /**
+         * @brief queue up value to set a register 
+         */
+        void load_delay_slot(u32 register_id, u32 value);
+
+        /**
+         * @brief structure for keeping track of load delays when setting a register 
+         */
+        struct LoadDelaySlot
+        {
+            u32 register_id;
+            u32 value;
+        };
+
+        /**
+         * @brief enumeration for indexing load delay slots
+         */
+        enum LoadDelaySlotIndex
+        {
+            Current = 0,
+            Next    = 1
+        };
+
         std::shared_ptr<Bus> m_bus;  /// connection to the bus
 
+        u32  m_program_counter;      /// pointer to the current instruction
+        u32  m_program_counter_next; /// pointer to the next instruction
+        bool m_branch_delay_active;  /// are we delaying execution after taking branch?
+        bool m_branching;            /// are we currently branching?
+
+        u32  m_register_field[32];   /// array of general purpose registers
+        u32  m_register_high;        /// high register (used for storing multiplication and division results)
+        u32  m_register_low;         /// low register (used for storing multiplication and division results)
+
+        LoadDelaySlot m_load_delay_slots[2]; /// keep track for delays when trying to set register
+
+        static constexpr const u32 LoadDelaySlotEmptyRegister = 0;          /// delay slots that have register id set to 0 will be ignored
+        static constexpr const u32 PCResetAddress             = 0xBFC00000; /// default reset address for program counter
     };
 }
 

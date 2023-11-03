@@ -75,24 +75,62 @@ namespace PSX
      */
     void CPU::set_register(u32 register_id, u32 value)
     {
-        if(register_id == 0)
+        // ignore empty delay slot + 0 register
+        if(register_id == LoadDelaySlotEmptyRegister)
             return;
 
+        // set the register
         m_register_field[register_id] = value;
 
-        if(m_load_delay_slots[0].register_id == register_id)
-        {
-            TODO();
-        }
+        // if we set already queued register, reset the queued delay slot
+        if(m_load_delay_slots[LoadDelaySlotIndex::Current].register_id == register_id)
+            m_load_delay_slots[LoadDelaySlotIndex::Current].register_id = LoadDelaySlotEmptyRegister;
     }
 
     /**
-     * @brief make jump and set status flags
+     * @brief make jump and set status flag
      */
     void CPU::do_jump(u32 address)
     {
         m_program_counter_next = address;
         m_branching            = true;
+    }
+
+    /**
+     * @brief update the delay slots and move any queued registers to the register field
+     */
+    void CPU::update_load_delay_slots()
+    {
+        // ignore empty delay slot + 0 register
+        if(m_load_delay_slots[LoadDelaySlotIndex::Current].register_id != LoadDelaySlotEmptyRegister)
+        {
+            u32 current_register_id = m_load_delay_slots[LoadDelaySlotIndex::Current].register_id;
+            m_register_field[current_register_id] = m_load_delay_slots[LoadDelaySlotIndex::Current].value;
+        }
+
+        // move next delay slot to the current one
+        m_load_delay_slots[LoadDelaySlotIndex::Current] = m_load_delay_slots[LoadDelaySlotIndex::Next];
+        m_load_delay_slots[LoadDelaySlotIndex::Next].register_id = LoadDelaySlotEmptyRegister;
+    }
+
+    /**
+     * @brief queue up value to set a register 
+     */
+    void CPU::load_delay_slot(u32 register_id, u32 value)
+    {
+        // ignore empty delay slot + 0 register
+        if(register_id == LoadDelaySlotEmptyRegister)
+            return;
+
+        // if we are trying to set already queued register, reset the queued delay slot
+        if(register_id == m_load_delay_slots[LoadDelaySlotIndex::Current].register_id)
+            m_load_delay_slots[LoadDelaySlotIndex::Current].register_id = LoadDelaySlotEmptyRegister;
+
+        // queue the register value
+        m_load_delay_slots[LoadDelaySlotIndex::Next] = { 
+            register_id, 
+            value 
+        };
     }
     
     void CPU::UNK(const CPUInstruction&)
