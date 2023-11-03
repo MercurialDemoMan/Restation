@@ -41,9 +41,11 @@ namespace PSX
     /**
      * @brief Unknown opcode
      */
-    static std::string UNK(const CPUInstruction&)
+    static std::string UNK(const CPUInstruction& ins)
     {
-        return "UNK";
+        return fmt::format("UNK 0x{:08x}", 
+            ins.raw
+        );
     }
 
     /**
