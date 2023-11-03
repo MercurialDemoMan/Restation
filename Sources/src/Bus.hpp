@@ -34,6 +34,7 @@
 #ifndef BUS_HPP
 #define BUS_HPP
 
+#include <array>
 #include <memory>
 #include "Types.hpp"
 #include "Macros.hpp"
@@ -72,16 +73,6 @@ namespace PSX
          */
         void initialize_components();
 
-        std::shared_ptr<CPU>                 m_cpu;
-        std::shared_ptr<GPU>                 m_gpu;
-        std::shared_ptr<SPU>                 m_spu;
-        std::shared_ptr<MDEC>                m_mdec;
-        std::shared_ptr<CDROM>               m_cdrom;
-        std::shared_ptr<Timer>               m_timer;
-        std::shared_ptr<Peripherals>         m_peripherals;
-        std::shared_ptr<DMAController>       m_dma_controller;
-        std::shared_ptr<InterruptController> m_interrupt_controller;
-
         static constexpr const u32 RamBase          = 0x00000000;
         static constexpr const u32 ExpansionBase    = 0x1F000000;
         static constexpr const u32 ScratchpadBase   = 0x1F800000;
@@ -103,10 +94,10 @@ namespace PSX
         static constexpr const u32 BiosBase         = 0x1FC00000;
         static constexpr const u32 CacheControlBase = 0x1FFE0130;
         
-        static constexpr const u32 RamSize          = 2   * MiB;
-        static constexpr const u32 ExpansionSize    = 1   * MiB;
-        static constexpr const u32 ScratchpadSize   = 1   * KiB;
-        static constexpr const u32 IoSize           = 8   * KiB;
+        static constexpr const u32 RamSize          = 2 * MiB;
+        static constexpr const u32 ExpansionSize    = 1 * MiB;
+        static constexpr const u32 ScratchpadSize   = 1 * KiB;
+        static constexpr const u32 IoSize           = 8 * KiB;
         static constexpr const u32 MemControlSize   = 0x24;
         static constexpr const u32 PeripheralsSize  = 0x10;
         static constexpr const u32 SerialSize       = 0x10;
@@ -123,6 +114,21 @@ namespace PSX
         static constexpr const u32 Expansion2Size   = 0x2000;
         static constexpr const u32 BiosSize         = 512 * KiB;
         static constexpr const u32 CacheControlSize = 0x4;
+
+        std::shared_ptr<CPU>                 m_cpu;                  /// CPU Component
+        std::shared_ptr<GPU>                 m_gpu;                  /// GPU Component
+        std::shared_ptr<SPU>                 m_spu;                  /// SPU Component
+        std::shared_ptr<MDEC>                m_mdec;                 /// MDEC Component
+        std::shared_ptr<CDROM>               m_cdrom;                /// CDROM Component
+        std::shared_ptr<Timer>               m_timer;                /// Timer Component
+        std::shared_ptr<Peripherals>         m_peripherals;          /// Peripherals Component
+        std::shared_ptr<DMAController>       m_dma_controller;       /// DMA Controller
+        std::shared_ptr<InterruptController> m_interrupt_controller; /// InterruptController
+
+        std::array<u8, RamSize>        m_ram;        /// RAM memory
+        std::array<u8, BiosSize>       m_bios;       /// BIOS memory
+        std::array<u8, ScratchpadSize> m_scratchpad; /// Scratchpad memory
+        std::array<u8, ExpansionSize>  m_expansion;  /// Expansion memory
     };
 }
 
