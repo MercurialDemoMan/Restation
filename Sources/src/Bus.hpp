@@ -61,6 +61,11 @@ namespace PSX
          */
         void meta_load_bios(const std::string& bios_path);
 
+        /**
+         * execute all components for 1 clock cycle 
+         */
+        void execute();
+
     private:
 
         /**

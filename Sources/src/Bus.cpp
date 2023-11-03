@@ -76,6 +76,11 @@ namespace PSX
         LOG("initialized all hardware components");
     }
 
+    void Bus::execute()
+    {
+        m_cpu->execute(1);
+    }
+
     void Bus::meta_load_bios(const std::string& bios_path)
     {
         LOG(fmt::format("loading bios from {}", bios_path));
