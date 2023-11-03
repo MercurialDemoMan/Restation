@@ -150,47 +150,77 @@ namespace PSX
     
     void CPU::UNK(const CPUInstruction&)
     {
-        UNREACHABLE();
+        TODO();
     }
 
     void CPU::FUN(const CPUInstruction& ins)
     {
-        
+        (this->*m_extended_function_handlers[ins.function])(ins);
     }
 
-    void CPU::B(const CPUInstruction&)
+    void CPU::B(const CPUInstruction& ins)
     {
+        bool greater_and_equal = ins.register_target & 1;
+        bool is_link           = (ins.register_target & 0x1E) == 0x10;
+        bool condition         = false;
 
+        if(greater_and_equal)
+        {
+            condition = static_cast<s32>(m_register_field[ins.register_source]) >= 0;
+        }
+        else
+        {
+            condition = static_cast<s32>(m_register_field[ins.register_source]) < 0;
+        }
+
+        if(is_link)
+            set_register(RegisterName::ReturnAddress, m_program_counter_next);
+
+        m_branch_delay_active = true;
+
+        if(condition)
+            do_jump(m_program_counter + (ins.immediate_signed * 4));
     }
 
-    void CPU::J(const CPUInstruction&)
+    void CPU::J(const CPUInstruction& ins)
     {
-
+        m_branch_delay_active = true;
+        do_jump((m_program_counter_next & JumpFilter) | (ins.target * 4));
     }
 
-    void CPU::JAL(const CPUInstruction&)
+    void CPU::JAL(const CPUInstruction& ins)
     {
-
+        m_branch_delay_active = true;
+        set_register(RegisterName::ReturnAddress, m_program_counter_next);
+        do_jump((m_program_counter_next & JumpFilter) | (ins.target * 4));
     }
 
-    void CPU::BEQ(const CPUInstruction&)
+    void CPU::BEQ(const CPUInstruction& ins)
     {
-
+        m_branch_delay_active = true;
+        if(m_register_field[ins.register_source] == m_register_field[ins.register_target])
+            do_jump(m_program_counter + (ins.immediate_signed * 4));
     }
 
-    void CPU::BNE(const CPUInstruction&)
+    void CPU::BNE(const CPUInstruction& ins)
     {
-
+        m_branch_delay_active = true;
+        if(m_register_field[ins.register_source] != m_register_field[ins.register_target])
+            do_jump(m_program_counter + (ins.immediate_signed * 4));
     }
 
-    void CPU::BLEZ(const CPUInstruction&)
+    void CPU::BLEZ(const CPUInstruction& ins)
     {
-
+        m_branch_delay_active = true;
+        if(static_cast<s32>(m_register_field[ins.register_source]) <= 0)
+            do_jump(m_program_counter + (ins.immediate_signed * 4));
     }
 
-    void CPU::BGTZ(const CPUInstruction&)
+    void CPU::BGTZ(const CPUInstruction& ins)
     {
-
+        m_branch_delay_active = true;
+        if(static_cast<s32>(m_register_field[ins.register_source]) > 0)
+            do_jump(m_program_counter + (ins.immediate_signed * 4));
     }
 
     void CPU::ADDI(const CPUInstruction& ins)
