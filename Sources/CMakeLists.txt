@@ -32,6 +32,7 @@ add_executable(emu
     src/Timer.cpp
     src/Peripherals.cpp
     src/DMAController.cpp
+    src/CPUDisassembler.cpp
     src/InterruptController.cpp
     src/Bus.cpp)
 
