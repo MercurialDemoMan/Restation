@@ -254,9 +254,9 @@ namespace PSX
         TODO();
     }
 
-    void CPU::ADDIU(const CPUInstruction&)
+    void CPU::ADDIU(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_target, m_register_field[ins.register_source] + ins.immediate_signed);
     }
 
     void CPU::SLTI(const CPUInstruction&)
