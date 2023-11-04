@@ -61,7 +61,7 @@ namespace PSX
         // set program counter to point to the bios
         set_program_counter(PCResetAddress);
 
-        // reset register
+        // reset registers
         for(auto& reg: m_register_field)
             reg = 0;
 
