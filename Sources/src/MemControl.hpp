@@ -59,12 +59,13 @@ namespace PSX
 
         Register<u32> m_expansion1_base;
         Register<u32> m_expansion2_base;
-        Register<u32> m_expansion1_config;
-        Register<u32> m_expansion2_config;
-        Register<u32> m_expansion3_config;
-        Register<u32> m_bios_config;
-        Register<u32> m_spu_config;
-        Register<u32> m_cdrom_config;
+        Register<u32> m_expansion1_size;
+        Register<u32> m_expansion2_size;
+        Register<u32> m_expansion3_size;
+        Register<u32> m_bios_size;
+        Register<u32> m_spu_size;
+        Register<u32> m_cdrom_size;
+        Register<u32> m_common_delay;
         
     };
 }
