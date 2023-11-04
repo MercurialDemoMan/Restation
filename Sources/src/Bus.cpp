@@ -38,10 +38,11 @@
 #include "MDEC.hpp"
 #include "CDROM.hpp"
 #include "Timer.hpp"
-#include "RamControl.hpp"
-#include "MemControl.hpp"
 #include "Peripherals.hpp"
+#include "RamController.hpp"
+#include "MemController.hpp"
 #include "DMAController.hpp"
+#include "CacheController.hpp"
 #include "InterruptController.hpp"
 #include "Macros.hpp"
 
@@ -77,10 +78,11 @@ namespace PSX
         m_mdec                 = std::make_shared<MDEC>(shared_from_this());
         m_cdrom                = std::make_shared<CDROM>(shared_from_this());
         m_timer                = std::make_shared<Timer>(shared_from_this());
-        m_ram_control          = std::make_shared<RamControl>();
-        m_mem_control          = std::make_shared<MemControl>();
         m_peripherals          = std::make_shared<Peripherals>(shared_from_this());
+        m_ram_controller       = std::make_shared<RamController>();
+        m_mem_controller       = std::make_shared<MemController>();
         m_dma_controller       = std::make_shared<DMAController>(shared_from_this());
+        m_cache_controller     = std::make_shared<CacheController>();
         m_interrupt_controller = std::make_shared<InterruptController>(shared_from_this());
 
         LOG("initialized all hardware components");
@@ -138,12 +140,12 @@ namespace PSX
             // access MemControl
             case (MemControlBase) ... (MemControlBase + MemControlSize - 1):
             {
-                component_write<T>(m_mem_control, physical_address - MemControlBase, value); return;
+                component_write<T>(m_mem_controller, physical_address - MemControlBase, value); return;
             }
             // access RamControl
             case (RamControlBase) ... (RamControlBase + RamControlSize - 1):
             {
-                component_write<T>(m_ram_control, physical_address - RamControlBase, value); return;
+                component_write<T>(m_ram_controller, physical_address - RamControlBase, value); return;
             }
             default:
             {

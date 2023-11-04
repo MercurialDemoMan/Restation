@@ -1,5 +1,5 @@
 /**
- * @file      MemControl.cpp
+ * @file      MemController.cpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
@@ -31,11 +31,11 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#include "MemControl.hpp"
+#include "MemController.hpp"
 
 namespace PSX
 {
-    u32 MemControl::read(u32 address)
+    u32 MemController::read(u32 address)
     {
         switch(address)
         {
@@ -53,7 +53,7 @@ namespace PSX
         UNREACHABLE();
     }
 
-    void MemControl::write(u32 address, u32 value)
+    void MemController::write(u32 address, u32 value)
     {
         switch(address)
         {
@@ -71,7 +71,7 @@ namespace PSX
         UNREACHABLE();
     }
 
-    void MemControl::reset()
+    void MemController::reset()
     {
         m_expansion1_base = 0;
         m_expansion2_base = 0;

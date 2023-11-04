@@ -1,5 +1,5 @@
 /**
- * @file      RamControl.cpp
+ * @file      RamController.cpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
@@ -31,11 +31,11 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#include "RamControl.hpp"
+#include "RamController.hpp"
 
 namespace PSX
 {
-    u32 RamControl::read(u32 address)
+    u32 RamController::read(u32 address)
     {
         switch(address)
         {
@@ -45,7 +45,7 @@ namespace PSX
         UNREACHABLE();
     }
 
-    void RamControl::write(u32 address, u32 value)
+    void RamController::write(u32 address, u32 value)
     {
         switch(address)
         {
@@ -55,7 +55,7 @@ namespace PSX
         UNREACHABLE();
     }
 
-    void RamControl::reset()
+    void RamController::reset()
     {
         m_ram_size.raw() = 0x00000B88;
     }

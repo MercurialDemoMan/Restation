@@ -220,9 +220,9 @@ namespace PSX
         std::shared_ptr<MDEC>                m_mdec;                 /// MDEC Component
         std::shared_ptr<CDROM>               m_cdrom;                /// CDROM Component
         std::shared_ptr<Timer>               m_timer;                /// Timer Component
-        std::shared_ptr<RamControl>          m_ram_control;          /// RamControl Component
-        std::shared_ptr<MemControl>          m_mem_control;          /// MemControl Component
         std::shared_ptr<Peripherals>         m_peripherals;          /// Peripherals Component
+        std::shared_ptr<RamController>       m_ram_controller;       /// RamController Component
+        std::shared_ptr<MemController>       m_mem_controller;       /// MemController Component
         std::shared_ptr<DMAController>       m_dma_controller;       /// DMA Controller
         std::shared_ptr<CacheController>     m_cache_controller;     /// Cache Controller
         std::shared_ptr<InterruptController> m_interrupt_controller; /// InterruptController

@@ -1,5 +1,5 @@
 /**
- * @file      RamControl.hpp
+ * @file      RamController.hpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
@@ -31,24 +31,24 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef RAMCONTROL_HPP
-#define RAMCONTROL_HPP
+#ifndef RAMCONTROLLER_HPP
+#define RAMCONTROLLER_HPP
 
 #include "Component.hpp"
 #include "Utils.hpp"
 
 namespace PSX
 {
-    class RamControl final : public Component
+    class RamController final : public Component
     {
     public:
 
-        RamControl()
+        RamController()
         {
             reset();
         }
         
-        virtual ~RamControl() override = default;
+        virtual ~RamController() override = default;
 
         virtual void execute(u32) override {}
         virtual u32  read(u32 address) override;
@@ -62,4 +62,4 @@ namespace PSX
     };
 }
 
-#endif // RAMCONTROL_HPP
+#endif // RAMCONTROLLER_HPP

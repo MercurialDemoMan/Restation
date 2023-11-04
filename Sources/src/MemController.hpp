@@ -1,5 +1,5 @@
 /**
- * @file      MemControl.hpp
+ * @file      MemController.hpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
@@ -31,24 +31,24 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef MEMCONTROL_HPP
-#define MEMCONTROL_HPP
+#ifndef MEMCONTROLLER_HPP
+#define MEMCONTROLLER_HPP
 
 #include "Component.hpp"
 #include "Utils.hpp"
 
 namespace PSX
 {
-    class MemControl final : public Component
+    class MemController final : public Component
     {
     public:
 
-        MemControl()
+        MemController()
         {
             reset();
         }
         
-        virtual ~MemControl() override = default;
+        virtual ~MemController() override = default;
 
         virtual void execute(u32) override {}
         virtual u32  read(u32 address) override;
@@ -70,4 +70,4 @@ namespace PSX
     };
 }
 
-#endif // MEMCONTROL_HPP
+#endif // MEMCONTROLLER_HPP
