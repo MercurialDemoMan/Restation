@@ -44,12 +44,18 @@ namespace PSX
     {
         for(u32 _ = 0; _ < num_steps; _++)
         {
+            // get instruction from memory or icache
             auto ins = fetch_instruction(m_program_counter);
 
             LOG(fmt::format("0x{:08x} -> {}", m_program_counter, disassemble(ins)));
 
+            // move program counter to the next instruction
+            set_program_counter(m_program_counter_next);
+
+            // execute instruction
             (this->*m_base_handlers[ins.opcode])(ins);
 
+            // update register load delay slots
             update_load_delay_slots();
         }
     }
@@ -57,14 +63,14 @@ namespace PSX
     u32 CPU::read(u32 address)
     {
         MARK_UNUSED(address);
-        TODO();
+        UNREACHABLE();
     }
 
     void CPU::write(u32 address, u32 value)
     {
         MARK_UNUSED(address);
         MARK_UNUSED(value);
-        TODO();
+        UNREACHABLE();
     }
 
     void CPU::reset()
@@ -268,9 +274,9 @@ namespace PSX
         TODO();
     }
 
-    void CPU::ORI(const CPUInstruction&)
+    void CPU::ORI(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_target, m_register_field[ins.register_source] | ins.immediate);
     }
 
     void CPU::XORI(const CPUInstruction&)
@@ -278,9 +284,9 @@ namespace PSX
         TODO();
     }
 
-    void CPU::LUI(const CPUInstruction&)
+    void CPU::LUI(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_target, ins.immediate << 16);
     }
 
     void CPU::COP0(const CPUInstruction&)
@@ -353,9 +359,17 @@ namespace PSX
         TODO();
     }
 
-    void CPU::SW(const CPUInstruction&)
+    void CPU::SW(const CPUInstruction& ins)
     {
-        TODO();
+        u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
+
+        if(address & 0x0000'0003)
+        {
+            //TODO: unaligned address
+            TODO();
+        }
+
+        m_bus->dispatch_write<u32>(address, m_register_field[ins.register_target]);
     }
 
     void CPU::SWR(const CPUInstruction&)
