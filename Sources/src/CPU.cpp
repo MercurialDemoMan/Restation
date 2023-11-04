@@ -417,9 +417,9 @@ namespace PSX
         TODO();
     }
 
-    void CPU::SLL(const CPUInstruction&)
+    void CPU::SLL(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_destination, m_register_field[ins.register_target] << ins.shift);
     }
 
     void CPU::SRL(const CPUInstruction&)
