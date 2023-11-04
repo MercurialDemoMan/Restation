@@ -111,6 +111,18 @@ namespace PSX
             UNREACHABLE();
         }
 
+        /**
+         * @brief dispatch read to component
+         */
+        template<typename T>
+        T component_read(const std::shared_ptr<Component>& component, u32 address);
+
+        /**
+         * @brief dispatch write to component
+         */
+        template<typename T>
+        void component_write(const std::shared_ptr<Component>& component, u32 address, T value);
+
         static constexpr const u32 RamBase          = 0x00000000;
         static constexpr const u32 ExpansionBase    = 0x1F000000;
         static constexpr const u32 ScratchpadBase   = 0x1F800000;

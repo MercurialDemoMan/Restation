@@ -147,6 +147,69 @@ namespace PSX
     }
 
     /**
+     * @brief dispatch read to component
+     */
+    template<typename T>
+    T component_read(const std::shared_ptr<Component>& component, u32 address)
+    {
+        if constexpr (sizeof(T) == sizeof(u8))
+        {
+            return component->read(address);
+        }
+
+        if constexpr (sizeof(T) == sizeof(u16))
+        {
+            return (component->read(address + 0) << 0) |
+                   (component->read(address + 1) << 8);
+        }
+
+        if constexpr (sizeof(T) == sizeof(u32))
+        {
+            return (component->read(address + 0) <<  0) |
+                   (component->read(address + 1) <<  8) |
+                   (component->read(address + 2) << 16) |
+                   (component->read(address + 3) << 24);
+        }
+
+        UNREACHABLE();
+
+        return 0;
+    }
+
+    /**
+     * @brief dispatch write to component
+     */
+    template<typename T>
+    void component_write(const std::shared_ptr<Component>& component, u32 address, T value)
+    {
+        if constexpr (sizeof(T) == sizeof(u8))
+        {
+            component->write(address, value);
+            return;
+        }
+
+        if constexpr (sizeof(T) == sizeof(u16))
+        {
+            component->write(address + 0, static_cast<u8>((value >> 0) & 0xFF));
+            component->write(address + 1, static_cast<u8>((value >> 8) & 0xFF));
+            return;
+        }
+
+        if constexpr (sizeof(T) == sizeof(u32))
+        {
+            component->write(address + 0, static_cast<u8>((value >>  0) & 0xFF));
+            component->write(address + 1, static_cast<u8>((value >>  8) & 0xFF));
+            component->write(address + 2, static_cast<u8>((value >> 16) & 0xFF));
+            component->write(address + 3, static_cast<u8>((value >> 23) & 0xFF));
+            return;
+        }
+
+        UNREACHABLE();
+
+        return 0;
+    }
+
+    /**
      * @brief execute all components for 1 clock cycle 
      */
     void Bus::execute(u32 num_steps)
@@ -196,4 +259,10 @@ namespace PSX
     template void Bus::dispatch_write<u8>(u32 address, u8 value);
     template void Bus::dispatch_write<u16>(u32 address, u16 value);
     template void Bus::dispatch_write<u32>(u32 address, u32 value);
+    template u8 component_read<u8>(const std::shared_ptr<Component>& component, u32 address);
+    template u16 component_read<u16>(const std::shared_ptr<Component>& component, u32 address);
+    template u32 component_read<u32>(const std::shared_ptr<Component>& component, u32 address);
+    template void component_write<u8>(const std::shared_ptr<Component>& component, u32 address, u8 value);
+    template void component_write<u16>(const std::shared_ptr<Component>& component, u32 address, u16 value);
+    template void component_write<u32>(const std::shared_ptr<Component>& component, u32 address, u32 value);
 }
