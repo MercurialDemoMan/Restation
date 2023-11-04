@@ -115,13 +115,62 @@ namespace PSX
          * @brief dispatch read to component
          */
         template<typename T>
-        T component_read(const std::shared_ptr<Component>& component, u32 address);
+        T component_read(const std::shared_ptr<Component>& component, u32 address)
+        {
+            if constexpr (sizeof(T) == sizeof(u8))
+            {
+                return component->read(address);
+            }
+
+            if constexpr (sizeof(T) == sizeof(u16))
+            {
+                return (component->read(address + 0) << 0) |
+                    (component->read(address + 1) << 8);
+            }
+
+            if constexpr (sizeof(T) == sizeof(u32))
+            {
+                return (component->read(address + 0) <<  0) |
+                    (component->read(address + 1) <<  8) |
+                    (component->read(address + 2) << 16) |
+                    (component->read(address + 3) << 24);
+            }
+
+            UNREACHABLE();
+
+            return 0;
+        }
 
         /**
          * @brief dispatch write to component
          */
         template<typename T>
-        void component_write(const std::shared_ptr<Component>& component, u32 address, T value);
+        void component_write(const std::shared_ptr<Component>& component, u32 address, T value)
+        {
+            if constexpr (sizeof(T) == sizeof(u8))
+            {
+                component->write(address, value);
+                return;
+            }
+
+            if constexpr (sizeof(T) == sizeof(u16))
+            {
+                component->write(address + 0, static_cast<u8>((value >> 0) & 0xFF));
+                component->write(address + 1, static_cast<u8>((value >> 8) & 0xFF));
+                return;
+            }
+
+            if constexpr (sizeof(T) == sizeof(u32))
+            {
+                component->write(address + 0, static_cast<u8>((value >>  0) & 0xFF));
+                component->write(address + 1, static_cast<u8>((value >>  8) & 0xFF));
+                component->write(address + 2, static_cast<u8>((value >> 16) & 0xFF));
+                component->write(address + 3, static_cast<u8>((value >> 23) & 0xFF));
+                return;
+            }
+
+            UNREACHABLE();
+        }
 
         static constexpr const u32 RamBase          = 0x00000000;
         static constexpr const u32 ExpansionBase    = 0x1F000000;
