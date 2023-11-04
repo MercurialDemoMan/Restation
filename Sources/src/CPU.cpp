@@ -253,7 +253,14 @@ namespace PSX
 
     void CPU::ADDI(const CPUInstruction& ins)
     {
-        TODO();
+        u32 result = m_register_field[ins.register_source] + ins.immediate_signed;
+
+        if(check_overflow_add<u32>(m_register_field[ins.register_source], ins.immediate_signed, result))
+        {
+            TODO();
+        }
+
+        set_register(ins.register_target, result);
     }
 
     void CPU::ADDIU(const CPUInstruction& ins)
@@ -261,19 +268,19 @@ namespace PSX
         set_register(ins.register_target, m_register_field[ins.register_source] + ins.immediate_signed);
     }
 
-    void CPU::SLTI(const CPUInstruction&)
+    void CPU::SLTI(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_target, static_cast<s32>(m_register_field[ins.register_source]) < ins.immediate_signed);
     }
 
-    void CPU::SLTIU(const CPUInstruction&)
+    void CPU::SLTIU(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_target, m_register_field[ins.register_source] < ins.immediate);
     }
 
-    void CPU::ANDI(const CPUInstruction&)
+    void CPU::ANDI(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_target, m_register_field[ins.register_source] & ins.immediate);
     }
 
     void CPU::ORI(const CPUInstruction& ins)
@@ -281,9 +288,9 @@ namespace PSX
         set_register(ins.register_target, m_register_field[ins.register_source] | ins.immediate);
     }
 
-    void CPU::XORI(const CPUInstruction&)
+    void CPU::XORI(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_target, m_register_field[ins.register_source] ^ ins.immediate);
     }
 
     void CPU::LUI(const CPUInstruction& ins)

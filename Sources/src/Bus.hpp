@@ -125,15 +125,15 @@ namespace PSX
             if constexpr (sizeof(T) == sizeof(u16))
             {
                 return (component->read(address + 0) << 0) |
-                    (component->read(address + 1) << 8);
+                       (component->read(address + 1) << 8);
             }
 
             if constexpr (sizeof(T) == sizeof(u32))
             {
                 return (component->read(address + 0) <<  0) |
-                    (component->read(address + 1) <<  8) |
-                    (component->read(address + 2) << 16) |
-                    (component->read(address + 3) << 24);
+                       (component->read(address + 1) <<  8) |
+                       (component->read(address + 2) << 16) |
+                       (component->read(address + 3) << 24);
             }
 
             UNREACHABLE();

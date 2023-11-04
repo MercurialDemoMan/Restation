@@ -33,6 +33,8 @@
 
 #include "CacheController.hpp"
 
+#include <fmt/core.h>
+
 namespace PSX
 {
     u32 CacheController::read(u32 address)
@@ -49,6 +51,7 @@ namespace PSX
         {
             m_cache_config.raw() = value;
             //TODO: cpu cache enable?
+            return;
         }
 
         UNREACHABLE();

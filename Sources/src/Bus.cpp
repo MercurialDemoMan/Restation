@@ -137,15 +137,20 @@ namespace PSX
             {
                 m_bios.write<T>(physical_address - BiosBase, value); return;
             }
-            // access MemControl
+            // access MemController
             case (MemControlBase) ... (MemControlBase + MemControlSize - 1):
             {
                 component_write<T>(m_mem_controller, physical_address - MemControlBase, value); return;
             }
-            // access RamControl
+            // access RamController
             case (RamControlBase) ... (RamControlBase + RamControlSize - 1):
             {
                 component_write<T>(m_ram_controller, physical_address - RamControlBase, value); return;
+            }
+            // access CacheController
+            case (CacheControlBase) ... (CacheControlBase + CacheControlSize - 1):
+            {
+                m_cache_controller->write(physical_address - CacheControlBase, value); return;
             }
             default:
             {
