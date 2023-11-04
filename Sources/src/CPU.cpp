@@ -425,17 +425,36 @@ namespace PSX
 
     void CPU::SB(const CPUInstruction& ins)
     {
-        TODO();
+        u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
+        m_bus->dispatch_write<u8>(address, m_register_field[ins.register_target]);
     }
 
-    void CPU::SH(const CPUInstruction&)
+    void CPU::SH(const CPUInstruction& ins)
     {
-        TODO();
+        u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
+
+        if(address & 0x0000'0001)
+        {
+            // TODO: exception
+            TODO();
+        }
+
+        m_bus->dispatch_write<u16>(address, m_register_field[ins.register_target]);
     }
 
-    void CPU::SWL(const CPUInstruction&)
+    void CPU::SWL(const CPUInstruction& ins)
     {
-        TODO();
+        u32 address        = m_register_field[ins.register_source] + ins.immediate_signed;
+        u32 value          = m_bus->dispatch_read<u32>(address & 0xFFFFFFFC);
+        u32 register_value = m_register_field[ins.register_target];
+
+        switch(address % 4)
+        {
+            case 0: { m_bus->dispatch_write<u32>(address & 0xFFFFFFFC, (value & 0xFFFFFF00) | (register_value >> 24)); break; }
+            case 1: { m_bus->dispatch_write<u32>(address & 0xFFFFFFFC, (value & 0xFFFF0000) | (register_value >> 16)); break; }
+            case 2: { m_bus->dispatch_write<u32>(address & 0xFFFFFFFC, (value & 0xFF000000) | (register_value >>  8)); break; }
+            case 3: { m_bus->dispatch_write<u32>(address & 0xFFFFFFFC, (value & 0x00000000) | (register_value >>  0)); break; }
+        }
     }
 
     void CPU::SW(const CPUInstruction& ins)
@@ -451,9 +470,19 @@ namespace PSX
         m_bus->dispatch_write<u32>(address, m_register_field[ins.register_target]);
     }
 
-    void CPU::SWR(const CPUInstruction&)
+    void CPU::SWR(const CPUInstruction& ins)
     {
-        TODO();
+        u32 address        = m_register_field[ins.register_source] + ins.immediate_signed;
+        u32 value          = m_bus->dispatch_read<u32>(address & 0xFFFFFFFC);
+        u32 register_value = m_register_field[ins.register_target];
+
+        switch(address % 4)
+        {
+            case 0: { m_bus->dispatch_write<u32>(address & 0xFFFFFFFC, (value & 0x00000000) | (register_value <<  0)); break; }
+            case 1: { m_bus->dispatch_write<u32>(address & 0xFFFFFFFC, (value & 0x000000FF) | (register_value <<  8)); break; }
+            case 2: { m_bus->dispatch_write<u32>(address & 0xFFFFFFFC, (value & 0x0000FFFF) | (register_value << 16)); break; }
+            case 3: { m_bus->dispatch_write<u32>(address & 0xFFFFFFFC, (value & 0x00FFFFFF) | (register_value << 24)); break; }
+        }
     }
 
     void CPU::LWC0(const CPUInstruction&)
