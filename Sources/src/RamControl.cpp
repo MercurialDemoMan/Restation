@@ -1,10 +1,10 @@
 /**
- * @file      MemControl.hpp
+ * @file      RamControl.cpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Header for the PSX Memory Controller
+ * @brief     Implementation for the PSX RAM Controller
  *
  * @version   0.1
  *
@@ -31,42 +31,32 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef MEMCONTROL_HPP
-#define MEMCONTROL_HPP
-
-#include "Component.hpp"
-#include "Utils.hpp"
+#include "RamControl.hpp"
 
 namespace PSX
 {
-    class MemControl final : public Component
+    u32 RamControl::read(u32 address)
     {
-    public:
-
-        MemControl()
+        switch(address)
         {
-            reset();
+            case  0 ... 3: return m_ram_size.read(address);
         }
-        
-        virtual ~MemControl() override = default;
 
-        virtual void execute(u32) override {}
-        virtual u32  read(u32 address) override;
-        virtual void write(u32 address, u32 value) override;
-        virtual void reset() override;
+        UNREACHABLE();
+    }
 
-    private:
+    void RamControl::write(u32 address, u32 value)
+    {
+        switch(address)
+        {
+            case  0 ... 3: m_ram_size.write(address, static_cast<u8>(value)); return;
+        }
 
-        Register<u32> m_expansion1_base;
-        Register<u32> m_expansion2_base;
-        Register<u32> m_expansion1_config;
-        Register<u32> m_expansion2_config;
-        Register<u32> m_expansion3_config;
-        Register<u32> m_bios_config;
-        Register<u32> m_spu_config;
-        Register<u32> m_cdrom_config;
-        
-    };
+        UNREACHABLE();
+    }
+
+    void RamControl::reset()
+    {
+        m_ram_size.raw() = 0x00000B88;
+    }
 }
-
-#endif // MEMCONTROL_HPP

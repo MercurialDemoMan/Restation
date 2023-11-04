@@ -30,6 +30,7 @@ add_executable(emu
     src/MDEC.cpp
     src/CDROM.cpp
     src/Timer.cpp
+    src/RamControl.cpp
     src/MemControl.cpp
     src/Peripherals.cpp
     src/DMAController.cpp

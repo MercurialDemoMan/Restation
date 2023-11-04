@@ -38,6 +38,7 @@
 #include "MDEC.hpp"
 #include "CDROM.hpp"
 #include "Timer.hpp"
+#include "RamControl.hpp"
 #include "MemControl.hpp"
 #include "Peripherals.hpp"
 #include "DMAController.hpp"
@@ -76,6 +77,7 @@ namespace PSX
         m_mdec                 = std::make_shared<MDEC>(shared_from_this());
         m_cdrom                = std::make_shared<CDROM>(shared_from_this());
         m_timer                = std::make_shared<Timer>(shared_from_this());
+        m_ram_control          = std::make_shared<RamControl>();
         m_mem_control          = std::make_shared<MemControl>();
         m_peripherals          = std::make_shared<Peripherals>(shared_from_this());
         m_dma_controller       = std::make_shared<DMAController>(shared_from_this());
@@ -137,6 +139,11 @@ namespace PSX
             case (MemControlBase) ... (MemControlBase + MemControlSize - 1):
             {
                 component_write<T>(m_mem_control, physical_address - MemControlBase, value); return;
+            }
+            // access RamControl
+            case (RamControlBase) ... (RamControlBase + RamControlSize - 1):
+            {
+                component_write<T>(m_ram_control, physical_address - RamControlBase, value); return;
             }
             default:
             {

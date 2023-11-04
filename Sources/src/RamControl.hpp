@@ -1,14 +1,14 @@
 /**
- * @file      MemControl.hpp
+ * @file      RamControl.hpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Header for the PSX Memory Controller
+ * @brief     Header for the PSX Ram Controller
  *
  * @version   0.1
  *
- * @date      4. 11. 2023, 12:56 (created)
+ * @date      4. 11. 2023, 14:06 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -31,24 +31,24 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef MEMCONTROL_HPP
-#define MEMCONTROL_HPP
+#ifndef RAMCONTROL_HPP
+#define RAMCONTROL_HPP
 
 #include "Component.hpp"
 #include "Utils.hpp"
 
 namespace PSX
 {
-    class MemControl final : public Component
+    class RamControl final : public Component
     {
     public:
 
-        MemControl()
+        RamControl()
         {
             reset();
         }
         
-        virtual ~MemControl() override = default;
+        virtual ~RamControl() override = default;
 
         virtual void execute(u32) override {}
         virtual u32  read(u32 address) override;
@@ -57,16 +57,9 @@ namespace PSX
 
     private:
 
-        Register<u32> m_expansion1_base;
-        Register<u32> m_expansion2_base;
-        Register<u32> m_expansion1_config;
-        Register<u32> m_expansion2_config;
-        Register<u32> m_expansion3_config;
-        Register<u32> m_bios_config;
-        Register<u32> m_spu_config;
-        Register<u32> m_cdrom_config;
+        Register<u32> m_ram_size;
         
     };
 }
 
-#endif // MEMCONTROL_HPP
+#endif // RAMCONTROL_HPP

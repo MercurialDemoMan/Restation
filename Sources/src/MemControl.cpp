@@ -56,14 +56,14 @@ namespace PSX
     {
         switch(address)
         {
-            case  0 ...  3: return m_expansion1_base.write(address -  0, static_cast<u8>(value)); return;
-            case  4 ...  7: return m_expansion1_base.write(address -  4, static_cast<u8>(value)); return;
-            case  8 ... 11: return m_expansion1_base.write(address -  8, static_cast<u8>(value)); return;
-            case 12 ... 15: return m_expansion1_base.write(address - 12, static_cast<u8>(value)); return;
-            case 16 ... 19: return m_expansion1_base.write(address - 16, static_cast<u8>(value)); return;
-            case 20 ... 23: return m_expansion1_base.write(address - 20, static_cast<u8>(value)); return;
-            case 24 ... 27: return m_expansion1_base.write(address - 24, static_cast<u8>(value)); return;
-            case 28 ... 31: return m_expansion1_base.write(address - 28, static_cast<u8>(value)); return;
+            case  0 ...  3: m_expansion1_base.write(address -  0, static_cast<u8>(value)); return;
+            case  4 ...  7: m_expansion1_base.write(address -  4, static_cast<u8>(value)); return;
+            case  8 ... 11: m_expansion1_base.write(address -  8, static_cast<u8>(value)); return;
+            case 12 ... 15: m_expansion1_base.write(address - 12, static_cast<u8>(value)); return;
+            case 16 ... 19: m_expansion1_base.write(address - 16, static_cast<u8>(value)); return;
+            case 20 ... 23: m_expansion1_base.write(address - 20, static_cast<u8>(value)); return;
+            case 24 ... 27: m_expansion1_base.write(address - 24, static_cast<u8>(value)); return;
+            case 28 ... 31: m_expansion1_base.write(address - 28, static_cast<u8>(value)); return;
         }
 
         UNREACHABLE();
