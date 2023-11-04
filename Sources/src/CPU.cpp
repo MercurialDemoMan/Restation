@@ -530,29 +530,34 @@ namespace PSX
         set_register(ins.register_destination, m_register_field[ins.register_target] << ins.shift);
     }
 
-    void CPU::SRL(const CPUInstruction&)
+    void CPU::SRL(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_destination, 
+                     m_register_field[ins.register_target] >> ins.shift);
     }
 
-    void CPU::SRA(const CPUInstruction&)
+    void CPU::SRA(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_destination, 
+                     static_cast<s32>(m_register_field[ins.register_target]) >> ins.shift);
     }
 
-    void CPU::SLLV(const CPUInstruction&)
+    void CPU::SLLV(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_destination, 
+                     m_register_field[ins.register_target] << (m_register_field[ins.register_source] & 0b0001'1111));
     }
 
-    void CPU::SRLV(const CPUInstruction&)
+    void CPU::SRLV(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_destination, 
+                     m_register_field[ins.register_target] >> (m_register_field[ins.register_source] & 0b0001'1111));
     }
 
-    void CPU::SRAV(const CPUInstruction&)
+    void CPU::SRAV(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_destination, 
+                     static_cast<s32>(m_register_field[ins.register_target]) >> (m_register_field[ins.register_source] & 0b0001'1111));
     }
 
     void CPU::JR(const CPUInstruction&)
