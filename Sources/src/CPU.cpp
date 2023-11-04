@@ -257,6 +257,7 @@ namespace PSX
 
         if(check_overflow_add<u32>(m_register_field[ins.register_source], ins.immediate_signed, result))
         {
+            // TODO: exception
             TODO();
         }
 
@@ -318,42 +319,111 @@ namespace PSX
         TODO();
     }
 
-    void CPU::LB(const CPUInstruction&)
+    void CPU::LB(const CPUInstruction& ins)
     {
-        TODO();
+        u32 address   = m_register_field[ins.register_source] + ins.immediate_signed;
+        s8  read_byte = static_cast<s8>(m_bus->dispatch_read<u8>(address));
+        //                                   v - sign extend the byte here
+        load_delay_slot(ins.register_target, static_cast<s32>(read_byte));
     }
 
-    void CPU::LH(const CPUInstruction&)
+    void CPU::LH(const CPUInstruction& ins)
     {
-        TODO();
+        u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
+        if (address & 0x0000'0001)
+        {
+            //TODO: exception
+            TODO();
+        }
+
+        s16 read_half_word = static_cast<s16>(m_bus->dispatch_read<u16>(address));
+        //                                   v - sign extend the byte here
+        load_delay_slot(ins.register_target, static_cast<s32>(read_half_word));
     }
 
-    void CPU::LWL(const CPUInstruction&)
+    void CPU::LWL(const CPUInstruction& ins)
     {
-        TODO();
+        u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
+        u32 value   = m_bus->dispatch_read<u32>(address & 0xFFFFFFFC);
+
+        u32 register_value = 0;
+
+        if(m_load_delay_slots[LoadDelaySlotIndex::Current].register_id == ins.register_target)
+        {
+            register_value = m_load_delay_slots[LoadDelaySlotIndex::Current].value;
+        }
+        else
+        {
+            register_value = m_register_field[ins.register_target];
+        }
+
+        switch(address % 4)
+        {
+            case 0: { load_delay_slot(ins.register_target, (register_value & 0x00FFFFFF) | (value << 24)); break; }
+            case 1: { load_delay_slot(ins.register_target, (register_value & 0x0000FFFF) | (value << 16)); break; }
+            case 2: { load_delay_slot(ins.register_target, (register_value & 0x000000FF) | (value <<  8)); break; }
+            case 3: { load_delay_slot(ins.register_target, (register_value & 0x00000000) | (value <<  0)); break; }
+        }
     }
 
-    void CPU::LW(const CPUInstruction&)
+    void CPU::LW(const CPUInstruction& ins)
     {
-        TODO();
+        u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
+
+        if(address & 0x0000'0003)
+        {
+            // TODO: exception
+            TODO();
+        }
+
+        load_delay_slot(ins.register_target, m_bus->dispatch_read<u32>(address));
     }
 
-    void CPU::LBU(const CPUInstruction&)
+    void CPU::LBU(const CPUInstruction& ins)
     {
-        TODO();
+        u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
+        load_delay_slot(ins.register_target, m_bus->dispatch_read<u8>(address));
     }
 
-    void CPU::LHU(const CPUInstruction&)
+    void CPU::LHU(const CPUInstruction& ins)
     {
-        TODO();
+        u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
+
+        if(address & 0x0000'0001)
+        {
+            // TODO: exception
+            TODO();
+        }
+
+        load_delay_slot(ins.register_target, m_bus->dispatch_read<u16>(address));
     }
 
-    void CPU::LWR(const CPUInstruction&)
+    void CPU::LWR(const CPUInstruction& ins)
     {
-        TODO();
+        u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
+        u32 value   = m_bus->dispatch_read<u32>(address & 0xFFFFFFFC);
+
+        u32 register_value = 0;
+
+        if(m_load_delay_slots[LoadDelaySlotIndex::Current].register_id == ins.register_target)
+        {
+            register_value = m_load_delay_slots[LoadDelaySlotIndex::Current].value;
+        }
+        else
+        {
+            register_value = m_register_field[ins.register_target];
+        }
+
+        switch(address % 4)
+        {
+            case 0: { load_delay_slot(ins.register_target, (register_value & 0x00000000) | (value >>  0)); break; }
+            case 1: { load_delay_slot(ins.register_target, (register_value & 0xFF000000) | (value >>  8)); break; }
+            case 2: { load_delay_slot(ins.register_target, (register_value & 0xFFFF0000) | (value >> 16)); break; }
+            case 3: { load_delay_slot(ins.register_target, (register_value & 0xFFFFFF00) | (value >> 24)); break; }
+        }
     }
 
-    void CPU::SB(const CPUInstruction&)
+    void CPU::SB(const CPUInstruction& ins)
     {
         TODO();
     }
@@ -374,7 +444,7 @@ namespace PSX
 
         if(address & 0x0000'0003)
         {
-            //TODO: unaligned address
+            //TODO: exception
             TODO();
         }
 
