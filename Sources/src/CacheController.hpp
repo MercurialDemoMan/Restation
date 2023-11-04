@@ -1,14 +1,17 @@
 /**
- * @file      Forward.hpp
+ * @file      CacheControl.hpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Forward declaration of all PSX hardware components
+ * @brief     Header for the PSX Cache Controller
  *
  * @version   0.1
  *
- * @date      26. 10. 2023, 15:22 (created)
+ * @date      4. 11. 2023, 14:06 (created)
+ *
+ * @section   TODO: replace with actual documentation
+ * TODO: documentation text
  *
  * @section License
  * This file is part of the TODO: project \n
@@ -28,24 +31,35 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef FORWARD_HPP
-#define FORWARD_HPP
+#ifndef CACHECONTROLLER_HPP
+#define CACHECONTROLLER_HPP
+
+#include "Component.hpp"
+#include "Utils.hpp"
 
 namespace PSX
 {
-    class Bus;
-    class CPU;
-    class GPU;
-    class SPU;
-    class MDEC;
-    class CDROM;
-    class Timer;
-    class RamControl;
-    class MemControl;
-    class Peripherals;
-    class DMAController;
-    class CacheController;
-    class InterruptController;
+    class CacheController final : public Component
+    {
+    public:
+
+        CacheController()
+        {
+            reset();
+        }
+        
+        virtual ~CacheController() override = default;
+
+        virtual void execute(u32) override {}
+        virtual u32  read(u32 address) override;
+        virtual void write(u32 address, u32 value) override;
+        virtual void reset() override;
+
+    private:
+
+        Register<u32> m_cache_config;
+        
+    };
 }
 
-#endif // FORWARD_HPP
+#endif // CACHECONTROLLER_HPP

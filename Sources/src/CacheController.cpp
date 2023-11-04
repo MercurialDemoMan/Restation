@@ -1,14 +1,17 @@
 /**
- * @file      Forward.hpp
+ * @file      CacheControl.cpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Forward declaration of all PSX hardware components
+ * @brief     Implementation for the PSX Cache Controller
  *
  * @version   0.1
  *
- * @date      26. 10. 2023, 15:22 (created)
+ * @date      4. 11. 2023, 12:56 (created)
+ *
+ * @section   TODO: replace with actual documentation
+ * TODO: documentation text
  *
  * @section License
  * This file is part of the TODO: project \n
@@ -28,24 +31,31 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef FORWARD_HPP
-#define FORWARD_HPP
+#include "CacheController.hpp"
 
 namespace PSX
 {
-    class Bus;
-    class CPU;
-    class GPU;
-    class SPU;
-    class MDEC;
-    class CDROM;
-    class Timer;
-    class RamControl;
-    class MemControl;
-    class Peripherals;
-    class DMAController;
-    class CacheController;
-    class InterruptController;
-}
+    u32 CacheController::read(u32 address)
+    {
+        if(address == 0)
+            return m_cache_config.raw();
+        
+        UNREACHABLE();
+    }
 
-#endif // FORWARD_HPP
+    void CacheController::write(u32 address, u32 value)
+    {
+        if(address == 0)
+        {
+            m_cache_config.raw() = value;
+            //TODO: cpu cache enable?
+        }
+
+        UNREACHABLE();
+    }
+
+    void CacheController::reset()
+    {
+        m_cache_config.raw() = 0;
+    }
+}

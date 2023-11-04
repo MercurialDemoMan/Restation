@@ -224,6 +224,7 @@ namespace PSX
         std::shared_ptr<MemControl>          m_mem_control;          /// MemControl Component
         std::shared_ptr<Peripherals>         m_peripherals;          /// Peripherals Component
         std::shared_ptr<DMAController>       m_dma_controller;       /// DMA Controller
+        std::shared_ptr<CacheController>     m_cache_controller;     /// Cache Controller
         std::shared_ptr<InterruptController> m_interrupt_controller; /// InterruptController
 
         MemoryRegion<RamSize>        m_ram;        /// RAM memory

@@ -34,6 +34,7 @@ add_executable(emu
     src/MemControl.cpp
     src/Peripherals.cpp
     src/DMAController.cpp
+    src/CacheController.cpp
     src/CPUDisassembler.cpp
     src/InterruptController.cpp
     src/Bus.cpp)
