@@ -73,7 +73,7 @@ namespace PSX
                 UNREACHABLE();
             }
 
-            return reinterpret_cast<T*>(m_storage)[address / sizeof(T)];
+            return reinterpret_cast<const T*>(m_storage)[address / sizeof(T)];
         }
 
         /**
@@ -88,6 +88,14 @@ namespace PSX
             }
 
             reinterpret_cast<T*>(m_storage)[address / sizeof(T)] = value;
+        }
+
+        /**
+         * @brief get pointer to the storage
+         */
+        void* data()
+        {
+            return m_storage;
         }
 
     private:
