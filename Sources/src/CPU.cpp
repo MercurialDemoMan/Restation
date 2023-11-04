@@ -176,8 +176,9 @@ namespace PSX
         return CPUInstruction(m_bus->dispatch_read<u32>(address));
     }
     
-    void CPU::UNK(const CPUInstruction&)
+    void CPU::UNK(const CPUInstruction& ins)
     {
+        MARK_UNUSED(ins);
         TODO();
     }
 
@@ -299,23 +300,27 @@ namespace PSX
         set_register(ins.register_target, ins.immediate << 16);
     }
 
-    void CPU::COP0(const CPUInstruction&)
+    void CPU::COP0(const CPUInstruction& ins)
     {
+        MARK_UNUSED(ins);
         TODO();
     }
 
-    void CPU::COP1(const CPUInstruction&)
+    void CPU::COP1(const CPUInstruction& ins)
     {
+        MARK_UNUSED(ins);
         TODO();
     }
 
-    void CPU::COP2(const CPUInstruction&)
+    void CPU::COP2(const CPUInstruction& ins)
     {
+        MARK_UNUSED(ins);
         TODO();
     }
 
-    void CPU::COP3(const CPUInstruction&)
+    void CPU::COP3(const CPUInstruction& ins)
     {
+        MARK_UNUSED(ins);
         TODO();
     }
 
@@ -485,43 +490,51 @@ namespace PSX
         }
     }
 
-    void CPU::LWC0(const CPUInstruction&)
+    void CPU::LWC0(const CPUInstruction& ins)
     {
+        MARK_UNUSED(ins);
         TODO();
     }
 
-    void CPU::LWC1(const CPUInstruction&)
+    void CPU::LWC1(const CPUInstruction& ins)
     {
+        MARK_UNUSED(ins);
         TODO();
     }
 
-    void CPU::LWC2(const CPUInstruction&)
+    void CPU::LWC2(const CPUInstruction& ins)
     {
+        MARK_UNUSED(ins);
         TODO();
     }
 
-    void CPU::LWC3(const CPUInstruction&)
+    void CPU::LWC3(const CPUInstruction& ins)
     {
+        MARK_UNUSED(ins);
         TODO();
     }
 
-    void CPU::SWC0(const CPUInstruction&)
+    void CPU::SWC0(const CPUInstruction& ins)
     {
+        MARK_UNUSED(ins);
         TODO();
     }
 
-    void CPU::SWC1(const CPUInstruction&)
+    void CPU::SWC1(const CPUInstruction& ins)
     {
+        MARK_UNUSED(ins);
         TODO();
     }
 
-    void CPU::SWC2(const CPUInstruction&)
+    void CPU::SWC2(const CPUInstruction& ins)
     {
+        MARK_UNUSED(ins);
         TODO();
     }
 
-    void CPU::SWC3(const CPUInstruction&)
+    void CPU::SWC3(const CPUInstruction& ins)
     {
+        MARK_UNUSED(ins);
         TODO();
     }
 
@@ -560,113 +573,198 @@ namespace PSX
                      static_cast<s32>(m_register_field[ins.register_target]) >> (m_register_field[ins.register_source] & 0b0001'1111));
     }
 
-    void CPU::JR(const CPUInstruction&)
+    void CPU::JR(const CPUInstruction& ins)
     {
+        m_branch_delay_active = true;
+        u32 address = m_register_field[ins.register_source];
+
+        if(address & 0x0000'0003)
+        {
+            // TODO: exception
+            TODO();
+        }
+
+        do_jump(address);
+    }
+
+    void CPU::JALR(const CPUInstruction& ins)
+    {
+        m_branch_delay_active = true;
+        u32 address = m_register_field[ins.register_source];
+        set_register(ins.register_destination, m_program_counter_next);
+
+        if(address & 0x0000'0003)
+        {
+            // TODO: exception
+            TODO();
+        }
+
+        do_jump(address);
+    }
+
+    void CPU::SYSCALL(const CPUInstruction& ins)
+    {
+        MARK_UNUSED(ins);
         TODO();
     }
 
-    void CPU::JALR(const CPUInstruction&)
+    void CPU::BREAK(const CPUInstruction& ins)
     {
+        MARK_UNUSED(ins);
         TODO();
     }
 
-    void CPU::SYSCALL(const CPUInstruction&)
+    void CPU::MFHI(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_destination, m_register_high);
     }
 
-    void CPU::BREAK(const CPUInstruction&)
+    void CPU::MTHI(const CPUInstruction& ins)
     {
-        TODO();
+        m_register_high = m_register_field[ins.register_source];
     }
 
-    void CPU::MFHI(const CPUInstruction&)
+    void CPU::MFLO(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_destination, m_register_low);
     }
 
-    void CPU::MTHI(const CPUInstruction&)
+    void CPU::MTLO(const CPUInstruction& ins)
     {
-        TODO();
+        m_register_low = m_register_field[ins.register_source];
     }
 
-    void CPU::MFLO(const CPUInstruction&)
+    void CPU::MULT(const CPUInstruction& ins)
     {
-        TODO();
+        u64 result = static_cast<s64>(static_cast<s32>(m_register_field[ins.register_source])) *
+                     static_cast<s64>(static_cast<s32>(m_register_field[ins.register_target]));
+
+        m_register_low  = static_cast<u32>((result >>  0) & 0xFFFF'FFFF);
+        m_register_high = static_cast<u32>((result >> 32) & 0xFFFF'FFFF);
     }
 
-    void CPU::MTLO(const CPUInstruction&)
+    void CPU::MULTU(const CPUInstruction& ins)
     {
-        TODO();
+        u64 result = static_cast<u64>(m_register_field[ins.register_source]) *
+                     static_cast<u64>(m_register_field[ins.register_target]);
+
+        m_register_low  = static_cast<u32>((result >>  0) & 0xFFFF'FFFF);
+        m_register_high = static_cast<u32>((result >> 32) & 0xFFFF'FFFF);
     }
 
-    void CPU::MULT(const CPUInstruction&)
+    void CPU::DIV(const CPUInstruction& ins)
     {
-        TODO();
+        // denominator is 0
+        if(m_register_field[ins.register_target] == 0)
+        {
+            m_register_low  = static_cast<s32>(m_register_field[ins.register_source]) < 0 ? 1 : -1;
+            m_register_high = m_register_field[ins.register_source];
+            return;
+        }
+        // overflow
+        if(m_register_field[ins.register_source] == 0x8000'0000 && m_register_field[ins.register_target] == 0xFFFF'FFFF)
+        {
+            m_register_low  = 0x8000'0000;
+            m_register_high = 0; 
+            return;
+        }
+        // division
+        m_register_low  = static_cast<s32>(m_register_field[ins.register_source]) / 
+                          static_cast<s32>(m_register_field[ins.register_target]);
+        // modulo
+        m_register_high = static_cast<s32>(m_register_field[ins.register_source]) % 
+                          static_cast<s32>(m_register_field[ins.register_target]);
     }
 
-    void CPU::MULTU(const CPUInstruction&)
+    void CPU::DIVU(const CPUInstruction& ins)
     {
-        TODO();
+        // denominator is 0
+        if(m_register_field[ins.register_target] == 0)
+        {
+            m_register_low  = 0xFFFF'FFFF;
+            m_register_high = m_register_field[ins.register_source];
+            return;
+        }
+
+        // division
+        m_register_low  = m_register_field[ins.register_source] / 
+                          m_register_field[ins.register_target];
+        // modulo
+        m_register_high = m_register_field[ins.register_source] % 
+                          m_register_field[ins.register_target];                 
     }
 
-    void CPU::DIV(const CPUInstruction&)
+    void CPU::ADD(const CPUInstruction& ins)
     {
-        TODO();
+        u32 result = m_register_field[ins.register_source] + m_register_field[ins.register_target];
+
+        if(check_overflow_add<u32>(m_register_field[ins.register_source], m_register_field[ins.register_target], result))
+        {
+            // TODO: exception
+            TODO();
+        }
+
+        set_register(ins.register_destination, result);
     }
 
-    void CPU::DIVU(const CPUInstruction&)
+    void CPU::ADDU(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_destination, m_register_field[ins.register_source] + 
+                                               m_register_field[ins.register_target]);
     }
 
-    void CPU::ADD(const CPUInstruction&)
+    void CPU::SUB(const CPUInstruction& ins)
     {
-        TODO();
+        u32 result = m_register_field[ins.register_source] - m_register_field[ins.register_target];
+
+        if(check_underflow_sub<u32>(m_register_field[ins.register_source], m_register_field[ins.register_target], result))
+        {
+            // TODO: exception
+            TODO();
+        }
+
+        set_register(ins.register_destination, result);
     }
 
-    void CPU::ADDU(const CPUInstruction&)
+    void CPU::SUBU(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_destination, m_register_field[ins.register_source] + 
+                                               m_register_field[ins.register_target]);
     }
 
-    void CPU::SUB(const CPUInstruction&)
+    void CPU::AND(const CPUInstruction& ins)
     {
-        TODO();
-    }
-
-    void CPU::SUBU(const CPUInstruction&)
-    {
-        TODO();
-    }
-
-    void CPU::AND(const CPUInstruction&)
-    {
-        TODO();
+        set_register(ins.register_destination, m_register_field[ins.register_source] & 
+                                               m_register_field[ins.register_target]);
     }
 
     void CPU::OR(const CPUInstruction& ins)
     {
-        set_register(ins.register_destination, m_register_field[ins.register_source] | m_register_field[ins.register_target]);
+        set_register(ins.register_destination, m_register_field[ins.register_source] | 
+                                               m_register_field[ins.register_target]);
     }
 
-    void CPU::XOR(const CPUInstruction&)
+    void CPU::XOR(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_destination, m_register_field[ins.register_source] ^ 
+                                               m_register_field[ins.register_target]);
     }
 
-    void CPU::NOR(const CPUInstruction&)
+    void CPU::NOR(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_destination, ~(m_register_field[ins.register_source] | 
+                                                 m_register_field[ins.register_target]));
     }
 
-    void CPU::SLT(const CPUInstruction&)
+    void CPU::SLT(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_destination, static_cast<s32>(m_register_field[ins.register_source]) < 
+                                               static_cast<s32>(m_register_field[ins.register_target]));
     }
 
-    void CPU::SLTU(const CPUInstruction&)
+    void CPU::SLTU(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_destination, m_register_field[ins.register_source] < 
+                                               m_register_field[ins.register_target]);
     }
 }
