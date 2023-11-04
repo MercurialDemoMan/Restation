@@ -52,6 +52,9 @@
 
 namespace PSX
 {
+    /**
+     * @brief The core of the PSX. Its' main purpose is dispatching reads and writes.
+     */
     std::shared_ptr<Bus> Bus::create()
     {
         auto bus = std::shared_ptr<Bus>(new Bus());
@@ -59,6 +62,9 @@ namespace PSX
         return bus;
     }
 
+    /**
+     * @brief allocate all components and connect them together 
+     */
     void Bus::initialize_components()
     {
         LOG("initializing all hardware components");
@@ -76,15 +82,78 @@ namespace PSX
         LOG("initialized all hardware components");
     }
 
-    void Bus::execute()
+    /**
+     * @brief dispatch read to component or memory region according to memory map
+     */
+    template<typename T>
+    T Bus::dispatch_read(u32 address)
     {
-        m_cpu->execute(1);
+        // convert virtual address to physical
+        u32 physical_address = virtual_to_physical<T>(address);
+
+        switch(physical_address)
+        {
+            // access RAM
+            case (RamBase) ... (RamBase + RamSize * 4 - 1):
+            {
+                return m_ram.read<T>((physical_address - RamBase) % RamSize);
+            }
+            // access BIOS
+            case (BiosBase) ... (BiosBase + BiosSize - 1):
+            {
+                return m_bios.read<T>(physical_address - BiosBase);
+            }
+            default:
+            {
+                TODO();
+            }
+        }
     }
 
+    /**
+     * @brief dispatch write to component or memory region according to memory map
+     */
+    template<typename T>
+    void Bus::dispatch_write(u32 address, T value)
+    {
+        // convert virtual address to physical
+        u32 physical_address = virtual_to_physical<T>(address);
+
+        switch(physical_address)
+        {
+            // access RAM
+            case (RamBase) ... (RamBase + RamSize * 4 - 1):
+            {
+                m_ram.write<T>((physical_address - RamBase) % RamSize, value); return;
+            }
+            // access BIOS
+            case (BiosBase) ... (BiosBase + BiosSize - 1):
+            {
+                m_bios.write<T>(physical_address - BiosBase, value); return;
+            }
+            default:
+            {
+                TODO();
+            }
+        }
+    }
+
+    /**
+     * @brief execute all components for 1 clock cycle 
+     */
+    void Bus::execute(u32 num_steps)
+    {
+        m_cpu->execute(num_steps);
+    }
+
+    /**
+     * @brief reads bios from file and loads it into the bios memory
+     */
     void Bus::meta_load_bios(const std::string& bios_path)
     {
         LOG(fmt::format("loading bios from {}", bios_path));
 
+        // open bios file
         std::ifstream bios_file(bios_path, std::ios::binary);
 
         if(!bios_file.is_open())
@@ -93,18 +162,30 @@ namespace PSX
             return;
         }
 
+        // read file contents
         std::vector<u8> bios_file_contents((std::istreambuf_iterator<char>(bios_file)),
                                             std::istreambuf_iterator<char>());
         
-        
+        // do basic check TODO: checksum?
         if(bios_file_contents.size() != BiosSize)
         {
             LOG_ERROR(fmt::format("bios file content does not have the correct size (correct size: {} Bytes)", BiosSize));
             return;
         }
         
+        // initialize bios
         std::memcpy(m_bios.data(), bios_file_contents.data(), BiosSize);
 
         LOG("bios loaded");
     }
+
+    /**
+     * instantiate templated arguments 
+     */
+    template u8 Bus::dispatch_read<u8>(u32 address);
+    template u16 Bus::dispatch_read<u16>(u32 address);
+    template u32 Bus::dispatch_read<u32>(u32 address);
+    template void Bus::dispatch_write<u8>(u32 address, u8 value);
+    template void Bus::dispatch_write<u16>(u32 address, u16 value);
+    template void Bus::dispatch_write<u32>(u32 address, u32 value);
 }

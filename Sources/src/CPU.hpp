@@ -253,6 +253,11 @@ namespace PSX
          */
         void load_delay_slot(u32 register_id, u32 value);
 
+        /**
+         * @brief fetch instruction from memory
+         */
+        CPUInstruction fetch_instruction(u32 address);
+
         std::shared_ptr<Bus> m_bus;  /// connection to the bus
 
         u32  m_program_counter;      /// pointer to the current instruction
@@ -266,9 +271,9 @@ namespace PSX
 
         LoadDelaySlot m_load_delay_slots[2]; /// keep track for delays when trying to set register
 
-        static constexpr const u32 LoadDelaySlotEmptyRegister = 0;          /// delay slots that have register id set to 0 will be ignored
-        static constexpr const u32 PCResetAddress             = 0xBFC00000; /// default reset address for program counter
-        static constexpr const u32 JumpFilter                 = 0xF0000000;
+        static constexpr const u32 LoadDelaySlotEmptyRegister = 0;           /// delay slots that have register id set to 0 will be ignored
+        static constexpr const u32 PCResetAddress             = 0xBFC0'0000; /// default reset address for program counter
+        static constexpr const u32 JumpFilter                 = 0xF000'0000;
     };
 }
 

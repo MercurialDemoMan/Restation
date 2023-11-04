@@ -40,6 +40,8 @@
 #include "Types.hpp"
 #include "Macros.hpp"
 #include "Constants.hpp"
+#include "Component.hpp"
+#include "MemoryRegion.hpp"
 #include "Forward.hpp"
 
 namespace PSX
@@ -62,9 +64,21 @@ namespace PSX
         void meta_load_bios(const std::string& bios_path);
 
         /**
-         * execute all components for 1 clock cycle 
+         * @brief execute all components for 1 clock cycle 
          */
-        void execute();
+        void execute(u32 num_steps);
+
+        /**
+         * @brief dispatch read to component or memory region according to memory map
+         */
+        template<typename T>
+        T dispatch_read(u32 address);
+
+        /**
+         * @brief dispatch write to component or memory region according to memory map
+         */
+        template<typename T>
+        void dispatch_write(u32 address, T value);
 
     private:
 
@@ -83,6 +97,19 @@ namespace PSX
          * @brief allocate all components and connect them together 
          */
         void initialize_components();
+
+        /**
+         * @brief convert virtual address to physical 
+         */
+        template<typename T>
+        u32 virtual_to_physical(u32 virtual_address)
+        {
+            if constexpr (sizeof(T) == sizeof(u8))  return virtual_address & 0x1FFFFFFF;
+            if constexpr (sizeof(T) == sizeof(u16)) return virtual_address & 0x1FFFFFFE;
+            if constexpr (sizeof(T) == sizeof(u32)) return virtual_address & 0x1FFFFFFC;
+
+            UNREACHABLE();
+        }
 
         static constexpr const u32 RamBase          = 0x00000000;
         static constexpr const u32 ExpansionBase    = 0x1F000000;
@@ -136,10 +163,10 @@ namespace PSX
         std::shared_ptr<DMAController>       m_dma_controller;       /// DMA Controller
         std::shared_ptr<InterruptController> m_interrupt_controller; /// InterruptController
 
-        std::array<u8, RamSize>        m_ram;        /// RAM memory
-        std::array<u8, BiosSize>       m_bios;       /// BIOS memory
-        std::array<u8, ScratchpadSize> m_scratchpad; /// Scratchpad memory
-        std::array<u8, ExpansionSize>  m_expansion;  /// Expansion memory
+        MemoryRegion<RamSize>        m_ram;        /// RAM memory
+        MemoryRegion<BiosSize>       m_bios;       /// BIOS memory
+        MemoryRegion<ScratchpadSize> m_scratchpad; /// Scratchpad memory
+        MemoryRegion<ExpansionSize>  m_expansion;  /// Expansion memory
     };
 }
 
