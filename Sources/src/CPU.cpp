@@ -47,7 +47,9 @@ namespace PSX
             // get instruction from memory or icache
             auto ins = fetch_instruction(m_program_counter);
 
-            LOG(fmt::format("0x{:08x} -> {}", m_program_counter, disassemble(ins)));
+            static u32 counter = 0;
+
+            LOG(fmt::format("{}, 0x{:08x} -> {} = 0x{:08x}", counter++, m_program_counter, disassemble(ins), ins.raw));
 
             // move program counter to the next instruction
             set_program_counter(m_program_counter_next);
@@ -532,9 +534,9 @@ namespace PSX
         TODO();
     }
 
-    void CPU::OR(const CPUInstruction&)
+    void CPU::OR(const CPUInstruction& ins)
     {
-        TODO();
+        set_register(ins.register_destination, m_register_field[ins.register_source] | m_register_field[ins.register_target]);
     }
 
     void CPU::XOR(const CPUInstruction&)
