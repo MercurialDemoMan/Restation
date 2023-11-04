@@ -844,7 +844,7 @@ namespace PSX
     {
         if(instruction.opcode == static_cast<u32>(BaseOpcode::ExtendedFunction))
         {
-            return extended_function_to_string[instruction.opcode](instruction);
+            return extended_function_to_string[instruction.function](instruction);
         }
         else
         {
