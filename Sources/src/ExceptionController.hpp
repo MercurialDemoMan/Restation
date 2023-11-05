@@ -79,6 +79,11 @@ namespace PSX
         virtual void write(u32 address, u32 value) override;
         virtual void reset() override;
 
+        /**
+         * @brief update history of exceptions
+         */
+        void return_from_exception();
+
     private:
 
         /**

@@ -92,4 +92,15 @@ namespace PSX
         m_epc       = 0;
         m_prid      = 2;
     }
+
+    /**
+     * @brief update history of exceptions
+     */
+    void ExceptionController::return_from_exception()
+    {
+        m_sr.current_interrupt_enable   = m_sr.previous_interrupt_disable;
+        m_sr.current_execution_mode     = m_sr.previous_execution_mode;
+        m_sr.previous_interrupt_disable = m_sr.old_interrupt_disable;
+        m_sr.previous_execution_mode    = m_sr.old_execution_mode;
+    }
 }
