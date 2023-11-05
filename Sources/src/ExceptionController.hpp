@@ -121,6 +121,38 @@ namespace PSX
          */
         union SR
         {
+            struct
+            {
+                u32 current_interrupt_enable: 1;
+                u32 current_execution_mode: 1;
+                u32 previous_interrupt_disable: 1;
+                u32 previous_execution_mode: 1;
+                u32 old_interrupt_disable: 1;
+                u32 old_execution_mode: 1;
+
+                u32: 2;
+
+                u32 interrupt_mask: 8;
+                u32 isolate_cache: 1;
+                u32 swapped_cache: 1;
+                u32 write_zero_as_parity_bits: 1;
+                u32 d_cache_contained_data: 1;
+                u32 cache_parity_error: 1;
+                u32 tlb_shutdown: 1;
+                u32 boot_exception_vectors: 1;
+                
+                u32: 2;
+
+                u32 reverse_endianness; /// doesn't exist in psx
+
+                u32: 2;
+
+                u32 cop0_enable: 1;
+                u32 cop1_enable: 1;
+                u32 cop2_enable: 1;
+                u32 cop3_enable: 1;
+            };
+
             u32 raw;
         };
 
