@@ -1,14 +1,14 @@
 /**
- * @file      MemController.hpp
+ * @file      IOPorts.hpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Header for the PSX Memory Controller
+ * @brief     Header for the PSX IO Ports
  *
  * @version   0.1
  *
- * @date      4. 11. 2023, 12:56 (created)
+ * @date      5. 11. 2023, 19:34 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -31,27 +31,26 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef MEMCONTROLLER_HPP
-#define MEMCONTROLLER_HPP
+#ifndef IOPORTS_HPP
+#define IOPORTS_HPP
 
 #include "Component.hpp"
-#include "Utils.hpp"
 
 namespace PSX
 {
     /**
-     * @brief PSX Memory controller 
+     * @brief PSX IO Ports
      */
-    class MemController final : public Component
+    class IOPorts final : public Component
     {
     public:
 
-        MemController()
+        IOPorts()
         {
             reset();
         }
         
-        virtual ~MemController() override = default;
+        virtual ~IOPorts() override = default;
 
         virtual void execute(u32) override {}
         virtual u32  read(u32 address) override;
@@ -60,17 +59,9 @@ namespace PSX
 
     private:
 
-        Register<u32> m_expansion1_base;
-        Register<u32> m_expansion2_base;
-        Register<u32> m_expansion1_size;
-        Register<u32> m_expansion2_size;
-        Register<u32> m_expansion3_size;
-        Register<u32> m_bios_size;
-        Register<u32> m_spu_size;
-        Register<u32> m_cdrom_size;
-        Register<u32> m_common_delay;
+
         
     };
 }
 
-#endif // MEMCONTROLLER_HPP
+#endif // IOPORTS_HPP

@@ -1,14 +1,14 @@
 /**
- * @file      RamController.hpp
+ * @file      IOPorts.cpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Header for the PSX Ram Controller
+ * @brief     Implementation of the PSX IO Ports
  *
  * @version   0.1
  *
- * @date      4. 11. 2023, 14:06 (created)
+ * @date      5. 11. 2023, 19:34 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -31,38 +31,22 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef RAMCONTROLLER_HPP
-#define RAMCONTROLLER_HPP
-
-#include "Component.hpp"
-#include "Utils.hpp"
+#include "IOPorts.hpp"
 
 namespace PSX
 {
-    /**
-     * @brief PSX Ram controller 
-     */
-    class RamController final : public Component
+    u32 IOPorts::read(u32)
     {
-    public:
+        return 0;
+    }
 
-        RamController()
-        {
-            reset();
-        }
+    void IOPorts::write(u32, u32)
+    {
+
+    }
+
+    void IOPorts::reset()
+    {
         
-        virtual ~RamController() override = default;
-
-        virtual void execute(u32) override {}
-        virtual u32  read(u32 address) override;
-        virtual void write(u32 address, u32 value) override;
-        virtual void reset() override;
-
-    private:
-
-        Register<u32> m_ram_size;
-        
-    };
+    }
 }
-
-#endif // RAMCONTROLLER_HPP
