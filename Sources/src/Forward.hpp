@@ -40,6 +40,7 @@ namespace PSX
     class MDEC;
     class CDROM;
     class Timer;
+    class IOPorts;
     class Peripherals;
     class RamController;
     class MemController;

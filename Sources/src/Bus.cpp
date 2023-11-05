@@ -38,6 +38,7 @@
 #include "MDEC.hpp"
 #include "CDROM.hpp"
 #include "Timer.hpp"
+#include "IOPorts.hpp"
 #include "Peripherals.hpp"
 #include "RamController.hpp"
 #include "MemController.hpp"
@@ -78,6 +79,7 @@ namespace PSX
         m_mdec                 = std::make_shared<MDEC>(shared_from_this());
         m_cdrom                = std::make_shared<CDROM>(shared_from_this());
         m_timer                = std::make_shared<Timer>(shared_from_this());
+        m_io_ports             = std::make_shared<IOPorts>();
         m_peripherals          = std::make_shared<Peripherals>(shared_from_this());
         m_ram_controller       = std::make_shared<RamController>();
         m_mem_controller       = std::make_shared<MemController>();
@@ -157,6 +159,11 @@ namespace PSX
             case (SpuBase) ... (SpuBase + SpuSize - 1):
             {
                 component_write<T>(m_spu, physical_address - SpuBase, value); return;
+            }
+            // access IO Ports
+            case (IOPortsBase) ... (IOPortsBase + IOPortsSize - 1):
+            {
+                component_write<T>(m_io_ports, physical_address - IOPortsBase, value); return;
             }
             default:
             {

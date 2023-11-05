@@ -175,7 +175,6 @@ namespace PSX
         static constexpr const u32 RamBase          = 0x00000000;
         static constexpr const u32 ExpansionBase    = 0x1F000000;
         static constexpr const u32 ScratchpadBase   = 0x1F800000;
-        static constexpr const u32 IoBase           = 0x1F801000;
         static constexpr const u32 MemControlBase   = 0x1F801000;
         static constexpr const u32 PeripheralsBase  = 0x1f801040;
         static constexpr const u32 SerialBase       = 0x1F801050;
@@ -189,14 +188,13 @@ namespace PSX
         static constexpr const u32 GpuBase          = 0x1F801810;
         static constexpr const u32 MdecBase         = 0x1F801820;
         static constexpr const u32 SpuBase          = 0x1F801C00;
-        static constexpr const u32 Expansion2Base   = 0x1F802000;
+        static constexpr const u32 IOPortsBase      = 0x1F802000;
         static constexpr const u32 BiosBase         = 0x1FC00000;
         static constexpr const u32 CacheControlBase = 0x1FFE0130;
         
         static constexpr const u32 RamSize          = 2 * MiB;
         static constexpr const u32 ExpansionSize    = 1 * MiB;
         static constexpr const u32 ScratchpadSize   = 1 * KiB;
-        static constexpr const u32 IoSize           = 8 * KiB;
         static constexpr const u32 MemControlSize   = 0x24;
         static constexpr const u32 PeripheralsSize  = 0x10;
         static constexpr const u32 SerialSize       = 0x10;
@@ -210,7 +208,7 @@ namespace PSX
         static constexpr const u32 GpuSize          = 0x8;
         static constexpr const u32 MdecSize         = 0x8;
         static constexpr const u32 SpuSize          = 0x400;
-        static constexpr const u32 Expansion2Size   = 0x2000;
+        static constexpr const u32 IOPortsSize      = 0x2000;
         static constexpr const u32 BiosSize         = 512 * KiB;
         static constexpr const u32 CacheControlSize = 0x4;
 
@@ -220,6 +218,7 @@ namespace PSX
         std::shared_ptr<MDEC>                m_mdec;                 /// MDEC Component
         std::shared_ptr<CDROM>               m_cdrom;                /// CDROM Component
         std::shared_ptr<Timer>               m_timer;                /// Timer Component
+        std::shared_ptr<IOPorts>             m_io_ports;             /// IOPorts Component
         std::shared_ptr<Peripherals>         m_peripherals;          /// Peripherals Component
         std::shared_ptr<RamController>       m_ram_controller;       /// RamController Component
         std::shared_ptr<MemController>       m_mem_controller;       /// MemController Component
