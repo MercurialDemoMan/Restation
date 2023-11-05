@@ -161,6 +161,26 @@ namespace PSX
          */
         union Cause
         {
+            struct
+            {
+                u32: 2;
+
+                u32 exception: 5; /// defined in the `Exception` enum
+
+                u32: 1;
+
+                u32 interrupt_pending: 8;
+
+                u32: 12;
+
+                u32 coprocessor_number: 2;
+
+                u32: 1; /// TODO: branch taken?
+
+                u32 branch_delay: 1;
+            };
+            
+
             u32 raw;
         };
 
