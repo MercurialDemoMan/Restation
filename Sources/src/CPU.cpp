@@ -273,6 +273,15 @@ namespace PSX
         return m_exception_controller->is_cache_isolated();
     }
 
+
+    /**
+     * @brief exception manager controller getter
+     */
+    std::shared_ptr<ExceptionController> CPU::exception_controller()
+    {
+        return m_exception_controller;
+    }
+
     void CPU::UNK(const CPUInstruction& ins)
     {
         MARK_UNUSED(ins);

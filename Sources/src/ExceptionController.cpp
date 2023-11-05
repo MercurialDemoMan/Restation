@@ -184,4 +184,12 @@ namespace PSX
     {
         return m_sr.isolate_cache;
     }
+
+    /**
+     * @brief interrupt controller wants to interrupt cpu 
+     */
+    void ExceptionController::set_interrupt_pending(u32 value)
+    {
+        m_cause.interrupt_pending = value;
+    }
 }

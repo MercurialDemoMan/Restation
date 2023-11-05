@@ -124,6 +124,11 @@ namespace PSX
          */
         bool is_cache_isolated() const;
 
+        /**
+         * @brief interrupt controller wants to interrupt cpu 
+         */
+        void set_interrupt_pending(u32 value);
+
     private:
 
         /**

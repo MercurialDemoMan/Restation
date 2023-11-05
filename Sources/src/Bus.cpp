@@ -85,7 +85,7 @@ namespace PSX
         m_mem_controller       = std::make_shared<MemController>();
         m_dma_controller       = std::make_shared<DMAController>(shared_from_this());
         m_cache_controller     = std::make_shared<CacheController>();
-        m_interrupt_controller = std::make_shared<InterruptController>(shared_from_this());
+        m_interrupt_controller = std::make_shared<InterruptController>(m_cpu->exception_controller());
 
         LOG("initialized all hardware components");
     }
@@ -179,6 +179,11 @@ namespace PSX
             case (ExpansionBase) ... (ExpansionBase + ExpansionSize - 1):
             {
                 m_expansion.write<T>(physical_address - ExpansionBase, value); return;
+            }
+            // access InterruptController
+            case (InterruptBase) ... (InterruptBase + InterruptSize - 1):
+            {
+                component_write<T>(m_interrupt_controller, physical_address - InterruptBase, value); return;
             }
             default:
             {

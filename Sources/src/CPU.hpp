@@ -68,6 +68,11 @@ namespace PSX
          */
         bool is_cache_isolated() const;
 
+        /**
+         * @brief exception manager controller getter
+         */
+        std::shared_ptr<ExceptionController> exception_controller();
+
     private:
 
         /**

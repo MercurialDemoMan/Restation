@@ -32,31 +32,66 @@
  */
 
 #include "InterruptController.hpp"
-#include "Bus.hpp"
+#include "ExceptionController.hpp"
+#include <fmt/core.h>
 
 namespace PSX
 {
     void InterruptController::execute(u32 num_steps)
     {
-        MARK_UNUSED(num_steps);
-        TODO();
+        m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 0b1111 : 0);
     }
 
     u32 InterruptController::read(u32 address)
     {
-        MARK_UNUSED(address);
-        TODO();
+        switch(address)
+        {
+            case 0 ... 1:
+            {
+                return m_status.read(address - 0);
+            }
+            case 4 ... 5:
+            {
+                return m_mask.read(address - 4);
+            }
+        }
+
+        UNREACHABLE();
     }
 
     void InterruptController::write(u32 address, u32 value)
     {
-        MARK_UNUSED(address);
-        MARK_UNUSED(value);
-        TODO();
+        switch(address)
+        {
+            case 0 ... 3:
+            {
+                m_status.write(address - 0, m_status.read(address - 0) & value);
+                execute(1);
+                return;
+            }
+
+            case 4 ... 7:
+            {
+                m_mask.write(address - 4, value);
+                execute(1);
+                return;
+            }
+        }
+
+        UNREACHABLE();
     }
 
     void InterruptController::reset()
     {
-        TODO();
+        m_status = 0;
+        m_mask   = 0;
+    }
+    
+    /**
+     * @brief check for queued up interrupt 
+     */
+    bool InterruptController::is_interrupt_pending()
+    {
+        return m_status.raw() & m_mask.raw();
     }
 }
