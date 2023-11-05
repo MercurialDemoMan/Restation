@@ -45,6 +45,7 @@ namespace PSX
     class MemController;
     class DMAController;
     class CacheController;
+    class ExceptionController;
     class InterruptController;
 }
 

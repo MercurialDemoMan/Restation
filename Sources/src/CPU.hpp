@@ -38,6 +38,7 @@
 #include "Component.hpp"
 #include "Forward.hpp"
 #include "CPUInstruction.hpp"
+#include "ExceptionController.hpp"
 
 namespace PSX
 {
@@ -52,6 +53,7 @@ namespace PSX
             m_bus(bus)
         {
             reset();
+            m_exception_controller.reset();
         }
 
         virtual ~CPU() override = default;
@@ -259,6 +261,8 @@ namespace PSX
         CPUInstruction fetch_instruction(u32 address);
 
         std::shared_ptr<Bus> m_bus;  /// connection to the bus
+
+        ExceptionController m_exception_controller; /// Coprocessor0
 
         u32  m_program_counter;      /// pointer to the current instruction
         u32  m_program_counter_next; /// pointer to the next instruction
