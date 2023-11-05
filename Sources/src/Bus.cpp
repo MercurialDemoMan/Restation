@@ -153,6 +153,11 @@ namespace PSX
             {
                 m_cache_controller->write(physical_address - CacheControlBase, value); return;
             }
+            // access SPU
+            case (SpuBase) ... (SpuBase + SpuSize - 1):
+            {
+                component_write<T>(m_spu, physical_address - SpuBase, value); return;
+            }
             default:
             {
                 LOG_ERROR(fmt::format("unknown bus address while dispatching write: 0x{:08x}", physical_address));
