@@ -86,6 +86,33 @@ namespace PSX
          */
         union DCIC
         {
+            struct
+            {
+                u32 any_break_hit: 1;
+                u32 bpc_code_break_hit: 1;
+                u32 bda_data_break_hit: 1;
+                u32 bda_data_read_break_hit: 1;
+                u32 bda_data_write_break_hit: 1;
+                u32 any_jump_break_hit: 1;
+
+                u32: 6;
+
+                u32 jump_redirections: 2;
+                u32 unknown: 2;
+
+                u32: 7;
+
+                u32 super_master_enable_1: 1;
+                u32 execution_breakpoint_enable: 1;
+                u32 data_access_breakpoint_enable: 1;
+                u32 break_on_data_read: 1;
+                u32 break_on_data_write: 1;
+                u32 break_on_any_jump: 1;
+                u32 master_enable_for_break_on_any_jump: 1;
+                u32 master_enable_for_breaks: 1;
+                u32 super_master_enable_2: 1;
+            };
+
             u32 raw;
         };
 
