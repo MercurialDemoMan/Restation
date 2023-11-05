@@ -61,6 +61,7 @@ namespace PSX
         {
             case 3:  { m_bpc = value;      return; }
             case 5:  { m_bda = value;      return; }
+            case 6:  {                     return; }
             case 7:  { m_dcic.raw = value; return; }
             case 9:  { m_bdam = value;     return; }
             case 11: { m_bdam = value;     return; }
@@ -70,7 +71,7 @@ namespace PSX
             {
                 m_cause.interrupt_pending &= 0b1111'1100; // TODO: potentially missunderstood
                 m_cause.interrupt_pending |= (value & 0b0011'0000'0000) >> 8;
-                break;
+                return;
             }
             case 14: { m_epc = value; return; }
         }
