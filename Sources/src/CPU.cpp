@@ -49,7 +49,7 @@ namespace PSX
 
             static u32 counter = 0;
 
-            LOG(fmt::format("{}, 0x{:08x} -> {} = 0x{:08x}", counter++, m_program_counter, disassemble(ins), ins.raw));
+            DEBUG_LOG(5, fmt::format("{}, 0x{:08x} -> {} = 0x{:08x}", counter++, m_program_counter, disassemble(ins), ins.raw));
 
             // move program counter to the next instruction
             set_program_counter(m_program_counter_next);
@@ -93,6 +93,16 @@ namespace PSX
         for(auto& delay_slot: m_load_delay_slots)
             delay_slot = { LoadDelaySlotEmptyRegister, 0 };
         
+        // reset exceptions
+        m_exception_controller->reset();
+    }
+
+    /**
+     * @brief allocate and initialize all coprocessors
+     */
+    void CPU::initialize_coprocessors()
+    {
+        m_exception_controller = std::make_shared<ExceptionController>();
     }
 
     /**
@@ -174,6 +184,14 @@ namespace PSX
     {
         //TODO: icache?
         return CPUInstruction(m_bus->dispatch_read<u32>(address));
+    }
+
+    /**
+     * @brief switch execution state to handling exceptions
+     */
+    void trigger_exception(Exception)
+    {
+        TODO();
     }
     
     void CPU::UNK(const CPUInstruction& ins)
@@ -302,8 +320,33 @@ namespace PSX
 
     void CPU::COP0(const CPUInstruction& ins)
     {
-        MARK_UNUSED(ins);
-        TODO();
+        switch(ins.register_source)
+        {
+            // read from cop0
+            case 0:
+            {
+                load_delay_slot(
+                    ins.register_target, 
+                    m_exception_controller->read(ins.register_destination)
+                );
+                break;
+            }
+
+            // write to cop0
+            case 4:
+            {
+                m_exception_controller->write(ins.register_destination, m_register_field[ins.register_target]);
+                break;
+            }
+
+            // return from exception
+            case 16:
+            {
+                m_exception_controller->return_from_exception();
+            }
+        }
+
+        UNREACHABLE();
     }
 
     void CPU::COP1(const CPUInstruction& ins)

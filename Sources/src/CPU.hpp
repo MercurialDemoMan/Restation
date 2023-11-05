@@ -52,8 +52,8 @@ namespace PSX
         CPU(const std::shared_ptr<Bus>& bus) :
             m_bus(bus)
         {
+            initialize_coprocessors();
             reset();
-            m_exception_controller->reset();
         }
 
         virtual ~CPU() override = default;
@@ -231,6 +231,11 @@ namespace PSX
         };
 
         /**
+         * @brief allocate and initialize all coprocessors
+         */
+        void initialize_coprocessors();
+
+        /**
          * @brief set program counter to a specific address
          */
         void set_program_counter(u32 address);
@@ -259,6 +264,11 @@ namespace PSX
          * @brief fetch instruction from memory
          */
         CPUInstruction fetch_instruction(u32 address);
+
+        /**
+         * @brief switch execution state to handling exceptions
+         */
+        void trigger_exception(Exception);
 
         std::shared_ptr<Bus> m_bus;                                  /// connection to the bus
         std::shared_ptr<ExceptionController> m_exception_controller; /// Coprocessor0
