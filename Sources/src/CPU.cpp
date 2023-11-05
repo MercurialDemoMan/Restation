@@ -222,7 +222,7 @@ namespace PSX
             "Overflow"
         };
 
-        LOG_DEBUG(6, fmt::format("exception triggered: {}", exception_name[exception_kind]));
+        LOG_DEBUG(6, fmt::format("exception triggered: {}", exception_name[static_cast<u32>(exception_kind)]));
 
         if(exception_kind == Exception::BadAddressLoad ||
            exception_kind == Exception::BadAddressStore)

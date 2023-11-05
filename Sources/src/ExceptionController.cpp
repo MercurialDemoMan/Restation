@@ -127,7 +127,7 @@ namespace PSX
      */
     void ExceptionController::set_exception_cause(Exception exception_kind)
     {
-        m_cause.exception = exception_kind;
+        m_cause.exception = static_cast<u32>(exception_kind);
     }
 
     /**

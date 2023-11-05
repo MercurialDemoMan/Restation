@@ -43,7 +43,7 @@ namespace PSX
     /**
      * @brief enumeration of all exception causes 
      */
-    enum Exception
+    enum class Exception
     {
         Interrupt           = 0,
         TLBModification     = 1, // not present in psx
