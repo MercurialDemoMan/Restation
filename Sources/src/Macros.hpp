@@ -73,6 +73,19 @@
     std::fprintf(stdout, "[\e[0;36minfo\e[0m]: %s\n", message_string.c_str()); \
 } while(0)
 
+#ifndef DEBUG_LOG_LEVEL
+#define DEBUG_LOG(level, message)
+#else
+#define DEBUG_LOG(level, message) do \
+{ \
+    if((level) <= DEBUG_LOG_LEVEL) \
+    { \
+        auto message_string = std::string(message); \
+        std::fprintf(stdout, "[\e[0;35mdebug\e[0m]: %s\n", message_string.c_str()); \
+    } \
+} while(0)
+#endif
+
 #define LOG_WARNING(message) do \
 { \
     auto message_string = std::string(message); \

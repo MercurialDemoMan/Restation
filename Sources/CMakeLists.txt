@@ -12,6 +12,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -ggdb")
 # set verbose compilers warnings
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
+# set debug logging verbosity
+add_compile_definitions(DEBUG_LOG_LEVEL=5)
+
 # add fmt to the project
 add_subdirectory(${CMAKE_SOURCE_DIR}/deps/fmt-10.1.1)
 
