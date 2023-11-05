@@ -107,7 +107,7 @@ namespace PSX
 
         for(auto& delay_slot: m_load_delay_slots)
             delay_slot = { LoadDelaySlotEmptyRegister, 0 };
-        
+
         // reset exceptions
         m_exception_controller->reset();
     }
@@ -197,7 +197,6 @@ namespace PSX
      */
     CPUInstruction CPU::fetch_instruction(u32 address)
     {
-        //TODO: icache?
         return CPUInstruction(m_bus->dispatch_read<u32>(address));
     }
 
@@ -266,6 +265,14 @@ namespace PSX
         set_program_counter(exception_handler_address);
     }
     
+    /**
+     * @brief checks whether the cpu cache is isolated by the exception status register
+     */
+    bool CPU::is_cache_isolated() const
+    {
+        return m_exception_controller->is_cache_isolated();
+    }
+
     void CPU::UNK(const CPUInstruction& ins)
     {
         MARK_UNUSED(ins);

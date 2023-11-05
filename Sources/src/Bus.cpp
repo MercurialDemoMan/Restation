@@ -111,6 +111,11 @@ namespace PSX
             {
                 return m_bios.read<T>(physical_address - BiosBase);
             }
+            // access Expansion
+            case (ExpansionBase) ... (ExpansionBase + ExpansionSize - 1):
+            {
+                return m_expansion.read<T>(physical_address - ExpansionBase);
+            }
             default:
             {
                 LOG_ERROR(fmt::format("unknown bus address while dispatching read: 0x{:08x}", physical_address));
@@ -125,6 +130,11 @@ namespace PSX
     template<typename T>
     void Bus::dispatch_write(u32 address, T value)
     {
+        // if cpu has isolated cache, it means writes should go into the cpu cache,
+        // but since we do not implement the cache, we let writes just fall through
+        if(m_cpu->is_cache_isolated())
+            return;
+
         // convert virtual address to physical
         u32 physical_address = virtual_to_physical<T>(address);
 
@@ -164,6 +174,11 @@ namespace PSX
             case (IOPortsBase) ... (IOPortsBase + IOPortsSize - 1):
             {
                 component_write<T>(m_io_ports, physical_address - IOPortsBase, value); return;
+            }
+            // access Expansion
+            case (ExpansionBase) ... (ExpansionBase + ExpansionSize - 1):
+            {
+                m_expansion.write<T>(physical_address - ExpansionBase, value); return;
             }
             default:
             {

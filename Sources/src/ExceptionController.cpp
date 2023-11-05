@@ -176,4 +176,12 @@ namespace PSX
         return (m_cause.interrupt_pending & m_sr.interrupt_mask) &&
                (m_sr.current_interrupt_enable);
     }
+
+    /**
+     * @brief check whether the cache is isolated 
+     */
+    bool ExceptionController::is_cache_isolated() const
+    {
+        return m_sr.isolate_cache;
+    }
 }

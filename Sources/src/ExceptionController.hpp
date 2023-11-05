@@ -119,6 +119,11 @@ namespace PSX
          */
         bool interrupt_pending() const;
 
+        /**
+         * @brief check whether the cache is isolated 
+         */
+        bool is_cache_isolated() const;
+
     private:
 
         /**
@@ -215,7 +220,7 @@ namespace PSX
 
                 u32 coprocessor_number: 2;
 
-                u32: 1; /// TODO: branch taken?
+                u32: 1;
 
                 u32 branch_delay: 1;
             };

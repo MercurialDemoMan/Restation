@@ -63,6 +63,11 @@ namespace PSX
         virtual void write(u32 address, u32 value) override;
         virtual void reset() override;
 
+        /**
+         * @brief checks whether the cpu cache is isolated by the exception status register
+         */
+        bool is_cache_isolated() const;
+
     private:
 
         /**
@@ -222,6 +227,15 @@ namespace PSX
         };
 
         /**
+         * @brief structure for keeping instruction cache line
+         */
+        struct CacheLine
+        {
+            u32 tag;
+            u32 value;
+        };
+
+        /**
          * @brief enumeration for indexing load delay slots
          */
         enum LoadDelaySlotIndex
@@ -297,6 +311,7 @@ namespace PSX
         static constexpr const u32 LoadDelaySlotEmptyRegister = 0;           /// delay slots that have register id set to 0 will be ignored
         static constexpr const u32 PCResetAddress             = 0xBFC0'0000; /// default reset address for program counter
         static constexpr const u32 JumpFilter                 = 0xF000'0000;
+        static constexpr const u32 CacheLineValidMask         = 0x8000'0000;
     };
 }
 
