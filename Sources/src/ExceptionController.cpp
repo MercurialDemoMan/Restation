@@ -35,23 +35,47 @@
 
 namespace PSX
 {
-    void ExceptionController::execute(u32 num_steps)
-    {
-        MARK_UNUSED(num_steps);
-        TODO();
-    }
-
     u32 ExceptionController::read(u32 address)
     {
-        MARK_UNUSED(address);
-        TODO();
+        switch(address)
+        {
+            case 3:  { return m_bpc; }
+            case 5:  { return m_bda; }
+            case 6:  { return m_jumpdest; }
+            case 7:  { return m_dcic.raw; }
+            case 8:  { return m_bad_vaddr; }
+            case 9:  { return m_bdam; }
+            case 11: { return m_bpcm; }
+            case 12: { return m_sr.raw; }
+            case 13: { return m_cause.raw; }
+            case 14: { return m_epc; }
+            case 15: { return m_prid; }
+        }
+
+        UNREACHABLE();
     }
 
     void ExceptionController::write(u32 address, u32 value)
     {
-        MARK_UNUSED(address);
-        MARK_UNUSED(value);
-        TODO();
+        switch(address)
+        {
+            case 3:  { m_bpc = value;      return; }
+            case 5:  { m_bda = value;      return; }
+            case 7:  { m_dcic.raw = value; return; }
+            case 9:  { m_bdam = value;     return; }
+            case 11: { m_bdam = value;     return; }
+            case 12: { m_sr.raw = value;   return; }
+            // cause is read only except for bits 8-9
+            case 13: 
+            {
+                m_cause.interrupt_pending &= 0b1111'1100; // TODO: potentially missunderstood
+                m_cause.interrupt_pending |= (value & 0b0011'0000'0000) >> 8;
+                break;
+            }
+            case 14: { m_epc = value; return; }
+        }
+
+        UNREACHABLE();
     }
 
     void ExceptionController::reset()
