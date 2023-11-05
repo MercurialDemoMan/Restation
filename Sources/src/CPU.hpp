@@ -268,7 +268,7 @@ namespace PSX
         /**
          * @brief switch execution state to handling exceptions
          */
-        void trigger_exception(Exception);
+        void trigger_exception(Exception, u32 address = 0);
 
         std::shared_ptr<Bus> m_bus;                                  /// connection to the bus
         std::shared_ptr<ExceptionController> m_exception_controller; /// Coprocessor0
@@ -277,6 +277,10 @@ namespace PSX
         u32  m_program_counter_next; /// pointer to the next instruction
         bool m_branch_delay_active;  /// are we delaying execution after taking branch?
         bool m_branching;            /// are we currently branching?
+
+        u32  m_exception_program_counter;     /// saving state of program counter for potential exception
+        bool m_exception_branch_delay_active; /// saving state of active branch delay for potential exception
+        bool m_exception_branching;           /// saving state of branching for potential exception
 
         u32  m_register_field[32];   /// array of general purpose registers
         u32  m_register_high;        /// high register (used for storing multiplication and division results)

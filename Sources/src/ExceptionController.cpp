@@ -103,4 +103,76 @@ namespace PSX
         m_sr.previous_interrupt_disable = m_sr.old_interrupt_disable;
         m_sr.previous_execution_mode    = m_sr.old_execution_mode;
     }
+
+    /**
+     * @brief set bad address on missaligned load or store 
+     */
+    void ExceptionController::set_bad_address(u32 address)
+    {
+        m_bad_vaddr = address;
+    }
+
+    /**
+     * @brief clear cop0r13 cause register 
+     */
+    void ExceptionController::prepare_for_exception()
+    {
+        // clear everything except the pending interrupts
+       m_cause.raw &= 0x0000'FF00;
+    }
+
+    /**
+     * @brief inform exception controller about what exception has just occured
+     */
+    void ExceptionController::set_exception_cause(Exception exception_kind)
+    {
+        m_cause.exception = exception_kind;
+    }
+
+    /**
+     * @brief update flags and history of exception
+     */
+    void ExceptionController::enter_exception()
+    {
+        m_sr.old_interrupt_disable = m_sr.previous_interrupt_disable;
+        m_sr.old_execution_mode    = m_sr.previous_execution_mode;
+        m_sr.previous_interrupt_disable = m_sr.current_interrupt_enable;
+        m_sr.previous_execution_mode    = m_sr.current_execution_mode;
+        m_sr.current_interrupt_enable   = false;
+        m_sr.current_execution_mode     = 0; // Kernel mode
+    }
+
+    /**
+     * @brief TODO
+     */
+    void ExceptionController::set_exception_program_counter(u32 program_counter)
+    {
+        m_epc = program_counter;
+    }
+
+    /**
+     * @brief return address of the exception handler routine 
+     */
+    u32 ExceptionController::get_handler_address() const
+    {
+        if(m_sr.boot_exception_vectors == 1)
+        {
+            // ROM Exception vectors
+            return 0xBFC00180;
+        }
+        else
+        {
+            // RAM Exception vectors
+            return 0x80000080;
+        }
+    }
+
+    /**
+     * @brief check whether the interrupt controller sent information about interrupt
+     */
+    bool ExceptionController::interrupt_pending() const
+    {
+        return (m_cause.interrupt_pending & m_sr.interrupt_mask) &&
+               (m_sr.current_interrupt_enable);
+    }
 }

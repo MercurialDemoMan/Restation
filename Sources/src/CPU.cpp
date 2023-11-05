@@ -44,6 +44,21 @@ namespace PSX
     {
         for(u32 _ = 0; _ < num_steps; _++)
         {
+            // save cpu state for potential exception
+            m_exception_program_counter = m_program_counter;
+            m_exception_branch_delay_active = m_branch_delay_active;
+            m_exception_branching = m_branching;
+
+            // reset branching status
+            m_branch_delay_active = false;
+            m_branching = false;
+
+            // handle interrupts
+            if(m_exception_controller->interrupt_pending())
+            {
+                trigger_exception(Exception::Interrupt);
+            }
+
             // get instruction from memory or icache
             auto ins = fetch_instruction(m_program_counter);
 
@@ -189,9 +204,66 @@ namespace PSX
     /**
      * @brief switch execution state to handling exceptions
      */
-    void trigger_exception(Exception)
+    void CPU::trigger_exception(Exception exception_kind, u32 address/* = 0*/)
     {
+        static constexpr const char* exception_name[] =
+        {
+            "Interrupt",
+            "TLBModification",
+            "TLBLoad",
+            "TLBStore",
+            "BadAddressLoad",
+            "BadAddressStore",
+            "BusErrorInstruction",
+            "BusErrorData",
+            "SystemCall",
+            "Break",
+            "Reserved",
+            "COPUnusable",
+            "Overflow"
+        };
+
+        DEBUG_LOG(6, fmt::format("exception triggered: {}", exception_name[exception_kind]));
+
+        if(exception_kind == Exception::BadAddressLoad ||
+           exception_kind == Exception::BadAddressStore)
+        {
+            m_exception_controller->set_bad_address(address);
+        }
+
+        if(exception_kind == Exception::Interrupt)
+        {
+            TODO();
+        }
+
+        m_exception_controller->prepare_for_exception();
+        m_exception_controller->set_exception_cause(exception_kind);
+        m_exception_controller->enter_exception();
+
+        if(exception_kind != Exception::BusErrorInstruction)
+        {
+            TODO();
+        }
+
+        if(exception_kind == Exception::Interrupt)
+        {
+            m_exception_controller->set_exception_program_counter(m_program_counter);
+        }
+        else
+        {
+            m_exception_controller->set_exception_program_counter(m_exception_program_counter);
+        }
+
         TODO();
+
+        u32 exception_handler_address = m_exception_controller->get_handler_address();
+
+        if(exception_kind == Exception::Break)
+        {
+            TODO();
+        }
+
+        set_program_counter(exception_handler_address);
     }
     
     void CPU::UNK(const CPUInstruction& ins)
@@ -381,8 +453,8 @@ namespace PSX
         u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
         if (address & 0x0000'0001)
         {
-            //TODO: exception
-            TODO();
+            trigger_exception(Exception::BadAddressLoad, address);
+            return;
         }
 
         s16 read_half_word = static_cast<s16>(m_bus->dispatch_read<u16>(address));

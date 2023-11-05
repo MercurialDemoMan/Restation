@@ -84,6 +84,41 @@ namespace PSX
          */
         void return_from_exception();
 
+        /**
+         * @brief set bad address on missaligned load or store 
+         */
+        void set_bad_address(u32 address);
+
+        /**
+         * @brief clear cop0r13 cause register 
+         */
+        void prepare_for_exception();
+
+        /**
+         * @brief inform exception controller about what exception has just occured
+         */
+        void set_exception_cause(Exception);
+
+        /**
+         * @brief update flags and history of exception
+         */
+        void enter_exception();
+
+        /**
+         * @brief TODO
+         */
+        void set_exception_program_counter(u32 program_counter);
+
+        /**
+         * @brief return address of the exception handler routine 
+         */
+        u32  get_handler_address() const;
+
+        /**
+         * @brief check whether the interrupt controller sent information about interrupt
+         */
+        bool interrupt_pending() const;
+
     private:
 
         /**
