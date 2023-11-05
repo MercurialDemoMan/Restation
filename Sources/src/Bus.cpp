@@ -173,7 +173,7 @@ namespace PSX
      */
     void Bus::meta_load_bios(const std::string& bios_path)
     {
-        LOG(fmt::format("loading bios from {}", bios_path));
+        DEBUG_LOG(1, fmt::format("loading bios from {}", bios_path));
 
         // open bios file
         std::ifstream bios_file(bios_path, std::ios::binary);
@@ -198,7 +198,7 @@ namespace PSX
         // initialize bios
         std::memcpy(m_bios.data(), bios_file_contents.data(), BiosSize);
 
-        LOG("bios loaded");
+        DEBUG_LOG(1, "bios loaded");
     }
 
     /**

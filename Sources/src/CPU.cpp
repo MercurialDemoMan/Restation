@@ -329,20 +329,21 @@ namespace PSX
                     ins.register_target, 
                     m_exception_controller->read(ins.register_destination)
                 );
-                break;
+                return;
             }
 
             // write to cop0
             case 4:
             {
                 m_exception_controller->write(ins.register_destination, m_register_field[ins.register_target]);
-                break;
+                return;
             }
 
             // return from exception
             case 16:
             {
                 m_exception_controller->return_from_exception();
+                return;
             }
         }
 

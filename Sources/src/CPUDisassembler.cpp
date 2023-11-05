@@ -226,7 +226,8 @@ namespace PSX
      */
     static std::string COP0(const CPUInstruction& ins)
     {
-        return fmt::format("COP0 0x{:08x}", 
+        return fmt::format("COP0 {} 0x{:08x}",
+            ins.register_source,
             ins.raw
         );
     }
