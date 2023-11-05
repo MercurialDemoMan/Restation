@@ -111,6 +111,7 @@ namespace PSX
             }
             default:
             {
+                LOG_ERROR(fmt::format("unknown bus address while dispatching read: 0x{:08x}", physical_address));
                 TODO();
             }
         }
@@ -154,7 +155,7 @@ namespace PSX
             }
             default:
             {
-                LOG_ERROR(fmt::format("unknown bus address: 0x{:08x}", physical_address));
+                LOG_ERROR(fmt::format("unknown bus address while dispatching write: 0x{:08x}", physical_address));
                 TODO();
             }
         }
@@ -173,7 +174,7 @@ namespace PSX
      */
     void Bus::meta_load_bios(const std::string& bios_path)
     {
-        DEBUG_LOG(1, fmt::format("loading bios from {}", bios_path));
+        LOG_DEBUG(1, fmt::format("loading bios from {}", bios_path));
 
         // open bios file
         std::ifstream bios_file(bios_path, std::ios::binary);
@@ -198,7 +199,7 @@ namespace PSX
         // initialize bios
         std::memcpy(m_bios.data(), bios_file_contents.data(), BiosSize);
 
-        DEBUG_LOG(1, "bios loaded");
+        LOG_DEBUG(1, "bios loaded");
     }
 
     /**

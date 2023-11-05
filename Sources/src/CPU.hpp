@@ -270,9 +270,15 @@ namespace PSX
          */
         void trigger_exception(Exception, u32 address = 0);
 
+        /**
+         * connected devices 
+         */
         std::shared_ptr<Bus> m_bus;                                  /// connection to the bus
         std::shared_ptr<ExceptionController> m_exception_controller; /// Coprocessor0
 
+        /**
+         * cpu state 
+         */
         u32  m_program_counter;      /// pointer to the current instruction
         u32  m_program_counter_next; /// pointer to the next instruction
         bool m_branch_delay_active;  /// are we delaying execution after taking branch?

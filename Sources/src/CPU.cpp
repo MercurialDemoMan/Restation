@@ -64,7 +64,7 @@ namespace PSX
 
             static u32 counter = 0;
 
-            DEBUG_LOG(5, fmt::format("{}, 0x{:08x} -> {} = 0x{:08x}", counter++, m_program_counter, disassemble(ins), ins.raw));
+            LOG_DEBUG(5, fmt::format("{}, 0x{:08x} -> {} = 0x{:08x}", counter++, m_program_counter, disassemble(ins), ins.raw));
 
             // move program counter to the next instruction
             set_program_counter(m_program_counter_next);
@@ -223,7 +223,7 @@ namespace PSX
             "Overflow"
         };
 
-        DEBUG_LOG(6, fmt::format("exception triggered: {}", exception_name[exception_kind]));
+        LOG_DEBUG(6, fmt::format("exception triggered: {}", exception_name[exception_kind]));
 
         if(exception_kind == Exception::BadAddressLoad ||
            exception_kind == Exception::BadAddressStore)
