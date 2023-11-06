@@ -95,4 +95,31 @@ namespace PSX
     {
         return m_status.raw() & m_mask.raw();
     }
+
+    /**
+     * @brief send exception to the cpu
+     */
+    void InterruptController::trigger_interrupt(Interrupt interrupt)
+    {
+        static constexpr const char* interrupt_name[] =
+        {
+            "Vblank", 
+            "GPU", 
+            "CDRom", 
+            "DMA", 
+            "Timer0", 
+            "Timer1", 
+            "Timer2", 
+            "Controller", 
+            "SIO", 
+            "SPU", 
+            "Lightpen"
+        };
+
+        LOG_DEBUG(4, fmt::format("interrupt trigger: {}", interrupt_name[static_cast<u32>(interrupt)]));
+
+        m_status.raw() |= (1 << static_cast<u32>(interrupt));
+
+        execute(1);
+    }
 }

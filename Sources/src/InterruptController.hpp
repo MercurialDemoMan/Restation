@@ -83,6 +83,11 @@ namespace PSX
          */
         bool is_interrupt_pending();
 
+        /**
+         * @brief send exception to the cpu
+         */
+        void trigger_interrupt(Interrupt);
+
     private:
 
         std::shared_ptr<ExceptionController> m_exception_controller;
