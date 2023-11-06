@@ -1,14 +1,14 @@
 /**
- * @file      Timer.cpp
+ * @file      TimerTypes.hpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Implementation of the PSX Timer
+ * @brief     Definition for PSX Timer types
  *
  * @version   0.1
  *
- * @date      26. 10. 2023, 16:20 (created)
+ * @date      6. 11. 2023, 8:59 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -31,43 +31,21 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#include "Timer.hpp"
-#include "Bus.hpp"
+#ifndef TIMERTYPES_HPP
+#define TIMERTYPES_HPP
 
 namespace PSX
 {
-    template<ClockSource Source>
-    void Timer<Source>::execute(u32 num_steps)
-    {
-        MARK_UNUSED(num_steps);
-        TODO();
-    }
-
-    template<ClockSource Source>
-    u32 Timer<Source>::read(u32 address)
-    {
-        MARK_UNUSED(address);
-        TODO();
-    }
-
-    template<ClockSource Source>
-    void Timer<Source>::write(u32 address, u32 value)
-    {
-        MARK_UNUSED(address);
-        MARK_UNUSED(value);
-        TODO();
-    }
-
-    template<ClockSource Source>
-    void Timer<Source>::reset()
-    {
-        TODO();
-    }
-
     /**
-     * instantiate all timers
+     * @brief enumeration of timer source clock 
      */
-    template class Timer<ClockSource::DotClock>;
-    template class Timer<ClockSource::HBlank>;
-    template class Timer<ClockSource::SystemClock>;
+    enum class ClockSource
+    {
+        DotClock,
+        HBlank,
+        SystemClock
+    };
+
 }
+
+#endif // TIMERTYPES_HPP

@@ -43,6 +43,7 @@
 #include "Component.hpp"
 #include "MemoryRegion.hpp"
 #include "Forward.hpp"
+#include "TimerTypes.hpp"
 
 namespace PSX
 {
@@ -212,19 +213,21 @@ namespace PSX
         static constexpr const u32 BiosSize         = 512 * KiB;
         static constexpr const u32 CacheControlSize = 0x4;
 
-        std::shared_ptr<CPU>                 m_cpu;                  /// CPU Component
-        std::shared_ptr<GPU>                 m_gpu;                  /// GPU Component
-        std::shared_ptr<SPU>                 m_spu;                  /// SPU Component
-        std::shared_ptr<MDEC>                m_mdec;                 /// MDEC Component
-        std::shared_ptr<CDROM>               m_cdrom;                /// CDROM Component
-        std::shared_ptr<Timer>               m_timer;                /// Timer Component
-        std::shared_ptr<IOPorts>             m_io_ports;             /// IOPorts Component
-        std::shared_ptr<Peripherals>         m_peripherals;          /// Peripherals Component
-        std::shared_ptr<RamController>       m_ram_controller;       /// RamController Component
-        std::shared_ptr<MemController>       m_mem_controller;       /// MemController Component
-        std::shared_ptr<DMAController>       m_dma_controller;       /// DMA Controller
-        std::shared_ptr<CacheController>     m_cache_controller;     /// Cache Controller
-        std::shared_ptr<InterruptController> m_interrupt_controller; /// InterruptController
+        std::shared_ptr<CPU>                 m_cpu;                           /// CPU Component
+        std::shared_ptr<GPU>                 m_gpu;                           /// GPU Component
+        std::shared_ptr<SPU>                 m_spu;                           /// SPU Component
+        std::shared_ptr<MDEC>                m_mdec;                          /// MDEC Component
+        std::shared_ptr<CDROM>               m_cdrom;                         /// CDROM Component
+        std::shared_ptr<IOPorts>             m_io_ports;                      /// IOPorts Component
+        std::shared_ptr<Peripherals>         m_peripherals;                   /// Peripherals Component
+        std::shared_ptr<RamController>       m_ram_controller;                /// RamController Component
+        std::shared_ptr<MemController>       m_mem_controller;                /// MemController Component
+        std::shared_ptr<DMAController>       m_dma_controller;                /// DMA Controller
+        std::shared_ptr<CacheController>     m_cache_controller;              /// Cache Controller
+        std::shared_ptr<InterruptController> m_interrupt_controller;          /// InterruptController
+        std::shared_ptr<Timer<ClockSource::DotClock>>    m_timer_dotclock;    /// Timer with DotClock source Component
+        std::shared_ptr<Timer<ClockSource::HBlank>>      m_timer_hblank;      /// Timer with HBlank source Component
+        std::shared_ptr<Timer<ClockSource::SystemClock>> m_timer_systemclock; /// Timer with SystemClock source Component
 
         MemoryRegion<RamSize>        m_ram;        /// RAM memory
         MemoryRegion<BiosSize>       m_bios;       /// BIOS memory

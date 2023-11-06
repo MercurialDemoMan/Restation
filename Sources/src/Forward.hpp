@@ -31,6 +31,8 @@
 #ifndef FORWARD_HPP
 #define FORWARD_HPP
 
+#include "TimerTypes.hpp"
+
 namespace PSX
 {
     class Bus;
@@ -39,7 +41,7 @@ namespace PSX
     class SPU;
     class MDEC;
     class CDROM;
-    class Timer;
+    template<ClockSource> class Timer;
     class IOPorts;
     class Peripherals;
     class RamController;

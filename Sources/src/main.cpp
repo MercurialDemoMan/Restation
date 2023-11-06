@@ -14,5 +14,5 @@ int main(int argc, char* argv[])
 
     b->meta_load_bios(argv[1]);
 
-    b->execute(81008);
+    b->execute(0xFFFFFFFF);
 }

@@ -78,7 +78,6 @@ namespace PSX
         m_spu                  = std::make_shared<SPU>(shared_from_this());
         m_mdec                 = std::make_shared<MDEC>(shared_from_this());
         m_cdrom                = std::make_shared<CDROM>(shared_from_this());
-        m_timer                = std::make_shared<Timer>(shared_from_this());
         m_io_ports             = std::make_shared<IOPorts>();
         m_peripherals          = std::make_shared<Peripherals>(shared_from_this());
         m_ram_controller       = std::make_shared<RamController>();
@@ -86,6 +85,9 @@ namespace PSX
         m_dma_controller       = std::make_shared<DMAController>(shared_from_this());
         m_cache_controller     = std::make_shared<CacheController>();
         m_interrupt_controller = std::make_shared<InterruptController>(m_cpu->exception_controller());
+        m_timer_dotclock       = std::make_shared<Timer<ClockSource::DotClock>>(shared_from_this());   
+        m_timer_hblank         = std::make_shared<Timer<ClockSource::HBlank>>(shared_from_this());     
+        m_timer_systemclock    = std::make_shared<Timer<ClockSource::SystemClock>>(shared_from_this());
 
         LOG("initialized all hardware components");
     }

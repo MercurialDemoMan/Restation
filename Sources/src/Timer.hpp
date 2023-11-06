@@ -37,12 +37,14 @@
 #include <memory>
 #include "Component.hpp"
 #include "Forward.hpp"
+#include "TimerTypes.hpp"
 
 namespace PSX
 {
     /**
      * @brief PSX Timer
      */
+    template<ClockSource Source>
     class Timer final : public Component
     {
     public:
@@ -65,6 +67,7 @@ namespace PSX
         std::shared_ptr<Bus> m_bus;
 
     };
+
 }
 
 #endif // TIMER_HPP
