@@ -39,19 +39,25 @@ namespace PSX
 {
     u32 CacheController::read(u32 address)
     {
-        if(address == 0)
-            return m_cache_config.raw();
+        switch(address)
+        {
+            case 0 ... 3:
+            {
+                return m_cache_config.read(address - 0);
+            }
+        }
         
         UNREACHABLE();
     }
 
     void CacheController::write(u32 address, u32 value)
     {
-        if(address == 0)
+        switch(address)
         {
-            m_cache_config.raw() = value;
-            //TODO: cpu cache enable?
-            return;
+            case 0 ... 3:
+            {
+                m_cache_config.write(address - 0, value); return;
+            }
         }
 
         UNREACHABLE();
