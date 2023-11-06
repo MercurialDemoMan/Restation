@@ -192,14 +192,6 @@ namespace PSX
         };
     }
 
-    struct CacheLine
-    {
-        u32 tag;
-        u32 value;
-    };
-
-    CacheLine cache[1 * KiB];
-
     /**
      * @brief fetch instruction from memory
      */
