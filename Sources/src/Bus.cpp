@@ -116,6 +116,11 @@ namespace PSX
             {
                 return m_expansion.read<T>(physical_address - ExpansionBase);
             }
+            // access InterruptController
+            case (InterruptBase) ... (InterruptBase + InterruptSize - 1):
+            {
+                return component_read<T>(m_interrupt_controller, physical_address - InterruptBase);
+            }
             default:
             {
                 LOG_ERROR(fmt::format("unknown bus address while dispatching read: 0x{:08x}", physical_address));
@@ -194,7 +199,7 @@ namespace PSX
     }
 
     /**
-     * @brief execute all components for 1 clock cycle 
+     * @brief execute all components for num_steps clock cycles
      */
     void Bus::execute(u32 num_steps)
     {
