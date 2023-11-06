@@ -232,15 +232,6 @@ namespace PSX
         };
 
         /**
-         * @brief structure for keeping instruction cache line
-         */
-        struct CacheLine
-        {
-            u32 tag;
-            u32 value;
-        };
-
-        /**
          * @brief enumeration for indexing load delay slots
          */
         enum LoadDelaySlotIndex
@@ -303,15 +294,15 @@ namespace PSX
         bool m_branch_delay_active;  /// are we delaying execution after taking branch?
         bool m_branching;            /// are we currently branching?
 
-        u32  m_exception_program_counter;     /// saving state of program counter for potential exception
-        bool m_exception_branch_delay_active; /// saving state of active branch delay for potential exception
-        bool m_exception_branching;           /// saving state of branching for potential exception
-
         u32  m_register_field[32];   /// array of general purpose registers
         u32  m_register_high;        /// high register (used for storing multiplication and division results)
         u32  m_register_low;         /// low register (used for storing multiplication and division results)
 
         LoadDelaySlot m_load_delay_slots[2]; /// keep track for delays when trying to set register
+
+        u32  m_exception_program_counter;     /// saving state of program counter for potential exception
+        bool m_exception_branch_delay_active; /// saving state of active branch delay for potential exception
+        bool m_exception_branching;           /// saving state of branching for potential exception
 
         static constexpr const u32 LoadDelaySlotEmptyRegister = 0;           /// delay slots that have register id set to 0 will be ignored
         static constexpr const u32 PCResetAddress             = 0xBFC0'0000; /// default reset address for program counter

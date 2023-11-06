@@ -59,7 +59,7 @@ namespace PSX
                 trigger_exception(Exception::Interrupt);
             }
 
-            // get instruction from memory or icache
+            // get instruction from memory
             auto ins = fetch_instruction(m_program_counter);
 
             static u32 counter = 0;
@@ -191,6 +191,14 @@ namespace PSX
             value 
         };
     }
+
+    struct CacheLine
+    {
+        u32 tag;
+        u32 value;
+    };
+
+    CacheLine cache[1 * KiB];
 
     /**
      * @brief fetch instruction from memory
@@ -364,8 +372,7 @@ namespace PSX
 
         if(check_overflow_add<u32>(m_register_field[ins.register_source], ins.immediate_signed, result))
         {
-            // TODO: exception
-            TODO();
+            trigger_exception(Exception::Overflow);
         }
 
         set_register(ins.register_target, result);
@@ -509,8 +516,8 @@ namespace PSX
 
         if(address & 0x0000'0003)
         {
-            // TODO: exception
-            TODO();
+            trigger_exception(Exception::BadAddressLoad, address);
+            return;
         }
 
         load_delay_slot(ins.register_target, m_bus->dispatch_read<u32>(address));
@@ -528,8 +535,8 @@ namespace PSX
 
         if(address & 0x0000'0001)
         {
-            // TODO: exception
-            TODO();
+            trigger_exception(Exception::BadAddressLoad, address);
+            return;
         }
 
         load_delay_slot(ins.register_target, m_bus->dispatch_read<u16>(address));
@@ -572,8 +579,8 @@ namespace PSX
 
         if(address & 0x0000'0001)
         {
-            // TODO: exception
-            TODO();
+            trigger_exception(Exception::BadAddressStore, address);
+            return;
         }
 
         m_bus->dispatch_write<u16>(address, m_register_field[ins.register_target]);
@@ -600,8 +607,8 @@ namespace PSX
 
         if(address & 0x0000'0003)
         {
-            //TODO: exception
-            TODO();
+            trigger_exception(Exception::BadAddressStore, address);
+            return;
         }
 
         m_bus->dispatch_write<u32>(address, m_register_field[ins.register_target]);
@@ -712,8 +719,8 @@ namespace PSX
 
         if(address & 0x0000'0003)
         {
-            // TODO: exception
-            TODO();
+            trigger_exception(Exception::BadAddressLoad, address);
+            return;
         }
 
         do_jump(address);
@@ -727,8 +734,8 @@ namespace PSX
 
         if(address & 0x0000'0003)
         {
-            // TODO: exception
-            TODO();
+            trigger_exception(Exception::BadAddressLoad, address);
+            return;
         }
 
         do_jump(address);
@@ -736,8 +743,7 @@ namespace PSX
 
     void CPU::SYSCALL(const CPUInstruction& ins)
     {
-        MARK_UNUSED(ins);
-        TODO();
+        trigger_exception(Exception::SystemCall);
     }
 
     void CPU::BREAK(const CPUInstruction& ins)
@@ -832,8 +838,7 @@ namespace PSX
 
         if(check_overflow_add<u32>(m_register_field[ins.register_source], m_register_field[ins.register_target], result))
         {
-            // TODO: exception
-            TODO();
+            trigger_exception(Exception::Overflow);
         }
 
         set_register(ins.register_destination, result);
@@ -851,8 +856,7 @@ namespace PSX
 
         if(check_underflow_sub<u32>(m_register_field[ins.register_source], m_register_field[ins.register_target], result))
         {
-            // TODO: exception
-            TODO();
+            trigger_exception(Exception::Overflow);
         }
 
         set_register(ins.register_destination, result);
