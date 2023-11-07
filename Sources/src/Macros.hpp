@@ -36,6 +36,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <string>
 
 /**
  * @brief mark variable as unused
@@ -49,7 +50,7 @@
  */
 #define ABORT_WITH_MESSAGE(message) do \
 { \
-    std::fprintf(stderr, "Encountered %s at %s:%u, aborting...\n", message, __FILE__, __LINE__); \
+    std::fprintf(stderr, "Encountered %s at %s:%u, aborting...\n", std::string(message).c_str(), __FILE__, __LINE__); \
     std::exit(1); \
 } while(0)
 
@@ -69,8 +70,7 @@
  */
 #define LOG(message) do \
 { \
-    auto message_string = std::string(message); \
-    std::fprintf(stdout, "[\e[0;36minfo\e[0m]: %s\n", message_string.c_str()); \
+    std::fprintf(stdout, "[\e[0;36minfo\e[0m]: %s\n", std::string(message).c_str()); \
 } while(0)
 
 #ifndef LOG_DEBUG_LEVEL
@@ -80,22 +80,19 @@
 { \
     if((level) <= LOG_DEBUG_LEVEL) \
     { \
-        auto message_string = std::string(message); \
-        std::fprintf(stdout, "[\e[0;35mdebug\e[0m]: %s\n", message_string.c_str()); \
+        std::fprintf(stdout, "[\e[0;35mdebug\e[0m]: %s\n", std::string(message).c_str()); \
     } \
 } while(0)
 #endif
 
 #define LOG_WARNING(message) do \
 { \
-    auto message_string = std::string(message); \
-    std::fprintf(stdout, "[\e[0;33mwarning\e[0m]: %s\n", message_string.c_str()); \
+    std::fprintf(stdout, "[\e[0;33mwarning\e[0m]: %s\n", std::string(message).c_str()); \
 } while(0)
 
 #define LOG_ERROR(message) do \
 { \
-    auto message_string = std::string(message); \
-    std::fprintf(stderr, "[\e[1;31merror\e[0m]: %s\n", message_string.c_str()); \
+    std::fprintf(stderr, "[\e[1;31merror\e[0m]: %s\n", std::string(message).c_str()); \
 } while(0)
 
 #endif // MACROS_HPP
