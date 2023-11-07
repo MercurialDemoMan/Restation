@@ -105,7 +105,7 @@ namespace PSX
         void enter_exception();
 
         /**
-         * @brief TODO
+         * @brief set where the exception happened
          */
         void set_exception_program_counter(u32 program_counter);
 
@@ -128,6 +128,11 @@ namespace PSX
          * @brief interrupt controller wants to interrupt cpu 
          */
         void set_interrupt_pending(u32 value);
+
+        /**
+         * @brief set the coprocessor number responsible for exception
+         */
+        void set_coprocessor_number(u32 cop_number);
 
     private:
 

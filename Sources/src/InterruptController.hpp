@@ -73,7 +73,7 @@ namespace PSX
         
         virtual ~InterruptController() override = default;
 
-        virtual void execute(u32 num_steps) override;
+        virtual void execute(u32) override {};
         virtual u32  read(u32 address) override;
         virtual void write(u32 address, u32 value) override;
         virtual void reset() override;

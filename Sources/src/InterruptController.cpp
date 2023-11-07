@@ -37,12 +37,6 @@
 
 namespace PSX
 {
-    void InterruptController::execute(u32 num_steps)
-    {
-        MARK_UNUSED(num_steps);
-        m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 0b1111 : 0);
-    }
-
     u32 InterruptController::read(u32 address)
     {
         switch(address)
@@ -67,14 +61,14 @@ namespace PSX
             case 0 ... 3:
             {
                 m_status.write(address - 0, m_status.read(address - 0) & value);
-                execute(1);
+                m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 0b1111 : 0);
                 return;
             }
 
             case 4 ... 7:
             {
                 m_mask.write(address - 4, value);
-                execute(1);
+                m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 0b1111 : 0);
                 return;
             }
         }
@@ -120,6 +114,6 @@ namespace PSX
 
         m_status.raw() |= (1 << static_cast<u32>(interrupt));
 
-        execute(1);
+        m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 0b1111 : 0);
     }
 }

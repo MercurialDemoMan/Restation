@@ -144,7 +144,7 @@ namespace PSX
     }
 
     /**
-     * @brief TODO
+     * @brief set where the exception happened
      */
     void ExceptionController::set_exception_program_counter(u32 program_counter)
     {
@@ -191,5 +191,13 @@ namespace PSX
     void ExceptionController::set_interrupt_pending(u32 value)
     {
         m_cause.interrupt_pending = value;
+    }
+
+    /**
+     * @brief set the coprocessor number responsible for exception
+     */
+    void ExceptionController::set_coprocessor_number(u32 cop_number)
+    {
+        m_cause.coprocessor_number = cop_number;
     }
 }
