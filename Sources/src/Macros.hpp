@@ -48,11 +48,19 @@
 /**
  * @brief abort and print information where the abort occured
  */
+#ifdef __FILE_NAME__ /// prints only basename of the source file instead of the full path (supported in clang and gcc)
 #define ABORT_WITH_MESSAGE(message) do \
 { \
-    std::fprintf(stderr, "Encountered %s at %s:%u, aborting...\n", std::string(message).c_str(), __FILE__, __LINE__); \
+    std::fprintf(stderr, "[%s]: %s:%u, aborting...\n", std::string(message).c_str(), __FILE_NAME__, __LINE__); \
     std::exit(1); \
 } while(0)
+#else
+#define ABORT_WITH_MESSAGE(message) do \
+{ \
+    std::fprintf(stderr, "[%s]: %s:%u, aborting...\n", std::string(message).c_str(), __FILE__, __LINE__); \
+    std::exit(1); \
+} while(0)
+#endif
 
 #define UNREACHABLE() ABORT_WITH_MESSAGE("\e[1;91munreachable code\e[0m")
 #define TODO()        ABORT_WITH_MESSAGE("\e[1;95mtodo\e[0m")
