@@ -60,17 +60,20 @@ namespace PSX
             }
 
             // get instruction from memory
-            auto ins = fetch_instruction(m_program_counter);
+            m_current_instruction = fetch_instruction(m_program_counter);
 
-            static u32 counter = 0;
-
-            LOG_DEBUG(5, fmt::format("{}, 0x{:08x} -> {} = 0x{:08x}", counter++, m_program_counter, disassemble(ins), ins.raw));
+            // track last executed instruction
+            m_meta_last_executed_instructions[m_meta_last_executed_instruction_index] = 
+            {
+                m_program_counter, m_current_instruction
+            };
+            m_meta_last_executed_instruction_index = (m_meta_last_executed_instruction_index + 1) % LastExecutedInstructionsSize;
 
             // move program counter to the next instruction
             set_program_counter(m_program_counter_next);
 
             // execute instruction
-            (this->*m_base_handlers[ins.opcode])(ins);
+            (this->*m_base_handlers[m_current_instruction.opcode])(m_current_instruction);
 
             // update register load delay slots
             update_load_delay_slots();
@@ -110,6 +113,11 @@ namespace PSX
 
         // reset exceptions
         m_exception_controller->reset();
+
+        // reset meta state
+        m_meta_last_executed_instruction_index = 0;
+        for(auto& ins: m_meta_last_executed_instructions)
+             ins = { 0, CPUInstruction(0x0000'0001) }; // invalid instruction
     }
 
     /**
@@ -230,9 +238,17 @@ namespace PSX
             m_exception_controller->set_bad_address(address);
         }
 
+        // if interrupt occurns on a GTE command
+        // we need to skip the command otherwise
+        // it will get either executed twice, or
+        // the GTE result will be faulty
+        // TODO: verify this
         if(exception_kind == Exception::Interrupt)
         {
-            TODO();
+            if(CPUInstruction(m_bus->dispatch_read<u32>(m_exception_program_counter)).opcode == static_cast<u32>(BaseOpcode::Coprocessor2))
+            {
+                m_exception_program_counter += sizeof(CPUInstruction);
+            }
         }
 
         m_exception_controller->prepare_for_exception();
@@ -253,7 +269,10 @@ namespace PSX
             m_exception_controller->set_exception_program_counter(m_exception_program_counter);
         }
 
-        TODO();
+        if(m_exception_branch_delay_active)
+        {
+            TODO();
+        }
 
         u32 exception_handler_address = m_exception_controller->get_handler_address();
 
@@ -273,13 +292,52 @@ namespace PSX
         return m_exception_controller->is_cache_isolated();
     }
 
-
     /**
      * @brief exception manager controller getter
      */
-    std::shared_ptr<ExceptionController> CPU::exception_controller()
+    std::shared_ptr<ExceptionController> CPU::exception_controller() const
     {
         return m_exception_controller;
+    }
+
+    /**
+     * @brief assess the state of the cpu and return it in a readable form
+     */
+    std::string CPU::to_string() const
+    {
+        std::string result;
+        result += "CPU:\n";
+        result += fmt::format("    state:\n");
+        result += fmt::format("        pc:  0x{:08x}, npc: 0x{:08x}\n", m_program_counter, m_program_counter_next);
+        result += fmt::format("        bda: 0x{:08x}, br:  0x{:08x}\n", m_branch_delay_active, m_branching);
+        for(u32 i = 0; i < 32; i++)
+        {
+            if(i % 4 == 0)
+                result += "        ";
+            result += fmt::format("r{:02}: 0x{:08x}  ", i, m_register_field[i]);
+            if(i != 0 && (i + 1) % 4 == 0)
+                result += "\n";
+        }
+        result += fmt::format("        rl:  0x{:08x}\n", m_register_low);
+        result += fmt::format("        rh:  0x{:08x}\n", m_register_high);
+        result += fmt::format("        lds: <{:02}, 0x{:08x}>\n             <{:02}, 0x{:08x}>\n",
+            m_load_delay_slots[LoadDelaySlotIndex::Current].register_id,
+            m_load_delay_slots[LoadDelaySlotIndex::Current].value,
+            m_load_delay_slots[LoadDelaySlotIndex::Next].register_id,
+            m_load_delay_slots[LoadDelaySlotIndex::Next].value
+        );
+        result += fmt::format("        epc: 0x{:08x}\n", m_exception_program_counter);
+        result += fmt::format("        ein: {}\n", disassemble(m_current_instruction));
+        result += fmt::format("        ebd: 0x{:08x}, ebr: 0x{:08x}\n", m_exception_branch_delay_active, m_exception_branching);
+        result += "        last instructions:\n";
+        for(u32 i = 0; i < LastExecutedInstructionsSize; i++)
+        {
+            auto exec_ins = m_meta_last_executed_instructions[
+                (m_meta_last_executed_instruction_index + i) % LastExecutedInstructionsSize
+            ];
+            result += fmt::format("            0x{:08x}: {}\n", exec_ins.address, disassemble(exec_ins.ins));
+        }
+        return result;
     }
 
     void CPU::UNK(const CPUInstruction& ins)
@@ -733,7 +791,7 @@ namespace PSX
         do_jump(address);
     }
 
-    void CPU::SYSCALL(const CPUInstruction& ins)
+    void CPU::SYSCALL(const CPUInstruction&)
     {
         trigger_exception(Exception::SystemCall);
     }

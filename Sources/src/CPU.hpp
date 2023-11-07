@@ -34,11 +34,13 @@
 #ifndef CPU_HPP
 #define CPU_HPP
 
+#include <array>
 #include <memory>
 #include "Component.hpp"
 #include "Forward.hpp"
 #include "CPUInstruction.hpp"
 #include "ExceptionController.hpp"
+#include <fmt/core.h>
 
 namespace PSX
 {
@@ -71,7 +73,12 @@ namespace PSX
         /**
          * @brief exception manager controller getter
          */
-        std::shared_ptr<ExceptionController> exception_controller();
+        std::shared_ptr<ExceptionController> exception_controller() const;
+
+        /**
+         * @brief assess the state of the cpu and return it in a readable form
+         */
+        std::string to_string() const;
 
     private:
 
@@ -232,6 +239,15 @@ namespace PSX
         };
 
         /**
+         * @brief structure for keeping track of past executed instructions 
+         */
+        struct ExecutedInstruction
+        {
+            u32            address;
+            CPUInstruction ins;
+        };
+
+        /**
          * @brief enumeration for indexing load delay slots
          */
         enum LoadDelaySlotIndex
@@ -281,6 +297,15 @@ namespace PSX
         void trigger_exception(Exception, u32 address = 0);
 
         /**
+         * cpu constants 
+         */
+        static constexpr const u32 LoadDelaySlotEmptyRegister   = 0;           /// delay slots that have register id set to 0 will be ignored
+        static constexpr const u32 PCResetAddress               = 0xBFC0'0000; /// default reset address for program counter
+        static constexpr const u32 JumpFilter                   = 0xF000'0000;
+        static constexpr const u32 CacheLineValidMask           = 0x8000'0000;
+        static constexpr const u32 LastExecutedInstructionsSize = 8;
+
+        /**
          * connected devices 
          */
         std::shared_ptr<Bus> m_bus;                                  /// connection to the bus
@@ -301,13 +326,17 @@ namespace PSX
         LoadDelaySlot m_load_delay_slots[2]; /// keep track for delays when trying to set register
 
         u32  m_exception_program_counter;     /// saving state of program counter for potential exception
+        CPUInstruction m_current_instruction; /// saving state of the current instruction for potential exception
         bool m_exception_branch_delay_active; /// saving state of active branch delay for potential exception
         bool m_exception_branching;           /// saving state of branching for potential exception
 
-        static constexpr const u32 LoadDelaySlotEmptyRegister = 0;           /// delay slots that have register id set to 0 will be ignored
-        static constexpr const u32 PCResetAddress             = 0xBFC0'0000; /// default reset address for program counter
-        static constexpr const u32 JumpFilter                 = 0xF000'0000;
-        static constexpr const u32 CacheLineValidMask         = 0x8000'0000;
+        /**
+         * meta state 
+         */
+        /// circular buffer to keep track of a few last executed instructions 
+        std::array<ExecutedInstruction, LastExecutedInstructionsSize> m_meta_last_executed_instructions; 
+        u32 m_meta_last_executed_instruction_index;                                                      
+
     };
 }
 
