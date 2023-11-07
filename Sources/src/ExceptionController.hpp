@@ -134,6 +134,11 @@ namespace PSX
          */
         void set_coprocessor_number(u32 cop_number);
 
+        /**
+         * @brief if cpu is in branch delay adjust the flags 
+         */
+        void adjust_for_branch_delay(bool branching, u32 program_counter);
+
     private:
 
         /**
@@ -229,9 +234,7 @@ namespace PSX
                 u32: 12;
 
                 u32 coprocessor_number: 2;
-
-                u32: 1;
-
+                u32 branching: 1;           /// TODO: is this right? conflicting information about this bit
                 u32 branch_delay: 1;
             };
             

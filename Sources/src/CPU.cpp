@@ -242,11 +242,11 @@ namespace PSX
         // we need to skip the command otherwise
         // it will get either executed twice, or
         // the GTE result will be faulty
-        // TODO: verify this
         if(exception_kind == Exception::Interrupt)
         {
             if(CPUInstruction(m_bus->dispatch_read<u32>(m_exception_program_counter)).opcode == static_cast<u32>(BaseOpcode::Coprocessor2))
             {
+                // TODO: verify this
                 m_exception_program_counter += sizeof(CPUInstruction);
             }
         }
@@ -255,7 +255,12 @@ namespace PSX
         m_exception_controller->set_exception_cause(exception_kind);
         m_exception_controller->enter_exception();
 
-        if(exception_kind != Exception::BusErrorInstruction)
+        // set coprocessor number in cop0 cause register
+        // if the sr flag in cop0 status register doesnt
+        // allow the use of a certain coprocessor...
+        // TODO: is this necesarry, since we throw on
+        //       COP1 and COP3 instruction anyway? 
+        if(exception_kind == Exception::COPUnusable)
         {
             TODO();
         }
@@ -271,11 +276,12 @@ namespace PSX
 
         if(m_exception_branch_delay_active)
         {
-            TODO();
+            m_exception_controller->adjust_for_branch_delay(m_branching, m_program_counter);
         }
 
         u32 exception_handler_address = m_exception_controller->get_handler_address();
 
+        // debugging exception, let's ignore it for now
         if(exception_kind == Exception::Break)
         {
             TODO();

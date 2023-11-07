@@ -32,6 +32,7 @@
  */
 
 #include "ExceptionController.hpp"
+#include "CPUInstruction.hpp"
 
 namespace PSX
 {
@@ -199,5 +200,17 @@ namespace PSX
     void ExceptionController::set_coprocessor_number(u32 cop_number)
     {
         m_cause.coprocessor_number = cop_number;
+    }
+
+    /**
+     * @brief if cpu is in branch delay adjust the flags 
+     * TODO: potentially misunderstood
+     */
+    void ExceptionController::adjust_for_branch_delay(bool branching, u32 program_counter)
+    {
+        m_epc -= sizeof(CPUInstruction);
+        m_cause.branch_delay = 1;
+        m_cause.branching = branching;
+        m_jumpdest = program_counter; /// TODO useless?
     }
 }
