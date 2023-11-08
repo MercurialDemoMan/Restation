@@ -12,17 +12,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -ggdb")
 # set verbose compilers warnings
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
+# add fmt to the project
+add_subdirectory(${CMAKE_SOURCE_DIR}/deps/fmt-10.1.1)
+
 # add glm to the project
 add_subdirectory(${CMAKE_SOURCE_DIR}/deps/glm)
 
-# set current SDL2 path to our local project folder
-set(SDL2_DIR ${CMAKE_SOURCE_DIR}/deps/SDL2)
-
-# find the sdl package
-find_package(SDL2 REQUIRED)
-
-# add the sdl2 include directory to the project
-include_directories(${SDL2_INCLUDE_DIRS})
+# add sdl2 to the project
+add_subdirectory(${CMAKE_SOURCE_DIR}/deps/SDL2-2.28.4)
 
 # include sources
 add_executable(emu 
@@ -35,9 +32,12 @@ add_executable(emu
     src/Timer.cpp
     src/Peripherals.cpp
     src/DMAController.cpp
+    src/CPUDisassembler.cpp
     src/InterruptController.cpp
     src/Bus.cpp)
 
-# link executable with the project
+# link libraries with the project
 target_link_libraries(emu
-    ${SDL2_LIBRARIES})
+    SDL2::SDL2main;
+    SDL2::SDL2-static;
+    fmt::fmt)
