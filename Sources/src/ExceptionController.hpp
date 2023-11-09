@@ -90,19 +90,9 @@ namespace PSX
         void set_bad_address(u32 address);
 
         /**
-         * @brief clear cop0r13 cause register 
-         */
-        void prepare_for_exception();
-
-        /**
-         * @brief inform exception controller about what exception has just occured
-         */
-        void set_exception_cause(Exception);
-
-        /**
          * @brief update flags and history of exception
          */
-        void enter_exception();
+        void enter_exception(Exception);
 
         /**
          * @brief set where the exception happened

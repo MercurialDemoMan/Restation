@@ -251,9 +251,8 @@ namespace PSX
             }
         }
 
-        m_exception_controller->prepare_for_exception();
-        m_exception_controller->set_exception_cause(exception_kind);
-        m_exception_controller->enter_exception();
+        // set exception cause and update flags
+        m_exception_controller->enter_exception(exception_kind);
 
         // set coprocessor number in cop0 cause register
         // if the sr flag in cop0 status register doesnt
@@ -274,6 +273,7 @@ namespace PSX
             m_exception_controller->set_exception_program_counter(m_exception_program_counter);
         }
 
+        // adjust exception when we have branch delay
         if(m_exception_branch_delay_active)
         {
             m_exception_controller->adjust_for_branch_delay(m_branching, m_program_counter);
@@ -503,8 +503,7 @@ namespace PSX
 
     void CPU::COP1(const CPUInstruction& ins)
     {
-        MARK_UNUSED(ins);
-        TODO();
+        trigger_exception(Exception::COPUnusable);
     }
 
     void CPU::COP2(const CPUInstruction& ins)
@@ -515,8 +514,7 @@ namespace PSX
 
     void CPU::COP3(const CPUInstruction& ins)
     {
-        MARK_UNUSED(ins);
-        TODO();
+        trigger_exception(Exception::COPUnusable);
     }
 
     void CPU::LB(const CPUInstruction& ins)

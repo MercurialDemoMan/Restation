@@ -115,27 +115,17 @@ namespace PSX
     }
 
     /**
-     * @brief clear cop0r13 cause register 
-     */
-    void ExceptionController::prepare_for_exception()
-    {
-        // clear everything except the pending interrupts
-       m_cause.raw &= 0x0000'FF00;
-    }
-
-    /**
-     * @brief inform exception controller about what exception has just occured
-     */
-    void ExceptionController::set_exception_cause(Exception exception_kind)
-    {
-        m_cause.exception = static_cast<u32>(exception_kind);
-    }
-
-    /**
      * @brief update flags and history of exception
      */
-    void ExceptionController::enter_exception()
+    void ExceptionController::enter_exception(Exception exception_kind)
     {
+        // clear everything except the pending interrupts
+        m_cause.raw &= 0x0000'FF00;
+
+        // set exception cause
+        m_cause.exception = static_cast<u32>(exception_kind);
+
+        // update exception history
         m_sr.old_interrupt_disable = m_sr.previous_interrupt_disable;
         m_sr.old_execution_mode    = m_sr.previous_execution_mode;
         m_sr.previous_interrupt_disable = m_sr.current_interrupt_enable;
