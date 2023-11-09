@@ -60,7 +60,7 @@ namespace PSX
         static std::shared_ptr<Bus> create();
 
         /**
-         * @brief reads bios from file and loads it into the bios memory
+         * @brief reads bios from host file and loads it into the bios memory
          */
         void meta_load_bios(const std::string& bios_path);
 
@@ -80,7 +80,7 @@ namespace PSX
          */
         template<typename T>
         void dispatch_write(u32 address, T value);
-
+        
     private:
 
         /**

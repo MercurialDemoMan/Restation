@@ -1,6 +1,3 @@
-# Ignore PSX bios
-scph1001.bin
-
 # Ignore build artifacts
 Sources/build/*
 !Sources/build/empty.txt
