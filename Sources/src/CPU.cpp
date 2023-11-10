@@ -313,7 +313,7 @@ namespace PSX
     {
         std::string result;
         result += "CPU:\n";
-        result += fmt::format("    state:\n");
+        result += "    state:\n";
         result += fmt::format("        pc:  0x{:08x}, npc: 0x{:08x}\n", m_program_counter, m_program_counter_next);
         result += fmt::format("        bda: 0x{:08x}, br:  0x{:08x}\n", m_branch_delay_active, m_branching);
         for(u32 i = 0; i < 32; i++)
@@ -346,17 +346,26 @@ namespace PSX
         return result;
     }
 
+    /**
+     * @brief Unknown opcode
+     */    
     void CPU::UNK(const CPUInstruction& ins)
     {
         MARK_UNUSED(ins);
         TODO();
     }
 
+    /**
+     * @brief ExtendedFunction opcode 
+     */
     void CPU::FUN(const CPUInstruction& ins)
     {
         (this->*m_extended_function_handlers[ins.function])(ins);
     }
 
+    /**
+     * @brief Branch opcode 
+     */
     void CPU::B(const CPUInstruction& ins)
     {
         bool greater_and_equal = ins.register_target & 1;
@@ -381,12 +390,18 @@ namespace PSX
             do_jump(m_program_counter + (ins.immediate_signed * 4));
     }
 
+    /**
+     * @brief Jump opcode 
+     */
     void CPU::J(const CPUInstruction& ins)
     {
         m_branch_delay_active = true;
         do_jump((m_program_counter_next & JumpFilter) | (ins.target * 4));
     }
 
+    /**
+     * @brief JumpAndLink opcode 
+     */
     void CPU::JAL(const CPUInstruction& ins)
     {
         m_branch_delay_active = true;
@@ -394,6 +409,9 @@ namespace PSX
         do_jump((m_program_counter_next & JumpFilter) | (ins.target * 4));
     }
 
+    /**
+     * @brief BranchIfEqual opcode 
+     */
     void CPU::BEQ(const CPUInstruction& ins)
     {
         m_branch_delay_active = true;
@@ -401,6 +419,9 @@ namespace PSX
             do_jump(m_program_counter + (ins.immediate_signed * 4));
     }
 
+    /**
+     * @brief BranchIfNotEqual opcode 
+     */
     void CPU::BNE(const CPUInstruction& ins)
     {
         m_branch_delay_active = true;
@@ -408,6 +429,9 @@ namespace PSX
             do_jump(m_program_counter + (ins.immediate_signed * 4));
     }
 
+    /**
+     * @brief BranchIfLessThanZero opcode 
+     */
     void CPU::BLEZ(const CPUInstruction& ins)
     {
         m_branch_delay_active = true;
@@ -415,6 +439,9 @@ namespace PSX
             do_jump(m_program_counter + (ins.immediate_signed * 4));
     }
 
+    /**
+     * @brief BranchIfGreaterThanZero opcode 
+     */
     void CPU::BGTZ(const CPUInstruction& ins)
     {
         m_branch_delay_active = true;
@@ -422,6 +449,9 @@ namespace PSX
             do_jump(m_program_counter + (ins.immediate_signed * 4));
     }
 
+    /**
+     * @brief AddImmediate opcode 
+     */
     void CPU::ADDI(const CPUInstruction& ins)
     {
         u32 result = m_register_field[ins.register_source] + ins.immediate_signed;
@@ -434,41 +464,65 @@ namespace PSX
         set_register(ins.register_target, result);
     }
 
+    /**
+     * @brief AddImmediateUnsigned opcode 
+     */
     void CPU::ADDIU(const CPUInstruction& ins)
     {
         set_register(ins.register_target, m_register_field[ins.register_source] + ins.immediate_signed);
     }
 
+    /**
+     * @brief SetOnLessThanImmediate opcode 
+     */
     void CPU::SLTI(const CPUInstruction& ins)
     {
         set_register(ins.register_target, static_cast<s32>(m_register_field[ins.register_source]) < ins.immediate_signed);
     }
 
+    /**
+     * @brief SetOnLessThanImmediateUnsigned opcode 
+     */
     void CPU::SLTIU(const CPUInstruction& ins)
     {
         set_register(ins.register_target, m_register_field[ins.register_source] < ins.immediate);
     }
 
+    /**
+     * @brief AndImmediate opcode 
+     */
     void CPU::ANDI(const CPUInstruction& ins)
     {
         set_register(ins.register_target, m_register_field[ins.register_source] & ins.immediate);
     }
 
+    /**
+     * @brief OrImmediate opcode 
+     */
     void CPU::ORI(const CPUInstruction& ins)
     {
         set_register(ins.register_target, m_register_field[ins.register_source] | ins.immediate);
     }
 
+    /**
+     * @brief XorImmediate opcode 
+     */
     void CPU::XORI(const CPUInstruction& ins)
     {
         set_register(ins.register_target, m_register_field[ins.register_source] ^ ins.immediate);
     }
 
+    /**
+     * @brief LoadUpperImmediate opcode 
+     */
     void CPU::LUI(const CPUInstruction& ins)
     {
         set_register(ins.register_target, ins.immediate << 16);
     }
 
+    /**
+     * @brief Coprocessor0 opcode 
+     */
     void CPU::COP0(const CPUInstruction& ins)
     {
         switch(ins.register_source)
@@ -501,22 +555,34 @@ namespace PSX
         UNREACHABLE();
     }
 
-    void CPU::COP1(const CPUInstruction& ins)
+    /**
+     * @brief Coprocessor1 opcode 
+     */
+    void CPU::COP1(const CPUInstruction&)
     {
         trigger_exception(Exception::COPUnusable);
     }
 
+    /**
+     * @brief Coprocessor2 opcode 
+     */
     void CPU::COP2(const CPUInstruction& ins)
     {
         MARK_UNUSED(ins);
         TODO();
     }
 
-    void CPU::COP3(const CPUInstruction& ins)
+    /**
+     * @brief Coprocessor3 opcode 
+     */
+    void CPU::COP3(const CPUInstruction&)
     {
         trigger_exception(Exception::COPUnusable);
     }
 
+    /**
+     * @brief LoadByte opcode 
+     */
     void CPU::LB(const CPUInstruction& ins)
     {
         u32 address   = m_register_field[ins.register_source] + ins.immediate_signed;
@@ -525,6 +591,9 @@ namespace PSX
         load_delay_slot(ins.register_target, static_cast<s32>(read_byte));
     }
 
+    /**
+     * @brief LoadHalfWord opcode 
+     */
     void CPU::LH(const CPUInstruction& ins)
     {
         u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
@@ -539,6 +608,9 @@ namespace PSX
         load_delay_slot(ins.register_target, static_cast<s32>(read_half_word));
     }
 
+    /**
+     * @brief LoadWordLeft opcode 
+     */
     void CPU::LWL(const CPUInstruction& ins)
     {
         u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
@@ -564,6 +636,9 @@ namespace PSX
         }
     }
 
+    /**
+     * @brief LoadWord opcode 
+     */
     void CPU::LW(const CPUInstruction& ins)
     {
         u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
@@ -577,12 +652,18 @@ namespace PSX
         load_delay_slot(ins.register_target, m_bus->dispatch_read<u32>(address));
     }
 
+    /**
+     * @brief LoadByteUnsigned opcode 
+     */
     void CPU::LBU(const CPUInstruction& ins)
     {
         u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
         load_delay_slot(ins.register_target, m_bus->dispatch_read<u8>(address));
     }
 
+    /**
+     * @brief LoadHalfWordUnsigned opcode 
+     */
     void CPU::LHU(const CPUInstruction& ins)
     {
         u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
@@ -596,6 +677,9 @@ namespace PSX
         load_delay_slot(ins.register_target, m_bus->dispatch_read<u16>(address));
     }
 
+    /**
+     * @brief LoadWordRight opcode 
+     */
     void CPU::LWR(const CPUInstruction& ins)
     {
         u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
@@ -621,12 +705,18 @@ namespace PSX
         }
     }
 
+    /**
+     * @brief StoreByte opcode 
+     */
     void CPU::SB(const CPUInstruction& ins)
     {
         u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
         m_bus->dispatch_write<u8>(address, m_register_field[ins.register_target]);
     }
 
+    /**
+     * @brief StoreHalfWord opcode 
+     */
     void CPU::SH(const CPUInstruction& ins)
     {
         u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
@@ -640,6 +730,9 @@ namespace PSX
         m_bus->dispatch_write<u16>(address, m_register_field[ins.register_target]);
     }
 
+    /**
+     * @brief StoreWordLeft opcode 
+     */
     void CPU::SWL(const CPUInstruction& ins)
     {
         u32 address        = m_register_field[ins.register_source] + ins.immediate_signed;
@@ -655,6 +748,9 @@ namespace PSX
         }
     }
 
+    /**
+     * @brief StoreWord opcode 
+     */
     void CPU::SW(const CPUInstruction& ins)
     {
         u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
@@ -668,6 +764,9 @@ namespace PSX
         m_bus->dispatch_write<u32>(address, m_register_field[ins.register_target]);
     }
 
+    /**
+     * @brief StoreWordRight opcode 
+     */
     void CPU::SWR(const CPUInstruction& ins)
     {
         u32 address        = m_register_field[ins.register_source] + ins.immediate_signed;
@@ -683,89 +782,128 @@ namespace PSX
         }
     }
 
-    void CPU::LWC0(const CPUInstruction& ins)
+    /**
+     * @brief LoadWordToCoprocessor0 opcode 
+     */
+    void CPU::LWC0(const CPUInstruction&)
     {
-        MARK_UNUSED(ins);
-        TODO();
+        trigger_exception(Exception::COPUnusable);
     }
 
-    void CPU::LWC1(const CPUInstruction& ins)
+    /**
+     * @brief LoadWordToCoprocessor1 opcode 
+     */
+    void CPU::LWC1(const CPUInstruction&)
     {
-        MARK_UNUSED(ins);
-        TODO();
+        trigger_exception(Exception::COPUnusable);
     }
 
+    /**
+     * @brief LoadWordToCoprocessor2 opcode 
+     */
     void CPU::LWC2(const CPUInstruction& ins)
     {
         MARK_UNUSED(ins);
         TODO();
     }
 
-    void CPU::LWC3(const CPUInstruction& ins)
+    /**
+     * @brief LoadWordToCoprocessor3 opcode 
+     */
+    void CPU::LWC3(const CPUInstruction&)
     {
-        MARK_UNUSED(ins);
-        TODO();
+        trigger_exception(Exception::COPUnusable);
     }
 
-    void CPU::SWC0(const CPUInstruction& ins)
+    /**
+     * @brief StoreWordFromCoprocessor0 opcode 
+     */
+    void CPU::SWC0(const CPUInstruction&)
     {
-        MARK_UNUSED(ins);
-        TODO();
+        trigger_exception(Exception::COPUnusable);
     }
 
-    void CPU::SWC1(const CPUInstruction& ins)
+    /**
+     * @brief StoreWordFromCoprocessor1 opcode 
+     */
+    void CPU::SWC1(const CPUInstruction&)
     {
-        MARK_UNUSED(ins);
-        TODO();
+        trigger_exception(Exception::COPUnusable);
     }
 
+    /**
+     * @brief StoreWordFromCoprocessor2 opcode 
+     */
     void CPU::SWC2(const CPUInstruction& ins)
     {
         MARK_UNUSED(ins);
         TODO();
     }
 
-    void CPU::SWC3(const CPUInstruction& ins)
+    /**
+     * @brief StoreWordFromCoprocessor3 opcode 
+     */
+    void CPU::SWC3(const CPUInstruction&)
     {
-        MARK_UNUSED(ins);
-        TODO();
+        trigger_exception(Exception::COPUnusable);
     }
 
+    /**
+     * @brief ShiftWordLeftLogical opcode 
+     */
     void CPU::SLL(const CPUInstruction& ins)
     {
         set_register(ins.register_destination, m_register_field[ins.register_target] << ins.shift);
     }
 
+    /**
+     * @brief ShiftWordRightLogical opcode 
+     */
     void CPU::SRL(const CPUInstruction& ins)
     {
         set_register(ins.register_destination, 
                      m_register_field[ins.register_target] >> ins.shift);
     }
 
+    /**
+     * @brief ShiftWordRightArithmetic opcode 
+     */
     void CPU::SRA(const CPUInstruction& ins)
     {
         set_register(ins.register_destination, 
                      static_cast<s32>(m_register_field[ins.register_target]) >> ins.shift);
     }
 
+    /**
+     * @brief ShiftWordLeftLogicalVariable opcode 
+     */
     void CPU::SLLV(const CPUInstruction& ins)
     {
         set_register(ins.register_destination, 
                      m_register_field[ins.register_target] << (m_register_field[ins.register_source] & 0b0001'1111));
     }
 
+    /**
+     * @brief ShiftWordRightLogicalVariable opcode 
+     */
     void CPU::SRLV(const CPUInstruction& ins)
     {
         set_register(ins.register_destination, 
                      m_register_field[ins.register_target] >> (m_register_field[ins.register_source] & 0b0001'1111));
     }
 
+    /**
+     * @brief ShiftWordRightArithmeticVariable opcode 
+     */
     void CPU::SRAV(const CPUInstruction& ins)
     {
         set_register(ins.register_destination, 
                      static_cast<s32>(m_register_field[ins.register_target]) >> (m_register_field[ins.register_source] & 0b0001'1111));
     }
 
+    /**
+     * @brief JumpRegister opcode 
+     */
     void CPU::JR(const CPUInstruction& ins)
     {
         m_branch_delay_active = true;
@@ -780,6 +918,9 @@ namespace PSX
         do_jump(address);
     }
 
+    /**
+     * @brief JumpAndLinkRegister opcode 
+     */
     void CPU::JALR(const CPUInstruction& ins)
     {
         m_branch_delay_active = true;
@@ -795,37 +936,57 @@ namespace PSX
         do_jump(address);
     }
 
+    /**
+     * @brief SystemCall opcode 
+     */
     void CPU::SYSCALL(const CPUInstruction&)
     {
         trigger_exception(Exception::SystemCall);
     }
 
+    /**
+     * @brief Break opcode 
+     */
     void CPU::BREAK(const CPUInstruction& ins)
     {
-        MARK_UNUSED(ins);
-        TODO();
+        trigger_exception(Exception::Break);
     }
 
+    /**
+     * @brief MoveFromHigh opcode 
+     */
     void CPU::MFHI(const CPUInstruction& ins)
     {
         set_register(ins.register_destination, m_register_high);
     }
 
+    /**
+     * @brief MoveToHigh opcode 
+     */
     void CPU::MTHI(const CPUInstruction& ins)
     {
         m_register_high = m_register_field[ins.register_source];
     }
 
+    /**
+     * @brief MoveFromLow opcode 
+     */
     void CPU::MFLO(const CPUInstruction& ins)
     {
         set_register(ins.register_destination, m_register_low);
     }
 
+    /**
+     * @brief MoveToLow opcode 
+     */
     void CPU::MTLO(const CPUInstruction& ins)
     {
         m_register_low = m_register_field[ins.register_source];
     }
 
+    /**
+     * @brief Multiply opcode 
+     */
     void CPU::MULT(const CPUInstruction& ins)
     {
         u64 result = static_cast<s64>(static_cast<s32>(m_register_field[ins.register_source])) *
@@ -835,6 +996,9 @@ namespace PSX
         m_register_high = static_cast<u32>((result >> 32) & 0xFFFF'FFFF);
     }
 
+    /**
+     * @brief MultiplyUnsigned opcode 
+     */
     void CPU::MULTU(const CPUInstruction& ins)
     {
         u64 result = static_cast<u64>(m_register_field[ins.register_source]) *
@@ -844,6 +1008,9 @@ namespace PSX
         m_register_high = static_cast<u32>((result >> 32) & 0xFFFF'FFFF);
     }
 
+    /**
+     * @brief Divide opcode 
+     */
     void CPU::DIV(const CPUInstruction& ins)
     {
         // denominator is 0
@@ -868,6 +1035,9 @@ namespace PSX
                           static_cast<s32>(m_register_field[ins.register_target]);
     }
 
+    /**
+     * @brief DivideUnsigned opcode 
+     */
     void CPU::DIVU(const CPUInstruction& ins)
     {
         // denominator is 0
@@ -886,6 +1056,9 @@ namespace PSX
                           m_register_field[ins.register_target];                 
     }
 
+    /**
+     * @brief Add opcode 
+     */
     void CPU::ADD(const CPUInstruction& ins)
     {
         u32 result = m_register_field[ins.register_source] + m_register_field[ins.register_target];
@@ -898,12 +1071,18 @@ namespace PSX
         set_register(ins.register_destination, result);
     }
 
+    /**
+     * @brief AddUnsigned opcode 
+     */
     void CPU::ADDU(const CPUInstruction& ins)
     {
         set_register(ins.register_destination, m_register_field[ins.register_source] + 
                                                m_register_field[ins.register_target]);
     }
 
+    /**
+     * @brief Subtract opcode 
+     */
     void CPU::SUB(const CPUInstruction& ins)
     {
         u32 result = m_register_field[ins.register_source] - m_register_field[ins.register_target];
@@ -916,42 +1095,63 @@ namespace PSX
         set_register(ins.register_destination, result);
     }
 
+    /**
+     * @brief SubtractUnsigned opcode 
+     */
     void CPU::SUBU(const CPUInstruction& ins)
     {
         set_register(ins.register_destination, m_register_field[ins.register_source] + 
                                                m_register_field[ins.register_target]);
     }
 
+    /**
+     * @brief And opcode 
+     */
     void CPU::AND(const CPUInstruction& ins)
     {
         set_register(ins.register_destination, m_register_field[ins.register_source] & 
                                                m_register_field[ins.register_target]);
     }
 
+    /**
+     * @brief Or opcode 
+     */
     void CPU::OR(const CPUInstruction& ins)
     {
         set_register(ins.register_destination, m_register_field[ins.register_source] | 
                                                m_register_field[ins.register_target]);
     }
 
+    /**
+     * @brief Xor opcode 
+     */
     void CPU::XOR(const CPUInstruction& ins)
     {
         set_register(ins.register_destination, m_register_field[ins.register_source] ^ 
                                                m_register_field[ins.register_target]);
     }
 
+    /**
+     * @brief Nor opcode 
+     */
     void CPU::NOR(const CPUInstruction& ins)
     {
         set_register(ins.register_destination, ~(m_register_field[ins.register_source] | 
                                                  m_register_field[ins.register_target]));
     }
 
+    /**
+     * @brief SetOnLessThan opcode 
+     */
     void CPU::SLT(const CPUInstruction& ins)
     {
         set_register(ins.register_destination, static_cast<s32>(m_register_field[ins.register_source]) < 
                                                static_cast<s32>(m_register_field[ins.register_target]));
     }
 
+    /**
+     * @brief SetOnLessThanUnsigned opcode 
+     */
     void CPU::SLTU(const CPUInstruction& ins)
     {
         set_register(ins.register_destination, m_register_field[ins.register_source] < 
