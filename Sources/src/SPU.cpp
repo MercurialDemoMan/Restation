@@ -33,6 +33,8 @@
 
 #include "SPU.hpp"
 #include "Bus.hpp"
+#include "Macros.hpp"
+#include <fmt/core.h>
 
 namespace PSX
 {
@@ -52,7 +54,7 @@ namespace PSX
     {
         MARK_UNUSED(address);
         MARK_UNUSED(value);
-        //TODO();
+        LOG_WARNING(fmt::format("write to SPU detected 0x{:08x} = 0x{:08x}", address, value));
     }
 
     void SPU::reset()
