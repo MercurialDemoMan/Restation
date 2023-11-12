@@ -219,6 +219,7 @@ namespace PSX
         std::shared_ptr<MDEC>                m_mdec;                          /// MDEC Component
         std::shared_ptr<CDROM>               m_cdrom;                         /// CDROM Component
         std::shared_ptr<IOPorts>             m_io_ports;                      /// IOPorts Component
+        std::shared_ptr<SerialPort>          m_serial_port;                   /// SerialPort Component
         std::shared_ptr<Peripherals>         m_peripherals;                   /// Peripherals Component
         std::shared_ptr<RamController>       m_ram_controller;                /// RamController Component
         std::shared_ptr<MemController>       m_mem_controller;                /// MemController Component

@@ -1,14 +1,17 @@
 /**
- * @file      Forward.hpp
+ * @file      SPU.cpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Forward declaration of all PSX hardware components
+ * @brief     Implementation of the PSX Sound processing unit
  *
  * @version   0.1
  *
- * @date      26. 10. 2023, 15:22 (created)
+ * @date      10. 11. 2023, 20:01 (created)
+ *
+ * @section   TODO: replace with actual documentation
+ * TODO: documentation text
  *
  * @section License
  * This file is part of the TODO: project \n
@@ -28,29 +31,31 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef FORWARD_HPP
-#define FORWARD_HPP
-
-#include "TimerTypes.hpp"
+#include "SerialPort.hpp"
 
 namespace PSX
 {
-    class Bus;
-    class CPU;
-    class GPU;
-    class SPU;
-    class MDEC;
-    class CDROM;
-    template<ClockSource> class Timer;
-    class IOPorts;
-    class SerialPort;
-    class Peripherals;
-    class RamController;
-    class MemController;
-    class DMAController;
-    class CacheController;
-    class ExceptionController;
-    class InterruptController;
-}
+    void SerialPort::execute(u32 num_steps)
+    {
+        MARK_UNUSED(num_steps);
+        TODO();
+    }
 
-#endif // FORWARD_HPP
+    u32 SerialPort::read(u32 address)
+    {
+        MARK_UNUSED(address);
+        TODO();
+    }
+
+    void SerialPort::write(u32 address, u32 value)
+    {
+        MARK_UNUSED(address);
+        MARK_UNUSED(value);
+        TODO();
+    }
+
+    void SerialPort::reset()
+    {
+        TODO();
+    }
+}

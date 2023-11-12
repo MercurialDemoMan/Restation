@@ -39,6 +39,7 @@
 #include "CDROM.hpp"
 #include "Timer.hpp"
 #include "IOPorts.hpp"
+#include "SerialPort.hpp"
 #include "Peripherals.hpp"
 #include "RamController.hpp"
 #include "MemController.hpp"
@@ -79,6 +80,7 @@ namespace PSX
         m_mdec                 = std::make_shared<MDEC>(shared_from_this());
         m_cdrom                = std::make_shared<CDROM>(shared_from_this());
         m_io_ports             = std::make_shared<IOPorts>();
+        m_serial_port          = std::make_shared<SerialPort>();
         m_peripherals          = std::make_shared<Peripherals>(shared_from_this());
         m_ram_controller       = std::make_shared<RamController>();
         m_mem_controller       = std::make_shared<MemController>();
@@ -128,10 +130,10 @@ namespace PSX
             {
                 return component_read<T>(m_peripherals, physical_address - PeripheralsBase);
             }
-            // TODO: Serial
+            // access SerialPort
             case (SerialBase) ... (SerialBase + SerialSize - 1):
             {
-                TODO(); return 0;
+                return component_read<T>(m_serial_port, physical_address - SerialBase);
             }
             // access RamController
             case (RamControlBase) ... (RamControlBase + RamControlSize - 1):
@@ -200,8 +202,7 @@ namespace PSX
             }
         }
 
-        LOG_ERROR(fmt::format("unknown bus address while dispatching read: 0x{:08x}", physical_address));
-        UNREACHABLE();
+        ABORT_WITH_MESSAGE(fmt::format("unknown bus address while dispatching read: 0x{:08x}", physical_address));
     }
 
     /**
@@ -245,10 +246,10 @@ namespace PSX
             {
                 component_write<T>(m_peripherals, physical_address - PeripheralsBase, value); return;
             }
-            // TODO: Serial
+            // access SerialPort
             case (SerialBase) ... (SerialBase + SerialSize - 1):
             {
-                TODO(); return;
+                component_write<T>(m_serial_port, physical_address - SerialBase, value); return;
             }
             // access RamController
             case (RamControlBase) ... (RamControlBase + RamControlSize - 1):
@@ -317,8 +318,7 @@ namespace PSX
             }
         }
 
-        LOG_ERROR(fmt::format("unknown bus address while dispatching write: 0x{:08x}", physical_address));
-        UNREACHABLE();
+        ABORT_WITH_MESSAGE(fmt::format("unknown bus address while dispatching write: 0x{:08x}", physical_address));
     }
 
     /**

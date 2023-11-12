@@ -1,14 +1,17 @@
 /**
- * @file      Forward.hpp
+ * @file      SerialPort.hpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Forward declaration of all PSX hardware components
+ * @brief     Header for the PSX Serial Port
  *
  * @version   0.1
  *
- * @date      26. 10. 2023, 15:22 (created)
+ * @date      10. 11. 2023, 20:01 (created)
+ *
+ * @section   TODO: replace with actual documentation
+ * TODO: documentation text
  *
  * @section License
  * This file is part of the TODO: project \n
@@ -28,29 +31,37 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef FORWARD_HPP
-#define FORWARD_HPP
+#ifndef SERIALPORT_HPP
+#define SERIALPORT_HPP
 
-#include "TimerTypes.hpp"
+#include <memory>
+#include "Component.hpp"
+#include "Forward.hpp"
 
 namespace PSX
 {
-    class Bus;
-    class CPU;
-    class GPU;
-    class SPU;
-    class MDEC;
-    class CDROM;
-    template<ClockSource> class Timer;
-    class IOPorts;
-    class SerialPort;
-    class Peripherals;
-    class RamController;
-    class MemController;
-    class DMAController;
-    class CacheController;
-    class ExceptionController;
-    class InterruptController;
+    /**
+     * @brief PSX Serial Port
+     */
+    class SerialPort final : public Component
+    {
+    public:
+
+        SerialPort()
+        {
+            
+        }
+        
+        virtual ~SerialPort() override = default;
+
+        virtual void execute(u32 num_steps) override;
+        virtual u32  read(u32 address) override;
+        virtual void write(u32 address, u32 value) override;
+        virtual void reset() override;
+
+    private:
+
+    };
 }
 
-#endif // FORWARD_HPP
+#endif // SERIALPORT_HPP

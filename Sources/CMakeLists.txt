@@ -34,6 +34,7 @@ add_executable(emu
     src/CDROM.cpp
     src/Timer.cpp
     src/IOPorts.cpp
+    src/SerialPort.cpp
     src/Peripherals.cpp
     src/RamController.cpp
     src/MemController.cpp
