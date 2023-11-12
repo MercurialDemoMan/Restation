@@ -76,6 +76,11 @@ namespace PSX
         std::shared_ptr<ExceptionController> exception_controller() const;
 
         /**
+         * @brief get number of clock cycles since execution 
+         */
+        u64 clock_cycles() const;
+
+        /**
          * @brief assess the state of the cpu and return it in a readable form
          */
         std::string to_string() const;
@@ -303,7 +308,7 @@ namespace PSX
         static constexpr const u32 PCResetAddress               = 0xBFC0'0000; /// default reset address for program counter
         static constexpr const u32 JumpFilter                   = 0xF000'0000;
         static constexpr const u32 CacheLineValidMask           = 0x8000'0000;
-        static constexpr const u32 LastExecutedInstructionsSize = 8;
+        static constexpr const u32 LastExecutedInstructionsSize = 64;
 
         /**
          * connected devices 
@@ -335,8 +340,9 @@ namespace PSX
          */
         /// circular buffer to keep track of a few last executed instructions 
         std::array<ExecutedInstruction, LastExecutedInstructionsSize> m_meta_last_executed_instructions; 
-        u32 m_meta_last_executed_instruction_index;                                                      
+        u32 m_meta_last_executed_instruction_index;  
 
+        u64 m_meta_cycles; /// track number of clock cycles
     };
 }
 

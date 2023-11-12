@@ -77,6 +77,15 @@ namespace PSX
 
             // update register load delay slots
             update_load_delay_slots();
+
+            // keep track of clock cycles
+            m_meta_cycles++;
+            /*
+            if(m_meta_cycles > 86363)
+            {
+                LOG(to_string());
+                exit(1);
+            }*/
         }
     }
 
@@ -118,6 +127,8 @@ namespace PSX
         m_meta_last_executed_instruction_index = 0;
         for(auto& ins: m_meta_last_executed_instructions)
              ins = { 0, CPUInstruction(0x0000'0001) }; // invalid instruction
+        
+        m_meta_cycles = 0;
     }
 
     /**
@@ -190,7 +201,7 @@ namespace PSX
             return;
 
         // if we are trying to set already queued register, reset the queued delay slot
-        if(register_id == m_load_delay_slots[LoadDelaySlotIndex::Current].register_id)
+        if(m_load_delay_slots[LoadDelaySlotIndex::Current].register_id == register_id)
             m_load_delay_slots[LoadDelaySlotIndex::Current].register_id = LoadDelaySlotEmptyRegister;
 
         // queue the register value
@@ -304,6 +315,14 @@ namespace PSX
     std::shared_ptr<ExceptionController> CPU::exception_controller() const
     {
         return m_exception_controller;
+    }
+
+    /**
+     * @brief get number of clock cycles since execution 
+     */
+    u64 CPU::clock_cycles() const
+    {
+        return m_meta_cycles;
     }
 
     /**
@@ -614,7 +633,7 @@ namespace PSX
     void CPU::LWL(const CPUInstruction& ins)
     {
         u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
-        u32 value   = m_bus->dispatch_read<u32>(address & 0xFFFFFFFC);
+        u32 value   = m_bus->dispatch_read<u32>(address & 0xFFFF'FFFC);
 
         u32 register_value = 0;
 
@@ -629,10 +648,10 @@ namespace PSX
 
         switch(address % 4)
         {
-            case 0: { load_delay_slot(ins.register_target, (register_value & 0x00FFFFFF) | (value << 24)); break; }
-            case 1: { load_delay_slot(ins.register_target, (register_value & 0x0000FFFF) | (value << 16)); break; }
-            case 2: { load_delay_slot(ins.register_target, (register_value & 0x000000FF) | (value <<  8)); break; }
-            case 3: { load_delay_slot(ins.register_target, (register_value & 0x00000000) | (value <<  0)); break; }
+            case 0: { load_delay_slot(ins.register_target, (register_value & 0x00FF'FFFF) | (value << 24)); break; }
+            case 1: { load_delay_slot(ins.register_target, (register_value & 0x0000'FFFF) | (value << 16)); break; }
+            case 2: { load_delay_slot(ins.register_target, (register_value & 0x0000'00FF) | (value <<  8)); break; }
+            case 3: { load_delay_slot(ins.register_target, (register_value & 0x0000'0000) | (value <<  0)); break; }
         }
     }
 
@@ -683,7 +702,7 @@ namespace PSX
     void CPU::LWR(const CPUInstruction& ins)
     {
         u32 address = m_register_field[ins.register_source] + ins.immediate_signed;
-        u32 value   = m_bus->dispatch_read<u32>(address & 0xFFFFFFFC);
+        u32 value   = m_bus->dispatch_read<u32>(address & 0xFFFF'FFFC);
 
         u32 register_value = 0;
 
@@ -698,10 +717,10 @@ namespace PSX
 
         switch(address % 4)
         {
-            case 0: { load_delay_slot(ins.register_target, (register_value & 0x00000000) | (value >>  0)); break; }
-            case 1: { load_delay_slot(ins.register_target, (register_value & 0xFF000000) | (value >>  8)); break; }
-            case 2: { load_delay_slot(ins.register_target, (register_value & 0xFFFF0000) | (value >> 16)); break; }
-            case 3: { load_delay_slot(ins.register_target, (register_value & 0xFFFFFF00) | (value >> 24)); break; }
+            case 0: { load_delay_slot(ins.register_target, (register_value & 0x0000'0000) | (value >>  0)); break; }
+            case 1: { load_delay_slot(ins.register_target, (register_value & 0xFF00'0000) | (value >>  8)); break; }
+            case 2: { load_delay_slot(ins.register_target, (register_value & 0xFFFF'0000) | (value >> 16)); break; }
+            case 3: { load_delay_slot(ins.register_target, (register_value & 0xFFFF'FF00) | (value >> 24)); break; }
         }
     }
 
@@ -736,15 +755,15 @@ namespace PSX
     void CPU::SWL(const CPUInstruction& ins)
     {
         u32 address        = m_register_field[ins.register_source] + ins.immediate_signed;
-        u32 value          = m_bus->dispatch_read<u32>(address & 0xFFFFFFFC);
+        u32 value          = m_bus->dispatch_read<u32>(address & 0xFFFF'FFFC);
         u32 register_value = m_register_field[ins.register_target];
 
         switch(address % 4)
         {
-            case 0: { m_bus->dispatch_write<u32>(address & 0xFFFFFFFC, (value & 0xFFFFFF00) | (register_value >> 24)); break; }
-            case 1: { m_bus->dispatch_write<u32>(address & 0xFFFFFFFC, (value & 0xFFFF0000) | (register_value >> 16)); break; }
-            case 2: { m_bus->dispatch_write<u32>(address & 0xFFFFFFFC, (value & 0xFF000000) | (register_value >>  8)); break; }
-            case 3: { m_bus->dispatch_write<u32>(address & 0xFFFFFFFC, (value & 0x00000000) | (register_value >>  0)); break; }
+            case 0: { m_bus->dispatch_write<u32>(address & 0xFFFFFFFC, (value & 0xFFFF'FF00) | (register_value >> 24)); break; }
+            case 1: { m_bus->dispatch_write<u32>(address & 0xFFFFFFFC, (value & 0xFFFF'0000) | (register_value >> 16)); break; }
+            case 2: { m_bus->dispatch_write<u32>(address & 0xFFFFFFFC, (value & 0xFF00'0000) | (register_value >>  8)); break; }
+            case 3: { m_bus->dispatch_write<u32>(address & 0xFFFFFFFC, (value & 0x0000'0000) | (register_value >>  0)); break; }
         }
     }
 
@@ -770,15 +789,15 @@ namespace PSX
     void CPU::SWR(const CPUInstruction& ins)
     {
         u32 address        = m_register_field[ins.register_source] + ins.immediate_signed;
-        u32 value          = m_bus->dispatch_read<u32>(address & 0xFFFFFFFC);
+        u32 value          = m_bus->dispatch_read<u32>(address & 0xFFFF'FFFC);
         u32 register_value = m_register_field[ins.register_target];
 
         switch(address % 4)
         {
-            case 0: { m_bus->dispatch_write<u32>(address & 0xFFFFFFFC, (value & 0x00000000) | (register_value <<  0)); break; }
-            case 1: { m_bus->dispatch_write<u32>(address & 0xFFFFFFFC, (value & 0x000000FF) | (register_value <<  8)); break; }
-            case 2: { m_bus->dispatch_write<u32>(address & 0xFFFFFFFC, (value & 0x0000FFFF) | (register_value << 16)); break; }
-            case 3: { m_bus->dispatch_write<u32>(address & 0xFFFFFFFC, (value & 0x00FFFFFF) | (register_value << 24)); break; }
+            case 0: { m_bus->dispatch_write<u32>(address & 0xFFFF'FFFC, (value & 0x0000'0000) | (register_value <<  0)); break; }
+            case 1: { m_bus->dispatch_write<u32>(address & 0xFFFF'FFFC, (value & 0x0000'00FF) | (register_value <<  8)); break; }
+            case 2: { m_bus->dispatch_write<u32>(address & 0xFFFF'FFFC, (value & 0x0000'FFFF) | (register_value << 16)); break; }
+            case 3: { m_bus->dispatch_write<u32>(address & 0xFFFF'FFFC, (value & 0x00FF'FFFF) | (register_value << 24)); break; }
         }
     }
 
@@ -853,7 +872,8 @@ namespace PSX
      */
     void CPU::SLL(const CPUInstruction& ins)
     {
-        set_register(ins.register_destination, m_register_field[ins.register_target] << ins.shift);
+        set_register(ins.register_destination, 
+                     m_register_field[ins.register_target] << ins.shift);
     }
 
     /**
@@ -1016,7 +1036,7 @@ namespace PSX
         // denominator is 0
         if(m_register_field[ins.register_target] == 0)
         {
-            m_register_low  = static_cast<s32>(m_register_field[ins.register_source]) < 0 ? 1 : -1;
+            m_register_low  = static_cast<s32>(m_register_field[ins.register_source]) < 0 ? 1 : 0xFFFF'FFFF;
             m_register_high = m_register_field[ins.register_source];
             return;
         }
@@ -1100,7 +1120,7 @@ namespace PSX
      */
     void CPU::SUBU(const CPUInstruction& ins)
     {
-        set_register(ins.register_destination, m_register_field[ins.register_source] + 
+        set_register(ins.register_destination, m_register_field[ins.register_source] - 
                                                m_register_field[ins.register_target]);
     }
 
