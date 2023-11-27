@@ -37,6 +37,8 @@
 #include <memory>
 #include "Component.hpp"
 #include "Forward.hpp"
+#include "DMAChannel.hpp"
+#include "DMATypes.hpp"
 
 namespace PSX
 {
@@ -50,7 +52,7 @@ namespace PSX
         DMAController(const std::shared_ptr<Bus>& bus) :
             m_bus(bus)
         {
-            
+            reset();
         }
         
         virtual ~DMAController() override = default;
@@ -62,8 +64,67 @@ namespace PSX
 
     private:
 
-        std::shared_ptr<Bus> m_bus;
+        std::shared_ptr<Bus>        m_bus;
+        std::shared_ptr<DMAChannel> m_channels[ChannelType::Size];
 
+        /**
+         * @brief DMA Control register 
+         */
+        union Control
+        {
+            struct
+            {
+                u32 mdec_in_priority:       3;
+                u32 mdec_in_master_enable:  1;
+                u32 mdec_out_priority:      3;
+                u32 mdec_out_master_enable: 1;
+                u32 gpu_priority:           3;
+                u32 gpu_master_enable:      1;
+                u32 cdrom_priority:         3;
+                u32 cdrom_master_enable:    1;
+                u32 spu_priority:           3;
+                u32 spu_master_enable:      1;
+                u32 pio_priority:           3;
+                u32 pio_master_enable:      1;
+                u32 otc_priority:           3;
+                u32 otc_master_enable:      1;
+            };
+
+            u32 raw;
+        };
+
+        /**
+         * @brief DMA Interrupt register 
+         */
+        union Interrupt
+        {
+            struct
+            {
+                u32: 15;
+                u32 force_irq:             1;
+                u32 channel0_enable:       1;
+                u32 channel1_enable:       1;
+                u32 channel2_enable:       1;
+                u32 channel3_enable:       1;
+                u32 channel4_enable:       1;
+                u32 channel5_enable:       1;
+                u32 channel6_enable:       1;
+                u32 channel_master_enable: 1;
+                u32 channel0_irq:          1;
+                u32 channel1_irq:          1;
+                u32 channel2_irq:          1;
+                u32 channel3_irq:          1;
+                u32 channel4_irq:          1;
+                u32 channel5_irq:          1;
+                u32 channel6_irq:          1;
+                u32 irq_master_enable:     1;
+            };
+
+            u32 raw;
+        };
+
+        Control   m_control;
+        Interrupt m_interrupt;
     };
 }
 

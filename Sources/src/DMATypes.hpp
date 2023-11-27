@@ -1,14 +1,14 @@
 /**
- * @file      DMAController.cpp
+ * @file      DMATypes.hpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Implementation of the PSX Direct memory access controller
+ * @brief     Definition for the PSX Direct memory access types
  *
  * @version   0.1
  *
- * @date      26. 10. 2023, 16:20 (created)
+ * @date      27. 11. 2023, 17:36 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -31,34 +31,22 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#include "DMAController.hpp"
-#include "Bus.hpp"
+#ifndef DMATYPES_HPP
+#define DMATYPES_HPP
 
 namespace PSX
 {
-    void DMAController::execute(u32 num_steps)
+    enum ChannelType
     {
-        MARK_UNUSED(num_steps);
-        TODO();
-    }
-
-    u32 DMAController::read(u32 address)
-    {
-        MARK_UNUSED(address);
-        TODO();
-    }
-
-    void DMAController::write(u32 address, u32 value)
-    {
-        MARK_UNUSED(address);
-        MARK_UNUSED(value);
-        TODO();
-    }
-
-    void DMAController::reset()
-    {
-        m_control.raw   = 0x07654321;
-        m_interrupt.raw = 0;
-        TODO();
-    }
+        MDECIN  = 0,
+        MDECOUT = 1,
+        GPU     = 2,
+        CDROM   = 3,
+        SPU     = 4,
+        PIO     = 5,
+        OTC     = 6,
+        Size    = 7
+    };
 }
+
+#endif // DMATYPES_HPP

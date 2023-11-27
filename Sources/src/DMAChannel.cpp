@@ -1,14 +1,16 @@
+
+
 /**
- * @file      DMAController.cpp
+ * @file      DMAChannel.cpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Implementation of the PSX Direct memory access controller
+ * @brief     Implementation for the PSX Direct memory access channel
  *
  * @version   0.1
  *
- * @date      26. 10. 2023, 16:20 (created)
+ * @date      27. 11. 2023, 17:36 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -30,35 +32,3 @@
  * You should have received a copy of the GNU General Public License along with
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
-
-#include "DMAController.hpp"
-#include "Bus.hpp"
-
-namespace PSX
-{
-    void DMAController::execute(u32 num_steps)
-    {
-        MARK_UNUSED(num_steps);
-        TODO();
-    }
-
-    u32 DMAController::read(u32 address)
-    {
-        MARK_UNUSED(address);
-        TODO();
-    }
-
-    void DMAController::write(u32 address, u32 value)
-    {
-        MARK_UNUSED(address);
-        MARK_UNUSED(value);
-        TODO();
-    }
-
-    void DMAController::reset()
-    {
-        m_control.raw   = 0x07654321;
-        m_interrupt.raw = 0;
-        TODO();
-    }
-}
