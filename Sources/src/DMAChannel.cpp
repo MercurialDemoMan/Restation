@@ -32,3 +32,36 @@
  * You should have received a copy of the GNU General Public License along with
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
+
+#include "DMAChannel.hpp"
+#include "Bus.hpp"
+
+namespace PSX
+{
+    void DMAChannel::execute(u32 num_steps)
+    {
+        MARK_UNUSED(num_steps);
+        TODO();
+    }
+
+    u32 DMAChannel::read(u32 address)
+    {
+        MARK_UNUSED(address);
+        TODO();
+    }
+
+    void DMAChannel::write(u32 address, u32 value)
+    {
+        MARK_UNUSED(address);
+        MARK_UNUSED(value);
+        TODO();
+    }
+
+    void DMAChannel::reset()
+    {
+        m_base_address.raw    = 0;
+        m_block_control.raw   = 0;
+        m_channel_control.raw = 0;
+        TODO();
+    }
+}

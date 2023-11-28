@@ -1,14 +1,14 @@
 /**
- * @file      DMATypes.hpp
+ * @file      DMAChannelOTC.hpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Definition for the PSX Direct memory access types
+ * @brief     Header for the PSX 3rd DMA Channel for accessing OTC
  *
  * @version   0.1
  *
- * @date      27. 11. 2023, 17:36 (created)
+ * @date      28. 11. 2023, 11:36 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -31,22 +31,34 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef DMATYPES_HPP
-#define DMATYPES_HPP
+#ifndef DMACHANNELOTC_HPP
+#define DMACHANNELOTC_HPP
+
+#include <memory>
+#include "Component.hpp"
+#include "Forward.hpp"
+#include "DMAChannel.hpp"
+#include "DMATypes.hpp"
 
 namespace PSX
 {
-    enum class ChannelType
+    /**
+     * @brief PSX 7th DMA Channel
+     */
+    class DMAChannelOTC final : public DMAChannel
     {
-        MDECIN  = 0,
-        MDECOUT = 1,
-        GPU     = 2,
-        CDROM   = 3,
-        SPU     = 4,
-        PIO     = 5,
-        OTC     = 6,
-        Size    = 7
+    public:
+
+        DMAChannelOTC(const std::shared_ptr<Bus>& bus) :
+            DMAChannel(bus)
+        {
+            
+        }
+        
+        virtual ~DMAChannelOTC() override = default;
+        virtual ChannelType type() const override { return ChannelType::OTC; };
+
     };
 }
 
-#endif // DMATYPES_HPP
+#endif // DMACHANNELOTC_HPP

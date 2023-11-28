@@ -1,14 +1,14 @@
 /**
- * @file      DMATypes.hpp
+ * @file      DMAChannelGPU.hpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Definition for the PSX Direct memory access types
+ * @brief     Header for the PSX 3rd DMA Channel for accessing GPU
  *
  * @version   0.1
  *
- * @date      27. 11. 2023, 17:36 (created)
+ * @date      28. 11. 2023, 11:36 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -31,22 +31,39 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef DMATYPES_HPP
-#define DMATYPES_HPP
+#ifndef DMACHANNELGPU_HPP
+#define DMACHANNELGPU_HPP
+
+#include <memory>
+#include "Component.hpp"
+#include "Forward.hpp"
+#include "DMAChannel.hpp"
+#include "DMATypes.hpp"
 
 namespace PSX
 {
-    enum class ChannelType
+    /**
+     * @brief PSX 3rd DMA Channel
+     */
+    class DMAChannelGPU final : public DMAChannel
     {
-        MDECIN  = 0,
-        MDECOUT = 1,
-        GPU     = 2,
-        CDROM   = 3,
-        SPU     = 4,
-        PIO     = 5,
-        OTC     = 6,
-        Size    = 7
+    public:
+
+        DMAChannelGPU(const std::shared_ptr<Bus>& bus, const std::shared_ptr<GPU>& gpu) :
+            DMAChannel(bus),
+            m_gpu(gpu)
+        {
+            
+        }
+        
+        virtual ~DMAChannelGPU() override = default;
+        virtual ChannelType type() const override { return ChannelType::GPU; };
+
+    private:
+
+        std::shared_ptr<GPU> m_gpu;
+
     };
 }
 
-#endif // DMATYPES_HPP
+#endif // DMACHANNELGPU_HPP

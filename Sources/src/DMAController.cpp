@@ -33,6 +33,9 @@
 
 #include "DMAController.hpp"
 #include "Bus.hpp"
+#include "DMAChannel.hpp"
+#include "DMAChannelMDECIN.hpp"
+#include "DMAChannelMDECOUT.hpp"
 
 namespace PSX
 {
@@ -44,21 +47,57 @@ namespace PSX
 
     u32 DMAController::read(u32 address)
     {
-        MARK_UNUSED(address);
-        TODO();
+        switch(address)
+        {
+            case 0 ... 111:
+            {
+                return m_channels[address / 16]->read(address & 0b1111);
+            }
+            case 112 ... 116:
+            {
+                return m_control.bytes[address - 112];
+            }
+            case 117 ... 121:
+            {
+                return m_control.bytes[address - 117];
+            }
+        }
+
+        UNREACHABLE();
     }
 
     void DMAController::write(u32 address, u32 value)
     {
-        MARK_UNUSED(address);
-        MARK_UNUSED(value);
-        TODO();
+        switch(address)
+        {
+            case 0 ... 111:
+            {
+                m_channels[address / 16]->write(address & 0b1111, value); return;
+            }
+            case 112 ... 116:
+            {
+                m_control.bytes[address - 112] = value; return;
+            }
+            case 117 ... 121:
+            {
+                m_control.bytes[address - 117] = value; return;
+            }
+        }
+
+        UNREACHABLE();
     }
 
     void DMAController::reset()
     {
         m_control.raw   = 0x07654321;
         m_interrupt.raw = 0;
+        m_channels[static_cast<u32>(ChannelType::MDECIN)]  = std::make_shared<DMAChannelMDECIN>(m_bus, m_mdec);
+        m_channels[static_cast<u32>(ChannelType::MDECOUT)] = std::make_shared<DMAChannelMDECOUT>(m_bus, m_mdec);
+        m_channels[static_cast<u32>(ChannelType::GPU)]     = std::make_shared<DMAChannelMDECOUT>(m_bus, m_gpu);
+        m_channels[static_cast<u32>(ChannelType::CDROM)]   = std::make_shared<DMAChannelMDECOUT>(m_bus, m_cdrom);
+        m_channels[static_cast<u32>(ChannelType::SPU)]     = std::make_shared<DMAChannelMDECOUT>(m_bus, m_spu);
+        m_channels[static_cast<u32>(ChannelType::PIO)]     = std::make_shared<DMAChannelMDECOUT>(m_bus);
+        m_channels[static_cast<u32>(ChannelType::OTC)]     = std::make_shared<DMAChannelMDECOUT>(m_bus);
         TODO();
     }
 }

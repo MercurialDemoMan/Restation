@@ -37,20 +37,21 @@
 #include <memory>
 #include "Component.hpp"
 #include "Forward.hpp"
+#include "DMATypes.hpp"
 
 namespace PSX
 {
     /**
      * @brief PSX Direct memory access channel
      */
-    class DMAChannel final : public Component
+    class DMAChannel : public Component
     {
     public:
 
         DMAChannel(const std::shared_ptr<Bus>& bus) :
             m_bus(bus)
         {
-            
+            reset();
         }
         
         virtual ~DMAChannel() override = default;
@@ -59,18 +60,95 @@ namespace PSX
         virtual u32  read(u32 address) override;
         virtual void write(u32 address, u32 value) override;
         virtual void reset() override;
+        virtual ChannelType type() const = 0;
 
-    private:
+    protected:
 
         std::shared_ptr<Bus> m_bus;
 
         /**
+         * @brief DMA Channel base address for initiating DMA 
+         */
+        union BaseAddress
+        {
+            struct
+            {
+                u32 address: 24;
+
+                u32:         8;
+            };
+
+            u32 raw;
+        };
+
+        /**
+         * @brief DMA Channel block control for initiating DMA
+         */
+        union BlockControl
+        {
+            union
+            {
+                // sync mode 0 = OTC + CDROM
+                struct
+                {
+                    u32 num_words: 16;
+
+                    u32:           16;
+                } sync_mode_0;
+
+                // sync mode 1 = MDEC + SPU + GPU vram
+                struct
+                {
+                    u32 block_size: 16;
+                    u32 num_blocks: 16;
+                } sync_mode_1;
+
+                // sync mode 2 = GPU command list
+                struct
+                {
+                    u32: 32;
+                } sync_mode_2;
+            };
+            
+            u32 raw;
+        };
+
+        /**
          * @brief DMA Channel Control register 
          */
-        struct ChannelControl
+        union ChannelControl
         {
-            
+            struct
+            {
+                u32 transfer_direction:  1; // 0 to ram, 1 from ram
+                u32 memory_address_step: 1; // 0 = +4, 1 = -4
+
+                u32: 6;
+
+                u32 chopping_enable: 1;
+                u32 sync_mode: 2;
+
+                u32: 5;
+
+                u32 chopping_dma_window_size: 3;
+
+                u32: 1;
+
+                u32 chopping_cpu_window_size: 3;
+
+                u32: 3;
+
+                u32 start_trigger: 1;
+
+                u32: 3;
+            };
+
+            u32 raw;
         };
+
+        BaseAddress    m_base_address;
+        BlockControl   m_block_control;
+        ChannelControl m_channel_control;
     };
 }
 

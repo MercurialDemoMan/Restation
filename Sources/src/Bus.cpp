@@ -84,7 +84,7 @@ namespace PSX
         m_peripherals          = std::make_shared<Peripherals>(shared_from_this());
         m_ram_controller       = std::make_shared<RamController>();
         m_mem_controller       = std::make_shared<MemController>();
-        m_dma_controller       = std::make_shared<DMAController>(shared_from_this());
+        m_dma_controller       = std::make_shared<DMAController>(shared_from_this(), m_mdec, m_gpu, m_spu, m_cdrom);
         m_cache_controller     = std::make_shared<CacheController>();
         m_interrupt_controller = std::make_shared<InterruptController>(m_cpu->exception_controller());
         m_timer_dotclock       = std::make_shared<Timer<ClockSource::DotClock>>(m_interrupt_controller);   

@@ -1,14 +1,14 @@
 /**
- * @file      DMATypes.hpp
+ * @file      DMAChannelOTC.cpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Definition for the PSX Direct memory access types
+ * @brief     Implementation for the PSX 7th DMA Channel for accessing OTC
  *
  * @version   0.1
  *
- * @date      27. 11. 2023, 17:36 (created)
+ * @date      28. 11. 2023, 11:36 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -30,23 +30,11 @@
  * You should have received a copy of the GNU General Public License along with
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
-
-#ifndef DMATYPES_HPP
-#define DMATYPES_HPP
+#include "DMAChannelOTC.hpp"
+#include "Bus.hpp"
+#include "GPU.hpp"
 
 namespace PSX
 {
-    enum class ChannelType
-    {
-        MDECIN  = 0,
-        MDECOUT = 1,
-        GPU     = 2,
-        CDROM   = 3,
-        SPU     = 4,
-        PIO     = 5,
-        OTC     = 6,
-        Size    = 7
-    };
+    
 }
-
-#endif // DMATYPES_HPP

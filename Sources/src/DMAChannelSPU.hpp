@@ -1,14 +1,14 @@
 /**
- * @file      DMATypes.hpp
+ * @file      DMAChannelSPU.hpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Definition for the PSX Direct memory access types
+ * @brief     Header for the PSX 3rd DMA Channel for accessing SPU
  *
  * @version   0.1
  *
- * @date      27. 11. 2023, 17:36 (created)
+ * @date      28. 11. 2023, 11:36 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -31,22 +31,39 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef DMATYPES_HPP
-#define DMATYPES_HPP
+#ifndef DMACHANNELSPU_HPP
+#define DMACHANNELSPU_HPP
+
+#include <memory>
+#include "Component.hpp"
+#include "Forward.hpp"
+#include "DMAChannel.hpp"
+#include "DMATypes.hpp"
 
 namespace PSX
 {
-    enum class ChannelType
+    /**
+     * @brief PSX 5th DMA Channel
+     */
+    class DMAChannelSPU final : public DMAChannel
     {
-        MDECIN  = 0,
-        MDECOUT = 1,
-        GPU     = 2,
-        CDROM   = 3,
-        SPU     = 4,
-        PIO     = 5,
-        OTC     = 6,
-        Size    = 7
+    public:
+
+        DMAChannelSPU(const std::shared_ptr<Bus>& bus, const std::shared_ptr<SPU>& spu) :
+            DMAChannel(bus),
+            m_spu(spu)
+        {
+            
+        }
+        
+        virtual ~DMAChannelSPU() override = default;
+        virtual ChannelType type() const override { return ChannelType::SPU; };
+
+    private:
+
+        std::shared_ptr<SPU> m_spu;
+
     };
 }
 
-#endif // DMATYPES_HPP
+#endif // DMACHANNELSPU_HPP

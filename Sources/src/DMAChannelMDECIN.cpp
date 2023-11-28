@@ -1,10 +1,12 @@
+
+
 /**
- * @file      DMATypes.hpp
+ * @file      DMAChannelMDECIN.cpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Definition for the PSX Direct memory access types
+ * @brief     Implementation for the PSX 1st DMA channel for supplying MDEC with input data
  *
  * @version   0.1
  *
@@ -31,22 +33,11 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef DMATYPES_HPP
-#define DMATYPES_HPP
+#include "DMAChannelMDECIN.hpp"
+#include "Bus.hpp"
+#include "MDEC.hpp"
 
 namespace PSX
 {
-    enum class ChannelType
-    {
-        MDECIN  = 0,
-        MDECOUT = 1,
-        GPU     = 2,
-        CDROM   = 3,
-        SPU     = 4,
-        PIO     = 5,
-        OTC     = 6,
-        Size    = 7
-    };
-}
 
-#endif // DMATYPES_HPP
+}

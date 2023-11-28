@@ -35,12 +35,20 @@ add_executable(emu
     src/Timer.cpp
     src/IOPorts.cpp
     src/SerialPort.cpp
+    src/DMAChannel.cpp
     src/Peripherals.cpp
+    src/DMAChannelSPU.cpp
+    src/DMAChannelPIO.cpp
+    src/DMAChannelOTC.cpp
+    src/DMAChannelGPU.cpp
     src/RamController.cpp
     src/MemController.cpp
     src/DMAController.cpp
     src/CacheController.cpp
     src/CPUDisassembler.cpp
+    src/DMAChannelCDROM.cpp
+    src/DMAChannelMDECIN.cpp
+    src/DMAChannelMDECOUT.cpp
     src/ExceptionController.cpp
     src/InterruptController.cpp
     src/Bus.cpp)

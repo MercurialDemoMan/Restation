@@ -37,7 +37,6 @@
 #include <memory>
 #include "Component.hpp"
 #include "Forward.hpp"
-#include "DMAChannel.hpp"
 #include "DMATypes.hpp"
 
 namespace PSX
@@ -49,8 +48,16 @@ namespace PSX
     {
     public:
 
-        DMAController(const std::shared_ptr<Bus>& bus) :
-            m_bus(bus)
+        DMAController(const std::shared_ptr<Bus>& bus, 
+                      const std::shared_ptr<MDEC>& mdec,
+                      const std::shared_ptr<GPU>& gpu,
+                      const std::shared_ptr<SPU>& spu,
+                      const std::shared_ptr<CDROM>& cdrom) :
+            m_bus(bus),
+            m_mdec(mdec),
+            m_gpu(gpu),
+            m_spu(spu),
+            m_cdrom(cdrom)
         {
             reset();
         }
@@ -65,7 +72,11 @@ namespace PSX
     private:
 
         std::shared_ptr<Bus>        m_bus;
-        std::shared_ptr<DMAChannel> m_channels[ChannelType::Size];
+        std::shared_ptr<MDEC>       m_mdec;
+        std::shared_ptr<GPU>        m_gpu;
+        std::shared_ptr<SPU>        m_spu;
+        std::shared_ptr<CDROM>      m_cdrom;
+        std::shared_ptr<DMAChannel> m_channels[static_cast<u32>(ChannelType::Size)];
 
         /**
          * @brief DMA Control register 
@@ -91,6 +102,7 @@ namespace PSX
             };
 
             u32 raw;
+            u8  bytes[sizeof(u32)];
         };
 
         /**
@@ -101,6 +113,7 @@ namespace PSX
             struct
             {
                 u32: 15;
+                
                 u32 force_irq:             1;
                 u32 channel0_enable:       1;
                 u32 channel1_enable:       1;
@@ -121,6 +134,7 @@ namespace PSX
             };
 
             u32 raw;
+            u8  bytes[sizeof(u32)];
         };
 
         Control   m_control;
