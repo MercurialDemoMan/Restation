@@ -36,6 +36,11 @@
 #include "DMAChannel.hpp"
 #include "DMAChannelMDECIN.hpp"
 #include "DMAChannelMDECOUT.hpp"
+#include "DMAChannelGPU.hpp"
+#include "DMAChannelSPU.hpp"
+#include "DMAChannelCDROM.hpp"
+#include "DMAChannelOTC.hpp"
+#include "DMAChannelPIO.hpp"
 
 namespace PSX
 {
@@ -93,11 +98,11 @@ namespace PSX
         m_interrupt.raw = 0;
         m_channels[static_cast<u32>(ChannelType::MDECIN)]  = std::make_shared<DMAChannelMDECIN>(m_bus, m_mdec);
         m_channels[static_cast<u32>(ChannelType::MDECOUT)] = std::make_shared<DMAChannelMDECOUT>(m_bus, m_mdec);
-        m_channels[static_cast<u32>(ChannelType::GPU)]     = std::make_shared<DMAChannelMDECOUT>(m_bus, m_gpu);
-        m_channels[static_cast<u32>(ChannelType::CDROM)]   = std::make_shared<DMAChannelMDECOUT>(m_bus, m_cdrom);
-        m_channels[static_cast<u32>(ChannelType::SPU)]     = std::make_shared<DMAChannelMDECOUT>(m_bus, m_spu);
-        m_channels[static_cast<u32>(ChannelType::PIO)]     = std::make_shared<DMAChannelMDECOUT>(m_bus);
-        m_channels[static_cast<u32>(ChannelType::OTC)]     = std::make_shared<DMAChannelMDECOUT>(m_bus);
+        m_channels[static_cast<u32>(ChannelType::GPU)]     = std::make_shared<DMAChannelGPU>(m_bus, m_gpu);
+        m_channels[static_cast<u32>(ChannelType::CDROM)]   = std::make_shared<DMAChannelCDROM>(m_bus, m_cdrom);
+        m_channels[static_cast<u32>(ChannelType::SPU)]     = std::make_shared<DMAChannelSPU>(m_bus, m_spu);
+        m_channels[static_cast<u32>(ChannelType::PIO)]     = std::make_shared<DMAChannelPIO>(m_bus);
+        m_channels[static_cast<u32>(ChannelType::OTC)]     = std::make_shared<DMAChannelOTC>(m_bus);
         TODO();
     }
 }
