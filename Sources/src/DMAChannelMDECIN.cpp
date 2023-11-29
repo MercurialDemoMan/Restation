@@ -39,5 +39,21 @@
 
 namespace PSX
 {
+    /**
+     * @brief write to MDEC 
+     */
+    void DMAChannelMDECIN::write_to_component(u32 value)
+    {
+        m_mdec->write(0, value);
+    }
 
+    /**
+     * @brief wait for MDEC 
+     */
+    bool DMAChannelMDECIN::sync_request() const
+    {
+        // TODO: implement/stub mdec
+        TODO();
+        return true;
+    }
 }

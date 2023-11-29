@@ -99,6 +99,24 @@ namespace PSX
             return m_meta_interrupt_request;
         }
 
+        /**
+         * @brief used by sync block transfer to 
+         *        check whether there is data to copy
+         */
+        virtual bool sync_request() const
+        {
+            return true;
+        }
+
+        /**
+         * @brief used by sync block transfer to
+         *        check whether copy can be interleaved
+         */
+        virtual bool interleaved_copy() const
+        {
+            return false;
+        }
+
     protected:
 
         std::shared_ptr<Bus> m_bus;

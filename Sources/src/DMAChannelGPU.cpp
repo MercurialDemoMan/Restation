@@ -36,5 +36,19 @@
 
 namespace PSX
 {
-    
+    /**
+     * @brief read from GPU
+     */
+    u32 DMAChannelGPU::read_from_component()
+    {
+        return m_gpu->read(0);
+    }
+
+    /**
+     * @brief write to GPU
+     */
+    void DMAChannelGPU::write_to_component(u32 value)
+    {
+        m_gpu->write(0, value);
+    }
 }

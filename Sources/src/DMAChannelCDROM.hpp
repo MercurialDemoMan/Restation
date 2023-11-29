@@ -59,6 +59,11 @@ namespace PSX
         virtual ~DMAChannelCDROM() override = default;
         virtual ChannelType type() const override { return ChannelType::CDROM; };
 
+        /**
+         * @brief read from CDROM
+         */
+        virtual u32 read_from_component() override;
+
     private:
 
         std::shared_ptr<CDROM> m_cdrom;

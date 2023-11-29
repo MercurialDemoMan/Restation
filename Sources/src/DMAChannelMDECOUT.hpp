@@ -59,6 +59,21 @@ namespace PSX
         virtual ~DMAChannelMDECOUT() override = default;
         virtual ChannelType type() const override { return ChannelType::MDECOUT; };
 
+        /**
+         * @brief read from MDEC 
+         */
+        virtual u32 read_from_component() override;
+
+        /**
+         * @brief wait for MDEC output
+         */
+        virtual bool sync_request() const override;
+
+        /**
+         * @brief interleave block sync copy 
+         */
+        virtual bool interleaved_copy() const override;
+        
     private:
 
         std::shared_ptr<MDEC> m_mdec;

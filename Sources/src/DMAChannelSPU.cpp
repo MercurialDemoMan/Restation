@@ -36,5 +36,21 @@
 
 namespace PSX
 {
-    
+    /**
+     * @brief read from SPU
+     */
+    u32 DMAChannelSPU::read_from_component()
+    {
+        TODO(); 
+        return 0;
+    }
+
+    /**
+     * @brief write to SPU
+     */
+    void DMAChannelSPU::write_to_component(u32 value)
+    {
+        MARK_UNUSED(value);
+        TODO();
+    }
 }

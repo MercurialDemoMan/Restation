@@ -4,7 +4,7 @@
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Header for the PSX 3rd DMA Channel for accessing OTC
+ * @brief     Header for the PSX 3rd DMA Channel for accessing OTC (reverse clear ordering tables)
  *
  * @version   0.1
  *
@@ -58,6 +58,10 @@ namespace PSX
         virtual ~DMAChannelOTC() override = default;
         virtual ChannelType type() const override { return ChannelType::OTC; };
 
+        /**
+         * @brief special word copy
+         */
+        virtual void word_copy() override;
     };
 }
 

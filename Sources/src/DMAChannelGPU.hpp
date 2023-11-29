@@ -59,6 +59,16 @@ namespace PSX
         virtual ~DMAChannelGPU() override = default;
         virtual ChannelType type() const override { return ChannelType::GPU; };
 
+        /**
+         * @brief read from GPU
+         */
+        virtual u32 read_from_component() override;
+
+        /**
+         * @brief write to GPU
+         */
+        virtual void write_to_component(u32 value) override;
+
     private:
 
         std::shared_ptr<GPU> m_gpu;

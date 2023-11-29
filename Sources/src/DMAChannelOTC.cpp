@@ -4,7 +4,7 @@
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Implementation for the PSX 7th DMA Channel for accessing OTC
+ * @brief     Implementation for the PSX 7th DMA Channel for accessing OTC (reverse clear ordering tables)
  *
  * @version   0.1
  *
@@ -36,5 +36,11 @@
 
 namespace PSX
 {
-    
+    /**
+     * @brief special word copy
+     */
+    void DMAChannelOTC::word_copy()
+    {
+        TODO();
+    }
 }

@@ -39,5 +39,29 @@
 
 namespace PSX
 {
+    /**
+     * @brief read from MDEC 
+     */
+    u32 DMAChannelMDECOUT::read_from_component()
+    {
+        return m_mdec->read(0);
+    }
 
+    /**
+     * @brief wait for MDEC output
+     */
+    bool DMAChannelMDECOUT::sync_request() const
+    {
+        //TODO: implement/stub MDEC
+        TODO();
+        return true;
+    }
+
+    /**
+     * @brief interleave block sync copy 
+     */
+    bool DMAChannelMDECOUT::interleaved_copy() const
+    {
+        return true;
+    }
 }

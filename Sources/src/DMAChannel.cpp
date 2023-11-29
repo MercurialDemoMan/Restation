@@ -182,8 +182,8 @@ namespace PSX
         //TODO: remove this?
         m_channel_control.start_trigger = 0;
 
-        //TODO: check sync request
-        TODO();
+        if(!sync_request())
+            return;
 
         u32 start_address = m_base_address.address;
         u32 block_size    = m_block_control.sync_mode_1.block_size;
@@ -227,7 +227,7 @@ namespace PSX
                 m_meta_interrupt_request  = true;
             }
 
-        } while(num_blocks > 0);
+        } while(!interleaved_copy() && num_blocks > 0);
 
         m_block_control.sync_mode_1.num_blocks = num_blocks;
     }

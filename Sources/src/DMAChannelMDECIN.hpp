@@ -59,6 +59,16 @@ namespace PSX
         virtual ~DMAChannelMDECIN() override = default;
         virtual ChannelType type() const override { return ChannelType::MDECIN; };
 
+        /**
+         * @brief write to MDEC 
+         */
+        virtual void write_to_component(u32 value) override;
+
+        /**
+         * @brief wait for when MDEC input is ready
+         */
+        virtual bool sync_request() const override;
+
     private:
 
         std::shared_ptr<MDEC> m_mdec;
