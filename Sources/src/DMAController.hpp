@@ -52,12 +52,14 @@ namespace PSX
                       const std::shared_ptr<MDEC>& mdec,
                       const std::shared_ptr<GPU>& gpu,
                       const std::shared_ptr<SPU>& spu,
-                      const std::shared_ptr<CDROM>& cdrom) :
+                      const std::shared_ptr<CDROM>& cdrom,
+                      const std::shared_ptr<InterruptController>& interrupt_controller) :
             m_bus(bus),
             m_mdec(mdec),
             m_gpu(gpu),
             m_spu(spu),
-            m_cdrom(cdrom)
+            m_cdrom(cdrom),
+            m_interrupt_controller(interrupt_controller)
         {
             reset();
         }
@@ -76,12 +78,13 @@ namespace PSX
         std::shared_ptr<GPU>        m_gpu;
         std::shared_ptr<SPU>        m_spu;
         std::shared_ptr<CDROM>      m_cdrom;
+        std::shared_ptr<InterruptController> m_interrupt_controller;
         std::shared_ptr<DMAChannel> m_channels[static_cast<u32>(ChannelType::Size)];
 
         /**
          * @brief DMA Control register 
          */
-        union Control
+        union DMAControl
         {
             struct
             {
@@ -108,7 +111,7 @@ namespace PSX
         /**
          * @brief DMA Interrupt register 
          */
-        union Interrupt
+        union DMAInterrupt
         {
             struct
             {
@@ -137,8 +140,10 @@ namespace PSX
             u8  bytes[sizeof(u32)];
         };
 
-        Control   m_control;
-        Interrupt m_interrupt;
+        DMAControl   m_control;
+        DMAInterrupt m_interrupt;
+
+        bool         m_meta_interrupt_request;
     };
 }
 

@@ -46,8 +46,9 @@ namespace PSX
 
     u32 SPU::read(u32 address)
     {
-        MARK_UNUSED(address);
-        TODO();
+        MARK_UNUSED(address);     
+        LOG_WARNING(fmt::format("read from SPU detected 0x{:08x}", address));
+        return 0;
     }
 
     void SPU::write(u32 address, u32 value)

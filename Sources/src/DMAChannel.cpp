@@ -41,20 +41,68 @@ namespace PSX
     void DMAChannel::execute(u32 num_steps)
     {
         MARK_UNUSED(num_steps);
-        TODO();
+
+        if(!m_channel_control.enabled)
+            return;
+
+        if(m_channel_control.sync_mode     == 0 && // block mode
+           m_channel_control.start_trigger != 1)   // manual
+            return;
+
+        switch(m_channel_control.sync_mode)
+        {
+            case 0: { word_copy();        break; }
+            case 1: { block_copy();       break; }
+            case 2: { linked_list_copy(); break; }
+            case 3: { UNREACHABLE();      break; }
+        }
     }
 
     u32 DMAChannel::read(u32 address)
     {
-        MARK_UNUSED(address);
-        TODO();
+        switch(address)
+        {
+            case 0 ... 3:
+            {
+                return m_base_address.bytes[address - 0];
+            }
+            case 4 ... 7:
+            {
+                return m_block_control.bytes[address - 4];
+            }
+            case 8 ... 11:
+            {
+                return m_channel_control.bytes[address - 8];
+            }
+        }
+
+        UNREACHABLE();
     }
 
     void DMAChannel::write(u32 address, u32 value)
     {
-        MARK_UNUSED(address);
-        MARK_UNUSED(value);
-        TODO();
+        switch(address)
+        {
+            case 0 ... 3:
+            {
+                m_base_address.bytes[address - 0] = value; return;
+            }
+            case 4 ... 7:
+            {
+                m_block_control.bytes[address - 4] = value; return;
+            }
+            case 8 ... 11:
+            {
+                m_channel_control.bytes[address - 8] = value; return;
+
+                if(m_channel_control.enabled)
+                {
+                    execute(1);
+                }
+            }
+        }
+
+        UNREACHABLE();
     }
 
     void DMAChannel::reset()
@@ -62,6 +110,167 @@ namespace PSX
         m_base_address.raw    = 0;
         m_block_control.raw   = 0;
         m_channel_control.raw = 0;
+        m_meta_interrupt_request = false;
+    }
+
+    /**
+     * @brief read from managed component
+     */
+    u32 DMAChannel::read_from_component()
+    {
+        TODO(); return 0;
+    }
+
+    /**
+     * @brief write to managed component
+     */
+    void DMAChannel::write_to_component(u32 value)
+    {
+        MARK_UNUSED(value);
         TODO();
+    }
+
+    /**
+     * @brief perform DMA in word mode 
+     */
+    void DMAChannel::word_copy()
+    {
+        m_channel_control.start_trigger = 0;
+
+        u32 start_address  = m_base_address.address;
+        u32 num_words      = m_block_control.sync_mode_0.num_words;
+        s32 step_direction = m_channel_control.memory_address_step ? -sizeof(u32) : sizeof(u32);
+
+        // be able to specify max amount of words
+        if(num_words)
+            num_words = 0x10000;
+
+        switch(m_channel_control.transfer_direction)
+        {
+            // to RAM
+            case 0:
+            {
+                for(u32 i = 0; i < num_words; i++)
+                {
+                    m_bus->dispatch_write<u32>(start_address, read_from_component());
+                    start_address += step_direction;
+                }
+                break;
+            }
+
+            // from RAM
+            case 1:
+            {
+                for(u32 i = 0; i < num_words; i++)
+                {
+                    write_to_component(m_bus->dispatch_read<u32>(start_address));
+                    start_address += step_direction;
+                }
+                break;
+            }
+        }
+
+        m_channel_control.enabled = 0;
+        m_meta_interrupt_request  = true;
+    }
+
+    /**
+     * @brief perform DMA in block mode 
+     */
+    void DMAChannel::block_copy()
+    {
+        //TODO: remove this?
+        m_channel_control.start_trigger = 0;
+
+        //TODO: check sync request
+        TODO();
+
+        u32 start_address = m_base_address.address;
+        u32 block_size    = m_block_control.sync_mode_1.block_size;
+        u32 num_blocks    = m_block_control.sync_mode_1.num_blocks;
+        s32 step_direction = m_channel_control.memory_address_step ? -sizeof(u32) : sizeof(u32);
+        
+        do
+        {
+            switch(m_channel_control.transfer_direction)
+            {
+                // to RAM
+                case 0:
+                {
+                    for(u32 i = 0; i < block_size; i++)
+                    {
+                        m_bus->dispatch_write<u32>(start_address, read_from_component());
+                        start_address += step_direction;
+                    }
+                    break;
+                }
+
+                // from RAM
+                case 1:
+                {
+                    for(u32 i = 0; i < block_size; i++)
+                    {
+                        write_to_component(m_bus->dispatch_read<u32>(start_address));
+                        start_address += step_direction;
+                    }
+                    break;
+                }
+            }
+
+            // update address
+            m_base_address.address = start_address;
+
+            // end copy
+            if(--num_blocks == 0)
+            {
+                m_channel_control.enabled = 0;
+                m_meta_interrupt_request  = true;
+            }
+
+        } while(num_blocks > 0);
+
+        m_block_control.sync_mode_1.num_blocks = num_blocks;
+    }
+
+    /**
+     * @brief perform DMA in linked list mode 
+     */
+    void DMAChannel::linked_list_copy()
+    {
+        //TODO: remove this?
+        m_channel_control.start_trigger = 0;
+
+        u32 start_address  = m_base_address.address;
+        s32 step_direction = m_channel_control.memory_address_step ? -sizeof(u32) : sizeof(u32);
+
+        while(true)
+        {
+            // parse node header
+            u32 node_header = m_bus->dispatch_read<u32>(start_address);
+            u32 num_words   = node_header >> 24;
+            u32 next_node   = node_header & 0xFFFFFF;
+
+            // copy data
+            start_address  += step_direction;
+
+            for(u32 i = 0; i < num_words; i++)
+            {
+                write_to_component(m_bus->dispatch_read<u32>(start_address));
+                start_address += step_direction;
+            }
+
+            // move onto the next node
+            start_address = next_node;
+
+            // end copy
+            if(start_address & 0x800000)
+            {
+                break;
+            }
+        }
+
+        m_base_address.address    = start_address;
+        m_channel_control.enabled = 0;
+        m_meta_interrupt_request  = true;
     }
 }

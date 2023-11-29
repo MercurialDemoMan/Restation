@@ -60,7 +60,44 @@ namespace PSX
         virtual u32  read(u32 address) override;
         virtual void write(u32 address, u32 value) override;
         virtual void reset() override;
+
+        /**
+         * @brief read from managed component
+         */
+        virtual u32 read_from_component();
+
+        /**
+         * @brief write to managed component
+         */
+        virtual void write_to_component(u32 value);
+
+        /**
+         * @brief return channel type 
+         */
         virtual ChannelType type() const = 0;
+
+        /**
+         * @brief perform DMA in word mode 
+         */
+        virtual void word_copy();
+
+        /**
+         * @brief perform DMA in block mode 
+         */
+        virtual void block_copy();
+
+        /**
+         * @brief perform DMA in linked list mode 
+         */
+        virtual void linked_list_copy();
+
+        /**
+         * @brief flag for indicating DMA copy has been finished
+         */
+        bool& meta_interrupt_request()
+        {
+            return m_meta_interrupt_request;
+        }
 
     protected:
 
@@ -79,6 +116,7 @@ namespace PSX
             };
 
             u32 raw;
+            u8  bytes[sizeof(u32)];
         };
 
         /**
@@ -111,6 +149,7 @@ namespace PSX
             };
             
             u32 raw;
+            u8  bytes[sizeof(u32)];
         };
 
         /**
@@ -135,6 +174,10 @@ namespace PSX
                 u32: 1;
 
                 u32 chopping_cpu_window_size: 3;
+                
+                u32: 1;
+
+                u32 enabled: 1;
 
                 u32: 3;
 
@@ -144,11 +187,14 @@ namespace PSX
             };
 
             u32 raw;
+            u8  bytes[sizeof(u32)];
         };
 
         BaseAddress    m_base_address;
         BlockControl   m_block_control;
         ChannelControl m_channel_control;
+
+        bool           m_meta_interrupt_request;
     };
 }
 
