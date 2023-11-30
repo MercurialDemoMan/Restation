@@ -35,8 +35,10 @@
 #define GPU_HPP
 
 #include <memory>
+#include <array>
 #include "Component.hpp"
 #include "Forward.hpp"
+#include "GPUConstants.hpp"
 
 namespace PSX
 {
@@ -50,7 +52,7 @@ namespace PSX
         GPU(const std::shared_ptr<Bus>& bus) :
             m_bus(bus)
         {
-            
+            reset();
         }
         
         virtual ~GPU() override = default;
@@ -62,8 +64,136 @@ namespace PSX
 
     private:
 
+        /**
+         * @brief accumulate information from registers
+         */
+        u32 read_stat();
+
+        /**
+         * @brief read from vram 
+         */
+        u32 read_vram();
+
+        /**
+         * @brief connections
+         */
         std::shared_ptr<Bus> m_bus;
 
+        /**
+         * @brief GP0(0xE1) Draw Mode setting register (Texpage)
+         */
+        union DrawMode
+        {
+            struct
+            {
+                u32 texture_page_x_base:   4; // N * 64
+                u32 texture_page_y_base_1: 1; // N * 256
+                u32 semi_transparency:     2;
+                u32 texture_page_colors:   2;
+                u32 dither_24_to_15:       1;
+                u32 drawing_to_display_area_allowed: 1;
+                u32 texture_page_y_base_2: 1; // N * 512
+                u32 texture_rect_x_flip:   1;
+                u32 texture_rect_y_flip:   1;
+                
+                u32: 10;
+
+                u32 ins: 8;
+            };
+
+            u32 raw;
+            u8  bytes[sizeof(u32)];
+        };
+
+        /**
+         * @brief GP0(0xE2) Texture Window setting register
+         */
+        union TextureWindowSetting
+        {
+            struct
+            {
+                u32 texture_window_mask_x: 5;
+                u32 texture_window_mask_y: 5;
+                u32 texture_window_offset_x: 5;
+                u32 texture_window_offset_y: 5;
+                
+                u32: 4;
+
+                u32 ins: 8;
+            };
+
+            u32 raw;
+            u8  bytes[sizeof(u32)];
+        };
+
+        /**
+         * @brief GP0(0xE6) Mask Bit Setting register
+         */
+        union MaskBitSetting
+        {
+            struct
+            {
+                u32 set_mask_while_drawing: 1;
+                u32 check_mask_before_draw: 1;
+                
+                u32: 22;
+
+                u32 ins: 8;
+            };
+
+            u32 raw;
+            u8  bytes[sizeof(u32)];
+        };
+
+        /**
+         * @brief GP1(0x08) Display mode register
+         */
+        union DisplayMode
+        {
+            struct
+            {
+                u32 horizontal_resolution_1:    2;
+                u32 vertical_resolution:        1;
+                u32 video_mode:                 1; // 0 - NTSC, 1 - PAL
+                u32 display_area_color_depth:   1; // 0 - 15bit, 1 - 24bit
+                u32 vertical_interlace_enabled: 1;
+                u32 horizontal_resolution_2:    1;
+                u32 reverse_flag:               1;
+
+                u32: 24;
+            };
+
+            u32 raw;
+            u8  bytes[sizeof(u32)];
+        };
+
+        /**
+         * GPU state 
+         */
+        DrawMode             m_draw_mode;
+        TextureWindowSetting m_texture_window_setting;
+        MaskBitSetting       m_mask_bit_setting;
+        DisplayMode          m_display_mode;
+        u32                  m_read_mode;          /// 0 - read from register, 1 - read from vram
+        u32                  m_read_register;      /// TODO
+        u32                  m_dma_direction;      /// transfering direction
+        u32                  m_dma_start_x;
+        u32                  m_dma_start_y;
+        u32                  m_dma_end_x;
+        u32                  m_dma_end_y;
+        u32                  m_dma_current_x;
+        u32                  m_dma_current_y;
+        bool                 m_display_disable;    /// 1 - disabled, 0 - enabled
+        bool                 m_interrupt_request;  /// did GPU request interrupt
+        bool                 m_ready_to_receive_dma_block;
+        bool                 m_is_frame_odd;
+
+
+        /**
+         * GPU memory regions 
+         */
+        std::array<u32, GPUFIFOSize>            m_command_fifo;
+        std::array<u16, VRamWidth * VRamHeight> m_vram;
     };
 }
 

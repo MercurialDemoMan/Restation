@@ -173,12 +173,12 @@ namespace PSX
             // access GPU
             case (GpuBase) ... (GpuBase + GpuSize - 1):
             {
-                TODO(); return 0;
+                return m_gpu->read(physical_address - GpuBase);
             }
             // access MDEC
             case (MdecBase) ... (MdecBase + MdecSize - 1):
             {
-                TODO(); return 0;
+                return m_mdec->read(physical_address - MdecBase);
             }
             // access SPU
             case (SpuBase) ... (SpuBase + SpuSize - 1):
@@ -289,12 +289,12 @@ namespace PSX
             // access GPU
             case (GpuBase) ... (GpuBase + GpuSize - 1):
             {
-                TODO(); return;
+                m_gpu->write(physical_address - GpuBase, value); return;
             }
             // access MDEC
             case (MdecBase) ... (MdecBase + MdecSize - 1):
             {
-                TODO(); return;
+                m_mdec->write(physical_address - MdecBase, value) return;
             }
             // access SPU
             case (SpuBase) ... (SpuBase + SpuSize - 1):

@@ -47,6 +47,13 @@ namespace PSX
     constexpr const u32 NTSCScanlineCycles = 3413;
 
     /**
+     * GPU internal constants 
+     */
+    constexpr const u32 VRamWidth   = 1024;
+    constexpr const u32 VRamHeight  = 512;
+    constexpr const u32 GPUFIFOSize = 32;
+
+    /**
      * GPU timings 
      */
     constexpr const u32 DotClockStep256 = 10;
