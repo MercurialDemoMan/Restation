@@ -36,6 +36,7 @@
 
 #include <memory>
 #include <array>
+#include <queue>
 #include "Component.hpp"
 #include "Forward.hpp"
 #include "GPUConstants.hpp"
@@ -49,8 +50,9 @@ namespace PSX
     {
     public:
 
-        GPU(const std::shared_ptr<Bus>& bus) :
-            m_bus(bus)
+        GPU(const std::shared_ptr<Bus>& bus, const std::shared_ptr<InterruptController>& interrupt_controller) :
+            m_bus(bus),
+            m_interrupt_controller(interrupt_controller)
         {
             reset();
         }
@@ -61,6 +63,14 @@ namespace PSX
         virtual u32  read(u32 address) override;
         virtual void write(u32 address, u32 value) override;
         virtual void reset() override;
+
+        /**
+         * @brief did GPU render a whole frame? 
+         */
+        bool rendered_new_frame() const
+        {
+            return m_rendered_new_frame;
+        }
 
     private:
 
@@ -75,9 +85,60 @@ namespace PSX
         u32 read_vram();
 
         /**
+         * @brief 
+         */
+        void execute_gp0_command(u32 command);
+
+        /**
+         * @brief 
+         */
+        void execute_gp1_command(u32 command);
+
+        /**
+         * @brief execute drawing/copy command
+         */
+        void execute_gpu_command();
+
+        /**
+         * @brief Quick VRam rectangle fill GPU Command 
+         */
+        void VRamFill();
+
+        /**
+         * @brief Render Polygon GPU Command 
+         */
+        void PolygonRender();
+
+        /**
+         * @brief Render Line GPU Command 
+         */
+        void LineRender();
+
+        /**
+         * @brief Render Rectangle GPU Command 
+         */
+        void RectangleRender();
+
+        /**
+         * @brief Copy RAM to VRAM GPU Command 
+         */
+        void CopyCPUToVRam();
+
+        /**
+         * @brief Copy VRAM to RAM GPU Command 
+         */
+        void CopyVRamToCPU();
+
+        /**
+         * @brief Copy VRAM to VRAM GPU Command 
+         */
+        void CopyVRamToVRam();
+
+        /**
          * @brief connections
          */
         std::shared_ptr<Bus> m_bus;
+        std::shared_ptr<InterruptController> m_interrupt_controller;
 
         /**
          * @brief GP0(0xE1) Draw Mode setting register (Texpage)
@@ -183,16 +244,37 @@ namespace PSX
         u32                  m_dma_end_y;
         u32                  m_dma_current_x;
         u32                  m_dma_current_y;
+        u16                  m_display_area_start_x;
+        u16                  m_display_area_start_y;
+        u16                  m_display_range_x_1;
+        u16                  m_display_range_x_2;
+        u16                  m_display_range_y_1;
+        u16                  m_display_range_y_2;
+        u16                  m_drawing_area_top;
+        u16                  m_drawing_area_left;
+        u16                  m_drawing_area_right;
+        u16                  m_drawing_area_bottom;
+        s16                  m_drawing_offset_x;
+        s16                  m_drawing_offset_y;
+        bool                 m_new_texture_disable;
         bool                 m_display_disable;    /// 1 - disabled, 0 - enabled
         bool                 m_interrupt_request;  /// did GPU request interrupt
         bool                 m_ready_to_receive_dma_block;
-        bool                 m_is_frame_odd;
+        bool                 m_is_line_odd;
+        bool                 m_rendered_new_frame;
+        GPUCommand           m_current_command;
+        std::deque<u32>      m_command_fifo;
+        u32                  m_command_num_arguments;
 
+        /**
+         * meta state 
+         */
+        u32 m_meta_cycles;
+        u32 m_meta_lines;
 
         /**
          * GPU memory regions 
          */
-        std::array<u32, GPUFIFOSize>            m_command_fifo;
         std::array<u16, VRamWidth * VRamHeight> m_vram;
     };
 }
