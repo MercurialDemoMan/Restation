@@ -132,6 +132,23 @@ namespace PSX
     {
         return (((sub_result ^ x) & (x ^ y)) & (1 << (sizeof(T) * CHAR_BIT - 1)));
     }
+
+    /**
+     * @brief extend sign of a arbitrary bit-length signed integer
+     * 
+     * http://www.graphics.stanford.edu/~seander/bithacks.html#FixedSignExtend
+     */
+    template<typename T, u32 Bits>
+    std::enable_if_t<std::is_integral<T>::value && std::is_signed<T>::value,
+    T> extend_sign(const T& x)
+    {
+        struct
+        {
+            T bits: Bits;
+        } value;
+
+        return value.bits = x;
+    }
 }
 
 #endif // UTILS_HPP
