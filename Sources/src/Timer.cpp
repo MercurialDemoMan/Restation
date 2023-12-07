@@ -265,13 +265,13 @@ namespace PSX
     template<ClockSource Source>
     void Timer<Source>::reset()
     {
-        m_current_counter_value.raw() = 0;
-        m_counter_mode.raw = 0;
+        m_current_counter_value.raw()    = 0;
+        m_counter_mode.raw               = 0;
         m_counter_mode.interrupt_request = 1;
-        m_counter_target_value.raw() = 0;
-        m_meta_counter = 0;
-        m_meta_paused  = false;
-        m_meta_irq_occured = false;
+        m_counter_target_value.raw()     = 0;
+        m_meta_counter                   = 0;
+        m_meta_paused                    = false;
+        m_meta_irq_occured               = false;
     }
 
     /**

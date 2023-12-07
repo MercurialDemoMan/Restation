@@ -50,9 +50,9 @@ namespace PSX
         m_meta_cycles %= line_cycles;
 
         // did we render whole frame?
-        if(m_meta_lines >= NTSCScanlines)
+        if(m_meta_lines >= num_lines)
         {
-            m_meta_lines %= NTSCScanlines;
+            m_meta_lines %= num_lines;
             m_is_line_odd = false;
             m_rendered_new_frame = true;
         }
@@ -98,12 +98,12 @@ namespace PSX
         {
             case 0 ... 3:
             {
-                execute_gp0_command(value);
+                execute_gp0_command(value); return;
             }
 
             case 4 ... 7:
             {
-                execute_gp1_command(value);
+                execute_gp1_command(value); return;
             }
         }
 

@@ -40,6 +40,7 @@
 #include "Component.hpp"
 #include "Forward.hpp"
 #include "GPUConstants.hpp"
+#include "GPUTypes.hpp"
 
 namespace PSX
 {
@@ -50,7 +51,8 @@ namespace PSX
     {
     public:
 
-        GPU(const std::shared_ptr<Bus>& bus, const std::shared_ptr<InterruptController>& interrupt_controller) :
+        GPU(const std::shared_ptr<Bus>& bus, 
+            const std::shared_ptr<InterruptController>& interrupt_controller) :
             m_bus(bus),
             m_interrupt_controller(interrupt_controller)
         {
@@ -231,34 +233,34 @@ namespace PSX
         /**
          * GPU state 
          */
-        DrawMode             m_draw_mode;
-        TextureWindowSetting m_texture_window_setting;
-        MaskBitSetting       m_mask_bit_setting;
-        DisplayMode          m_display_mode;
-        u32                  m_read_mode;          /// 0 - read from register, 1 - read from vram
-        u32                  m_read_register;      /// TODO
-        u32                  m_dma_direction;      /// transfering direction
+        DrawMode             m_draw_mode;              /// GP0(0xE1)
+        TextureWindowSetting m_texture_window_setting; /// GP0(0xE2)
+        u16                  m_drawing_area_top;       /// GP0(0xE3)
+        u16                  m_drawing_area_left;      /// GP0(0xE3)
+        u16                  m_drawing_area_right;     /// GP0(0xE4)
+        u16                  m_drawing_area_bottom;    /// GP0(0xE4)
+        s16                  m_drawing_offset_x;       /// GP0(0xE5)
+        s16                  m_drawing_offset_y;       /// GP0(0xE5)
+        MaskBitSetting       m_mask_bit_setting;       /// GP0(0xE6)   
+        bool                 m_interrupt_request;      /// GP1(0x02) did GPU request interrupt     
+        bool                 m_display_disable;        /// GP1(0x03)
+        u32                  m_dma_direction;          /// GP1(0x04) DMA transfering direction
+        u16                  m_display_area_start_x;   /// GP1(0x05)
+        u16                  m_display_area_start_y;   /// GP1(0x05)
+        u16                  m_display_range_x_1;      /// GP1(0x06)
+        u16                  m_display_range_x_2;      /// GP1(0x06)
+        u16                  m_display_range_y_1;      /// GP1(0x07)
+        u16                  m_display_range_y_2;      /// GP1(0x07)
+        DisplayMode          m_display_mode;           /// GP1(0x08)
+        bool                 m_new_texture_disable;    /// GP1(0x09)
+        u32                  m_read_mode;              /// 0 - read from register, 1 - read from vram
+        u32                  m_read_register;          
         u32                  m_dma_start_x;
         u32                  m_dma_start_y;
         u32                  m_dma_end_x;
         u32                  m_dma_end_y;
         u32                  m_dma_current_x;
         u32                  m_dma_current_y;
-        u16                  m_display_area_start_x;
-        u16                  m_display_area_start_y;
-        u16                  m_display_range_x_1;
-        u16                  m_display_range_x_2;
-        u16                  m_display_range_y_1;
-        u16                  m_display_range_y_2;
-        u16                  m_drawing_area_top;
-        u16                  m_drawing_area_left;
-        u16                  m_drawing_area_right;
-        u16                  m_drawing_area_bottom;
-        s16                  m_drawing_offset_x;
-        s16                  m_drawing_offset_y;
-        bool                 m_new_texture_disable;
-        bool                 m_display_disable;    /// 1 - disabled, 0 - enabled
-        bool                 m_interrupt_request;  /// did GPU request interrupt
         bool                 m_ready_to_receive_dma_block;
         bool                 m_is_line_odd;
         bool                 m_rendered_new_frame;

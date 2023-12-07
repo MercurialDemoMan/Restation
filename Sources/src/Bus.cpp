@@ -294,7 +294,7 @@ namespace PSX
             // access MDEC
             case (MdecBase) ... (MdecBase + MdecSize - 1):
             {
-                m_mdec->write(physical_address - MdecBase, value) return;
+                m_mdec->write(physical_address - MdecBase, value); return;
             }
             // access SPU
             case (SpuBase) ... (SpuBase + SpuSize - 1):
