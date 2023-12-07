@@ -1,14 +1,16 @@
+
+
 /**
- * @file      SPU.cpp
+ * @file      DMAChannelMDECIN.cpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Implementation of the PSX Sound processing unit
+ * @brief     Implementation for the PSX 1st DMA channel for supplying MDEC with input data
  *
  * @version   0.1
  *
- * @date      26. 10. 2023, 16:20 (created)
+ * @date      27. 11. 2023, 17:36 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -31,35 +33,27 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#include "SPU.hpp"
+#include "DMAChannelMDECIN.hpp"
 #include "Bus.hpp"
-#include "Macros.hpp"
-#include <fmt/core.h>
+#include "MDEC.hpp"
 
 namespace PSX
 {
-    void SPU::execute(u32 num_steps)
+    /**
+     * @brief write to MDEC 
+     */
+    void DMAChannelMDECIN::write_to_component(u32 value)
     {
-        MARK_UNUSED(num_steps);
+        m_mdec->write(0, value);
+    }
+
+    /**
+     * @brief wait for MDEC 
+     */
+    bool DMAChannelMDECIN::sync_request() const
+    {
+        // TODO: implement/stub mdec
         TODO();
-    }
-
-    u32 SPU::read(u32 address)
-    {
-        MARK_UNUSED(address);     
-        LOG_WARNING(fmt::format("read from SPU detected 0x{:08x}", address));
-        return 0;
-    }
-
-    void SPU::write(u32 address, u32 value)
-    {
-        MARK_UNUSED(address);
-        MARK_UNUSED(value);
-        LOG_WARNING(fmt::format("write to SPU detected 0x{:08x} = 0x{:08x}", address, value));
-    }
-
-    void SPU::reset()
-    {
-        TODO();
+        return true;
     }
 }

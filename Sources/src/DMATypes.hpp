@@ -1,14 +1,14 @@
 /**
- * @file      SPU.cpp
+ * @file      DMATypes.hpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Implementation of the PSX Sound processing unit
+ * @brief     Definition for the PSX Direct memory access types
  *
  * @version   0.1
  *
- * @date      26. 10. 2023, 16:20 (created)
+ * @date      27. 11. 2023, 17:36 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -31,35 +31,22 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#include "SPU.hpp"
-#include "Bus.hpp"
-#include "Macros.hpp"
-#include <fmt/core.h>
+#ifndef DMATYPES_HPP
+#define DMATYPES_HPP
 
 namespace PSX
 {
-    void SPU::execute(u32 num_steps)
+    enum class ChannelType
     {
-        MARK_UNUSED(num_steps);
-        TODO();
-    }
-
-    u32 SPU::read(u32 address)
-    {
-        MARK_UNUSED(address);     
-        LOG_WARNING(fmt::format("read from SPU detected 0x{:08x}", address));
-        return 0;
-    }
-
-    void SPU::write(u32 address, u32 value)
-    {
-        MARK_UNUSED(address);
-        MARK_UNUSED(value);
-        LOG_WARNING(fmt::format("write to SPU detected 0x{:08x} = 0x{:08x}", address, value));
-    }
-
-    void SPU::reset()
-    {
-        TODO();
-    }
+        MDECIN  = 0,
+        MDECOUT = 1,
+        GPU     = 2,
+        CDROM   = 3,
+        SPU     = 4,
+        PIO     = 5,
+        OTC     = 6,
+        Size    = 7
+    };
 }
+
+#endif // DMATYPES_HPP

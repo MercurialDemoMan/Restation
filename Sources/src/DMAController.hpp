@@ -37,6 +37,7 @@
 #include <memory>
 #include "Component.hpp"
 #include "Forward.hpp"
+#include "DMATypes.hpp"
 
 namespace PSX
 {
@@ -47,10 +48,20 @@ namespace PSX
     {
     public:
 
-        DMAController(const std::shared_ptr<Bus>& bus) :
-            m_bus(bus)
+        DMAController(const std::shared_ptr<Bus>& bus, 
+                      const std::shared_ptr<MDEC>& mdec,
+                      const std::shared_ptr<GPU>& gpu,
+                      const std::shared_ptr<SPU>& spu,
+                      const std::shared_ptr<CDROM>& cdrom,
+                      const std::shared_ptr<InterruptController>& interrupt_controller) :
+            m_bus(bus),
+            m_mdec(mdec),
+            m_gpu(gpu),
+            m_spu(spu),
+            m_cdrom(cdrom),
+            m_interrupt_controller(interrupt_controller)
         {
-            
+            reset();
         }
         
         virtual ~DMAController() override = default;
@@ -62,8 +73,77 @@ namespace PSX
 
     private:
 
-        std::shared_ptr<Bus> m_bus;
+        std::shared_ptr<Bus>        m_bus;
+        std::shared_ptr<MDEC>       m_mdec;
+        std::shared_ptr<GPU>        m_gpu;
+        std::shared_ptr<SPU>        m_spu;
+        std::shared_ptr<CDROM>      m_cdrom;
+        std::shared_ptr<InterruptController> m_interrupt_controller;
+        std::shared_ptr<DMAChannel> m_channels[static_cast<u32>(ChannelType::Size)];
 
+        /**
+         * @brief DMA Control register 
+         */
+        union DMAControl
+        {
+            struct
+            {
+                u32 mdec_in_priority:       3;
+                u32 mdec_in_master_enable:  1;
+                u32 mdec_out_priority:      3;
+                u32 mdec_out_master_enable: 1;
+                u32 gpu_priority:           3;
+                u32 gpu_master_enable:      1;
+                u32 cdrom_priority:         3;
+                u32 cdrom_master_enable:    1;
+                u32 spu_priority:           3;
+                u32 spu_master_enable:      1;
+                u32 pio_priority:           3;
+                u32 pio_master_enable:      1;
+                u32 otc_priority:           3;
+                u32 otc_master_enable:      1;
+            };
+
+            u32 raw;
+            u8  bytes[sizeof(u32)];
+        };
+
+        /**
+         * @brief DMA Interrupt register 
+         */
+        union DMAInterrupt
+        {
+            struct
+            {
+                u32: 15;
+                
+                u32 force_irq:             1;
+                u32 channel0_enable:       1;
+                u32 channel1_enable:       1;
+                u32 channel2_enable:       1;
+                u32 channel3_enable:       1;
+                u32 channel4_enable:       1;
+                u32 channel5_enable:       1;
+                u32 channel6_enable:       1;
+                u32 channel_master_enable: 1;
+                u32 channel0_irq:          1;
+                u32 channel1_irq:          1;
+                u32 channel2_irq:          1;
+                u32 channel3_irq:          1;
+                u32 channel4_irq:          1;
+                u32 channel5_irq:          1;
+                u32 channel6_irq:          1;
+                u32 irq_master_enable:     1;
+            };
+
+            u32 raw;
+            u8  bytes[sizeof(u32)];
+        };
+
+        DMAControl   m_control;
+        DMAInterrupt m_interrupt;
+
+        bool         m_meta_interrupt_request;
     };
 }
 

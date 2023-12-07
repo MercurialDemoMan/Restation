@@ -44,11 +44,19 @@ namespace PSX
     template<ClockSource> class Timer;
     class IOPorts;
     class SerialPort;
+    class DMAChannel;
     class Peripherals;
+    class DMAChannelSPU;
+    class DMAChannelPIO;
+    class DMAChannelOTC;
+    class DMAChannelGPU;
     class RamController;
     class MemController;
     class DMAController;
     class CacheController;
+    class DMAChannelCDROM;
+    class DMAChannelMDECIN;
+    class DMAChannelMDECOUT;
     class ExceptionController;
     class InterruptController;
 }

@@ -84,9 +84,9 @@ namespace PSX
         m_peripherals          = std::make_shared<Peripherals>(shared_from_this());
         m_ram_controller       = std::make_shared<RamController>();
         m_mem_controller       = std::make_shared<MemController>();
-        m_dma_controller       = std::make_shared<DMAController>(shared_from_this());
         m_cache_controller     = std::make_shared<CacheController>();
         m_interrupt_controller = std::make_shared<InterruptController>(m_cpu->exception_controller());
+        m_dma_controller       = std::make_shared<DMAController>(shared_from_this(), m_mdec, m_gpu, m_spu, m_cdrom, m_interrupt_controller);
         m_timer_dotclock       = std::make_shared<Timer<ClockSource::DotClock>>(m_interrupt_controller);   
         m_timer_hblank         = std::make_shared<Timer<ClockSource::HBlank>>(m_interrupt_controller);     
         m_timer_systemclock    = std::make_shared<Timer<ClockSource::SystemClock>>(m_interrupt_controller);
@@ -327,6 +327,7 @@ namespace PSX
     void Bus::execute(u32 num_steps)
     {
         m_cpu->execute(num_steps);
+        m_dma_controller->execute(num_steps);
         m_timer_dotclock->execute(num_steps);    // TODO: figure out better timing setup
         m_timer_hblank->execute(num_steps);      // TODO: figure out better timing setup
         m_timer_systemclock->execute(num_steps); // TODO: figure out better timing setup

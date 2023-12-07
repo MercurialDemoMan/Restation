@@ -1,14 +1,14 @@
 /**
- * @file      SPU.cpp
+ * @file      DMAChannelPIO.hpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Implementation of the PSX Sound processing unit
+ * @brief     Header for the PSX 3rd DMA Channel for accessing PIO
  *
  * @version   0.1
  *
- * @date      26. 10. 2023, 16:20 (created)
+ * @date      28. 11. 2023, 11:36 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -31,35 +31,34 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#include "SPU.hpp"
-#include "Bus.hpp"
-#include "Macros.hpp"
-#include <fmt/core.h>
+#ifndef DMACHANNELPIO_HPP
+#define DMACHANNELPIO_HPP
+
+#include <memory>
+#include "Component.hpp"
+#include "Forward.hpp"
+#include "DMAChannel.hpp"
+#include "DMATypes.hpp"
 
 namespace PSX
 {
-    void SPU::execute(u32 num_steps)
+    /**
+     * @brief PSX 6th DMA Channel
+     */
+    class DMAChannelPIO final : public DMAChannel
     {
-        MARK_UNUSED(num_steps);
-        TODO();
-    }
+    public:
 
-    u32 SPU::read(u32 address)
-    {
-        MARK_UNUSED(address);     
-        LOG_WARNING(fmt::format("read from SPU detected 0x{:08x}", address));
-        return 0;
-    }
+        DMAChannelPIO(const std::shared_ptr<Bus>& bus) :
+            DMAChannel(bus)
+        {
+            
+        }
+        
+        virtual ~DMAChannelPIO() override = default;
+        virtual ChannelType type() const override { return ChannelType::PIO; };
 
-    void SPU::write(u32 address, u32 value)
-    {
-        MARK_UNUSED(address);
-        MARK_UNUSED(value);
-        LOG_WARNING(fmt::format("write to SPU detected 0x{:08x} = 0x{:08x}", address, value));
-    }
-
-    void SPU::reset()
-    {
-        TODO();
-    }
+    };
 }
+
+#endif // DMACHANNELPIO_HPP
