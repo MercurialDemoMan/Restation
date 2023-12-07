@@ -52,6 +52,7 @@ namespace PSX
     constexpr const u32 VRamWidth      = 1024;
     constexpr const u32 VRamHeight     = 512;
     constexpr const u32 GPUFIFOMaxSize = 32;
+    constexpr const u32 ClutCacheSize  = 256;
 
     /**
      * GPU timings 

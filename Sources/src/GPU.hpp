@@ -37,6 +37,7 @@
 #include <memory>
 #include <array>
 #include <queue>
+#include <optional>
 #include "Component.hpp"
 #include "Forward.hpp"
 #include "GPUConstants.hpp"
@@ -102,39 +103,89 @@ namespace PSX
         void execute_gpu_command();
 
         /**
-         * @brief Quick VRam rectangle fill GPU Command 
+         * @brief Quick VRAM rectangle fill GPU Command parsing
          */
-        void VRamFill();
+        void vram_fill();
+
+        /**
+         * @brief Perform Quick VRAM rectangle fill GPU Command
+         */
+        void do_vram_fill(const VRamFillArguments&);
 
         /**
          * @brief Render Polygon GPU Command 
          */
-        void PolygonRender();
+        void polygon_render();
 
         /**
          * @brief Render Line GPU Command 
          */
-        void LineRender();
+        void line_render();
 
         /**
-         * @brief Render Rectangle GPU Command 
+         * @brief Render Rectangle GPU Command parsing
          */
-        void RectangleRender();
+        void rectangle_render();
+
+        /**
+         * @brief Perform Render Rectangle GPU Command 
+         */
+        void do_rectangle_render(const RectangleRenderArguments&);
 
         /**
          * @brief Copy RAM to VRAM GPU Command 
          */
-        void CopyCPUToVRam();
+        void copy_cpu_to_vram();
 
         /**
          * @brief Copy VRAM to RAM GPU Command 
          */
-        void CopyVRamToCPU();
+        void copy_vram_to_cpu();
 
         /**
          * @brief Copy VRAM to VRAM GPU Command 
          */
-        void CopyVRamToVRam();
+        void copy_vram_to_vram();
+
+        /**
+         * @brief clamp value to the drawing area
+         */
+        s32 clamp_drawing_area_left(s32 x) const;
+
+        /**
+         * @brief clamp value to the drawing area 
+         */
+        s32 clamp_drawing_area_right(s32 x) const;
+
+        /**
+         * @brief clamp value to the drawing area
+         */
+        s32 clamp_drawing_area_top(s32 y) const;
+
+        /**
+         * @brief clamp value to the drawing area
+         */
+        s32 clamp_drawing_area_bottom(s32 y) const;
+
+        /**
+         * @brief mask texture coordinate
+         */
+        s32 mask_texture_u(s32 u) const;
+
+        /**
+         * @brief mask texture coordinate
+         */
+        s32 mask_texture_v(s32 v) const;
+
+        /**
+         * @brief update clut cache
+         */
+        void update_clut_cache(u32 color_depth, u32 clut_x, u32 clut_y);
+
+        /**
+         * @brief fetch texture color 
+         */
+        Color vram_fetch_texture_color(u32 color_depth, u32 uv_x, u32 uv_y, u32 texpage_x, u32 texpage_y);
 
         /**
          * @brief connections
@@ -267,6 +318,9 @@ namespace PSX
         GPUCommand           m_current_command;
         std::deque<u32>      m_command_fifo;
         u32                  m_command_num_arguments;
+        std::optional<u32>   m_clut_cache_x;
+        std::optional<u32>   m_clut_cache_y;
+        u32                  m_clut_cache_depth;
 
         /**
          * meta state 
@@ -278,6 +332,7 @@ namespace PSX
          * GPU memory regions 
          */
         std::array<u16, VRamWidth * VRamHeight> m_vram;
+        std::array<u16, ClutCacheSize>          m_clut_cache;
     };
 }
 

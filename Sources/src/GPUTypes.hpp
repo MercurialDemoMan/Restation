@@ -219,6 +219,23 @@ namespace PSX
             return 1 + result + is_texture_mapped;
         }
 
+        /**
+         * @brief extract rectangle size 
+         */
+        u32 actual_size() const
+        {
+            switch(size)
+            {
+                case 0: return 0;  /// variable size - specified by arguments
+                case 1: return 1;  /// 1x1
+                case 2: return 8;  /// 8x8
+                case 3: return 16; /// 16x16
+            }
+
+            UNREACHABLE();
+            return 0;
+        }
+
         struct
         {
             u32 is_raw_texture:      1;
@@ -248,6 +265,71 @@ namespace PSX
             };
         }
 
+        static Color create_blended(Color source, Color destination, u32 transparency_type)
+        {
+            switch(transparency_type)
+            {
+                /// half from each color
+                case 0:
+                {
+                    return Color
+                    {
+                        .r = static_cast<u16>(std::min(31, (source.r + destination.r) / 2)),
+                        .g = static_cast<u16>(std::min(31, (source.g + destination.g) / 2)),
+                        .b = static_cast<u16>(std::min(31, (source.b + destination.b) / 2)),
+                        .mask = destination.mask
+                    };
+                }
+                /// additive
+                case 1:
+                {
+                    return Color
+                    {
+                        .r = static_cast<u16>(std::min(31, source.r + destination.r)),
+                        .g = static_cast<u16>(std::min(31, source.g + destination.g)),
+                        .b = static_cast<u16>(std::min(31, source.b + destination.b)),
+                        .mask = destination.mask
+                    };
+                }
+                /// subtractive
+                case 2:
+                {
+                    return Color
+                    {
+                        .r = static_cast<u16>(std::max(0, source.r - destination.r)),
+                        .g = static_cast<u16>(std::max(0, source.g - destination.g)),
+                        .b = static_cast<u16>(std::max(0, source.b - destination.b)),
+                        .mask = destination.mask
+                    };
+                }
+                /// additive/4
+                case 3:
+                {
+                    return Color
+                    {
+                        .r = static_cast<u16>(std::min(31, source.r + (destination.r / 4))),
+                        .g = static_cast<u16>(std::min(31, source.g + (destination.g / 4))),
+                        .b = static_cast<u16>(std::min(31, source.b + (destination.b / 4))),
+                        .mask = destination.mask
+                    };
+                }
+            }
+
+            UNREACHABLE();
+            return Color();
+        }
+
+        static Color create_mix(Color source, Color destination)
+        {
+            return Color
+            {
+                .r = static_cast<u16>(std::min(31, (source.r * destination.r) / 128)),
+                .g = static_cast<u16>(std::min(31, (source.g * destination.g) / 128)),
+                .b = static_cast<u16>(std::min(31, (source.b * destination.b) / 128)),
+                .mask = destination.mask
+            };
+        }
+
         struct
         {
             u16 r: 5;
@@ -257,6 +339,39 @@ namespace PSX
         };
         
         u16 raw;
+    };
+
+    /**
+     * @brief helper for passing arguments to the VRamFill command
+     */
+    struct VRamFillArguments
+    {
+        u32 start_x;
+        u32 start_y;
+        u32 size_x;
+        u32 size_y;
+        Color color;
+    };
+
+    /**
+     * @brief helper for passing arguments to the RectangleRender command
+     */
+    struct RectangleRenderArguments
+    {
+        s32 start_x;
+        s32 start_y;
+        u32 width;
+        u32 height;
+        Color color;
+        u32 color_depth;
+        u32 uv_x;
+        u32 uv_y;
+        u32 clut_x;
+        u32 clut_y;
+        u32 texpage_x;
+        u32 texpage_y;
+        u32 is_semi_transparent;
+        u32 is_raw_texture;
     };
 }
 

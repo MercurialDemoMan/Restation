@@ -36,6 +36,7 @@
 #include "GPUTypes.hpp"
 #include "InterruptController.hpp"
 #include "Utils.hpp"
+#include <algorithm>
 
 namespace PSX
 {
@@ -143,6 +144,9 @@ namespace PSX
         m_ready_to_receive_dma_block = 1;
         m_is_line_odd                = false;
         m_current_command            = GPUCommand::Nop;
+        m_clut_cache_x               = -1;
+        m_clut_cache_y               = -1;
+        m_clut_cache_depth           = 0;
         m_command_num_arguments      = 0;
         m_meta_cycles                = 0;
     }
@@ -242,7 +246,8 @@ namespace PSX
 
                 case GPUGP0Instruction::InvalidateClutCache:
                 {
-                    TODO();
+                    m_clut_cache_x = {};
+                    m_clut_cache_y = {};
                     m_command_num_arguments = 1;
                     break;
                 }
@@ -542,51 +547,54 @@ namespace PSX
 
             case GPUCommand::VRamFill:
             {
-                VRamFill();
+                vram_fill();
+                m_current_command = GPUCommand::Nop;
                 break;
             }
 
             case GPUCommand::PolygonRender:
             {
-                PolygonRender();
+                polygon_render();
                 break;
             }
 
             case GPUCommand::LineRender:
             {
-                LineRender();
+                line_render();
                 break;
             }
 
             case GPUCommand::RectangleRender:
             {
-                RectangleRender();
+                rectangle_render();
+                m_current_command = GPUCommand::Nop;
                 break;
             }
 
             case GPUCommand::CopyCPUToVRam:
             {
-                CopyCPUToVRam();
+                copy_cpu_to_vram();
                 break;
             }
 
             case GPUCommand::CopyVRamToCPU:
             {
-                CopyVRamToCPU();
+                copy_vram_to_cpu();
                 break;
             }
 
             case GPUCommand::CopyVRamToVRam:
             {
-                CopyVRamToVRam();
+                copy_vram_to_vram();
                 break;
             }
         }
     }
+
     /**
      * @brief Quick VRam rectangle fill GPU Command 
      */
-    void GPU::VRamFill()
+    void GPU::vram_fill()
     {
         // extract arguments
         u32 color   = (m_command_fifo.at(0) & 0x00FF'FFFF);
@@ -601,61 +609,345 @@ namespace PSX
         size_x   = ((size_x & 0x3FF) + 0x0F) & (~0x0F);
         size_y  &= 0x1FF;
 
-        // convert 24bit color to 15bit color
-        Color actual_color = Color::create_from_24bit(color);
-
-        // fill vram with a color value
-        for(u32 y = 0; y < size_y; y++)
+        // perform the filling
+        do_vram_fill(VRamFillArguments
         {
-            for(u32 x = 0; x < size_x; x++)
+                .start_x = start_x,
+                .start_y = start_y,
+                .size_x  = size_x,
+                .size_y  = size_y,
+                .color   = Color::create_from_24bit(color)
+        });
+    }
+
+    /**
+     * @brief Perform Quick VRAM rectangle fill GPU Command
+     */
+    void GPU::do_vram_fill(const VRamFillArguments& args)
+    {
+        // fill vram with a color value
+        // final row and column is not filled
+        for(u32 y = 0; y < args.size_y; y++)
+        {
+            for(u32 x = 0; x < args.size_x; x++)
             {
                 if(x > VRamWidth - 1) UNREACHABLE();
                 if(y > VRamHeight - 1) UNREACHABLE();
-                m_vram[y * VRamWidth + x] = actual_color.raw;
+                m_vram[y * VRamWidth + x] = args.color.raw;
             }
         }
     }
+
     /**
      * @brief Render Polygon GPU Command 
      */
-    void GPU::PolygonRender()
-    {
-        TODO();
-    }
-    /**
-     * @brief Render Line GPU Command 
-     */
-    void GPU::LineRender()
-    {
-        TODO();
-    }
-    /**
-     * @brief Render Rectangle GPU Command 
-     */
-    void GPU::RectangleRender()
-    {
-        TODO();
-    }
-    /**
-     * @brief Copy RAM to VRAM GPU Command 
-     */
-    void GPU::CopyCPUToVRam()
-    {
-        TODO();
-    }
-    /**
-     * @brief Copy VRAM to RAM GPU Command 
-     */
-    void GPU::CopyVRamToCPU()
-    {
-        TODO();
-    }
-    /**
-     * @brief Copy VRAM to VRAM GPU Command 
-     */
-    void GPU::CopyVRamToVRam()
+    void GPU::polygon_render()
     {
         TODO();
     }
 
+    /**
+     * @brief Render Line GPU Command 
+     */
+    void GPU::line_render()
+    {
+        TODO();
+    }
+
+    /**
+     * @brief Render Rectangle GPU Command 
+     */
+    void GPU::rectangle_render()
+    {
+        RectangleRenderCommand command(m_command_fifo.at(0));
+
+        u32 width, height; width = height = command.actual_size();
+
+        // 0 indicates variable size based on arguments
+        if(width == 0)
+        {
+            // the width/height argument can be the 3rd or 4th argument
+            // depending on if the rectangle is texture mapped
+            u32 width_height_argument_index = command.is_texture_mapped ? 3 : 2;
+            u32 width_height_value          = m_command_fifo.at(width_height_argument_index);
+            width  = (width_height_value >>  0) & 0xFFFF;
+            height = (width_height_value >> 16) & 0xFFFF;
+        }
+
+        // get top-left vertex
+        u32 start_value = m_command_fifo.at(1);
+        s32 start_x = extend_sign<s32, 11>((start_value >>  0) & 0xFFFF) + m_drawing_offset_x;
+        s32 start_y = extend_sign<s32, 11>((start_value >> 16) & 0xFFFF) + m_drawing_offset_y;
+
+        // get fill color
+        u32 color = m_command_fifo.at(0) & 0x00FF'FFFF;
+
+        // color bit depth
+        u32 color_bits = 0;
+
+        // if rectangle is textured we will need uv coordinates, 
+        // clut coordinates and texture page coordinates
+        u32 uv_x = 0;
+        u32 uv_y = 0;
+        u32 clut_x = 0;
+        u32 clut_y = 0;
+        u32 texpage_x = 0;
+        u32 texpage_y = 0;
+
+        if(command.is_texture_mapped)
+        {
+            switch(m_draw_mode.texture_page_colors)
+            {
+                // 4bit depth
+                case 0: { color_bits = 4; }
+                // 8bit depth
+                case 1: { color_bits = 8; }
+                // 15bit depth
+                case 2:
+                // reserved = 15bit depth
+                case 3: { color_bits = 16; }
+                default: { UNREACHABLE(); }
+            }
+
+            u32 clut_value = m_command_fifo.at(2);
+
+            uv_x = (clut_value >> 0) & 0xFF;
+            uv_y = (clut_value >> 8) & 0xFF;
+            clut_x = ((clut_value >> 16) & 0b0011'1111) * 16;
+            clut_y = (clut_value >> 22) & 0b0001'1111'1111;
+            texpage_x = m_draw_mode.texture_page_x_base * 64;
+            texpage_y = m_draw_mode.texture_page_y_base_1 * 256;
+        }
+
+        // rasterize rectangle
+        do_rectangle_render(RectangleRenderArguments
+        {
+            .start_x     = start_x,
+            .start_y     = start_y,
+            .width       = width,
+            .height      = height,
+            .color       = Color::create_from_24bit(color),
+            .color_depth = color_bits,
+            .uv_x        = uv_x,
+            .uv_y        = uv_y,
+            .clut_x      = clut_x,
+            .clut_y      = clut_y,
+            .texpage_x   = texpage_x,
+            .texpage_y   = texpage_y,
+            .is_semi_transparent = command.is_semi_transparent,
+            .is_raw_texture      = command.is_raw_texture
+        });
+    }
+
+    /**
+     * @brief Perform Render Rectangle GPU Command 
+     */
+    void GPU::do_rectangle_render(const RectangleRenderArguments& args)
+    {
+        if(args.width > 1023 || args.height > 511)
+            return;
+
+        s32 min_x = clamp_drawing_area_left(args.start_x);
+        s32 min_y = clamp_drawing_area_top(args.start_y);
+
+        s32 max_x = clamp_drawing_area_right(args.start_x + args.width);
+        s32 max_y = clamp_drawing_area_bottom(args.start_y + args.height);
+
+        s32 uv_x = args.uv_x + (min_x - args.start_x) + m_draw_mode.texture_rect_x_flip;
+        s32 uv_y = args.uv_y + (min_y - args.start_y) + m_draw_mode.texture_rect_y_flip;
+
+        s32 dir_x = m_draw_mode.texture_rect_x_flip ? 1 : -1;
+        s32 dir_y = m_draw_mode.texture_rect_y_flip ? 1 : -1;
+
+        update_clut_cache(args.color_depth, args.clut_x, args.clut_y);
+
+        for(s32 y = min_y, v = uv_y; y < max_y; y++, v += dir_y)
+        {
+            for(s32 x = min_x, u = uv_x; x < max_x; x++, u += dir_x)
+            {
+                // get original color for blending
+                Color original_color = Color(m_vram[y * VRamWidth + x]);
+
+                if(m_mask_bit_setting.check_mask_before_draw)
+                {
+                    if(original_color.mask)
+                        continue;
+                }
+
+                // create new color
+                Color new_color;
+
+                if(args.color_depth == 0)
+                {
+                    new_color      = args.color;
+                    new_color.mask = 0;
+                }
+                else
+                {
+                    // fetch texture color
+                    new_color = vram_fetch_texture_color(args.color_depth, mask_texture_u(u), mask_texture_v(v), args.texpage_x, args.texpage_y);
+
+                    // mix texture with the rectangle color
+                    if(!args.is_raw_texture)
+                    {
+                        new_color = Color::create_mix(args.color, new_color);
+                    }
+                }
+
+                // blend if transparent
+                if(args.is_semi_transparent)
+                {
+                    if(new_color.mask || args.color_depth != 0)
+                    {
+                        new_color = Color::create_blended(original_color, new_color, m_draw_mode.semi_transparency);
+                    }
+                }
+
+                // update vram
+                new_color.mask |= m_mask_bit_setting.set_mask_while_drawing;
+                m_vram[y * VRamWidth + x] = new_color.raw;
+            }
+        }
+    }
+
+    /**
+     * @brief Copy RAM to VRAM GPU Command 
+     */
+    void GPU::copy_cpu_to_vram()
+    {
+        TODO();
+    }
+
+    /**
+     * @brief Copy VRAM to RAM GPU Command 
+     */
+    void GPU::copy_vram_to_cpu()
+    {
+        TODO();
+    }
+
+    /**
+     * @brief Copy VRAM to VRAM GPU Command 
+     */
+    void GPU::copy_vram_to_vram()
+    {
+        TODO();
+    }
+
+    /**
+     * @brief clamp value to the drawing area
+     */
+    s32 GPU::clamp_drawing_area_left(s32 x) const
+    {
+        return std::max(std::max(x, 0), static_cast<s32>(m_drawing_area_left));
+    }
+
+    /**
+     * @brief clamp value to the drawing area 
+     */
+    s32 GPU::clamp_drawing_area_right(s32 x) const
+    {
+        return std::min(std::min(x, static_cast<s32>(VRamWidth)), static_cast<s32>(m_drawing_area_right));
+    }
+
+    /**
+     * @brief clamp value to the drawing area
+     */
+    s32 GPU::clamp_drawing_area_top(s32 y) const
+    {
+        return std::max(std::max(y, 0), static_cast<s32>(m_drawing_area_top));
+    }
+
+    /**
+     * @brief clamp value to the drawing area
+     */
+    s32 GPU::clamp_drawing_area_bottom(s32 y) const
+    {
+        return std::min(std::min(y, static_cast<s32>(VRamHeight)), static_cast<s32>(m_drawing_area_bottom));
+    }
+
+    /**
+     * @brief mask texture coordinate
+     */
+    s32 GPU::mask_texture_u(s32 u) const
+    {
+        return ((u % 256) & ~(m_texture_window_setting.texture_window_mask_x * 8)) | 
+               ((m_texture_window_setting.texture_window_offset_x & 
+                 m_texture_window_setting.texture_window_mask_x) * 8);
+    }
+
+    /**
+     * @brief mask texture coordinate
+     */
+    s32 GPU::mask_texture_v(s32 v) const
+    {
+        return ((v % 256) & ~(m_texture_window_setting.texture_window_mask_y * 8)) | 
+               ((m_texture_window_setting.texture_window_offset_y & 
+                 m_texture_window_setting.texture_window_mask_y) * 8);
+    }
+
+    /**
+     * @brief update clut cache
+     */
+    void GPU::update_clut_cache(u32 color_depth, u32 clut_x, u32 clut_y)
+    {
+        // only update cache if 4bit or 8bit color depth
+        if(color_depth != 1 && color_depth != 2)
+            return;
+
+        auto clut_pos_changed   = (m_clut_cache_x.value_or(-1) == clut_x) && 
+                                  (m_clut_cache_y.value_or(-1) == clut_y);
+        auto clut_depth_changed = m_clut_cache_depth != color_depth;
+
+        // clut position didn't change and texture format didn't change
+        if(!clut_pos_changed && !clut_pos_changed)
+            return;
+
+        // update clut cache
+        m_clut_cache_depth = color_depth;
+        m_clut_cache_x     = clut_x;
+        m_clut_cache_y     = clut_y;
+
+        u32 num_entries = color_depth == 2 ? 256 : 16;
+        for(u32 i = 0; i < num_entries; i++)
+        {
+            m_clut_cache[i] = m_vram[clut_y * VRamWidth + (clut_x + i)];
+        }
+    }
+
+    /**
+     * @brief fetch texture color 
+     */
+    Color GPU::vram_fetch_texture_color(u32 color_depth, u32 uv_x, u32 uv_y, u32 texpage_x, u32 texpage_y)
+    {
+        switch(color_depth)
+        {
+            // 4bit color depth
+            case 1:
+            {
+                u32 x = (texpage_x + uv_x / 4) % 1024;
+                u32 y = (texpage_y + uv_y) % 512;
+                u16 clut_cache_index = m_vram[y * VRamWidth + x];
+                return Color(m_clut_cache[(clut_cache_index >> ((uv_x & 3) * 4)) & 0x0F]);
+            }
+            // 8bit color depth
+            case 2:
+            {
+                u32 x = (texpage_x + uv_x / 2) % 1024;
+                u32 y = (texpage_y + uv_y) % 512;
+                u16 clut_cache_index = m_vram[y * VRamWidth + x];
+                return Color(m_clut_cache[(clut_cache_index >> ((uv_x & 1) * 8)) & 0xFF]);
+            }
+            // 16bit color depth
+            case 3:
+            {
+                u32 x = (texpage_x + uv_x) % 1024;
+                u32 y = (texpage_y + uv_y) % 512;
+                return Color(m_vram[y * VRamWidth + x]);
+            }
+        }
+
+        UNREACHABLE();
+        return Color();
+    }
 }
