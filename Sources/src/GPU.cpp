@@ -588,7 +588,32 @@ namespace PSX
      */
     void GPU::VRamFill()
     {
-        TODO();
+        // extract arguments
+        u32 color   = (m_command_fifo.at(0) & 0x00FF'FFFF);
+        u32 start_x = (m_command_fifo.at(1) >>  0) & 0xFFFF;
+        u32 start_y = (m_command_fifo.at(1) >> 16) & 0xFFFF;
+        u32 size_x  = (m_command_fifo.at(2) >>  0) & 0xFFFF;
+        u32 size_y  = (m_command_fifo.at(2) >> 16) & 0xFFFF;
+
+        // masking and rounding for FILL command
+        start_x &= 0x3F0;
+        start_y &= 0x1FF;
+        size_x   = ((size_x & 0x3FF) + 0x0F) & (~0x0F);
+        size_y  &= 0x1FF;
+
+        // convert 24bit color to 15bit color
+        Color actual_color = Color::create_from_24bit(color);
+
+        // fill vram with a color value
+        for(u32 y = 0; y < size_y; y++)
+        {
+            for(u32 x = 0; x < size_x; x++)
+            {
+                if(x > VRamWidth - 1) UNREACHABLE();
+                if(y > VRamHeight - 1) UNREACHABLE();
+                m_vram[y * VRamWidth + x] = actual_color.raw;
+            }
+        }
     }
     /**
      * @brief Render Polygon GPU Command 
