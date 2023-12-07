@@ -8,7 +8,7 @@
  *
  * @version   0.1
  *
- * @date      26. 10. 2023, 16:20 (created)
+ * @date      10. 11. 2023, 20:01 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -31,33 +31,30 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#include "SPU.hpp"
-#include "Bus.hpp"
-#include "Macros.hpp"
-#include <fmt/core.h>
+#include "SerialPort.hpp"
 
 namespace PSX
 {
-    void SPU::execute(u32 num_steps)
+    void SerialPort::execute(u32 num_steps)
     {
         MARK_UNUSED(num_steps);
         TODO();
     }
 
-    u32 SPU::read(u32 address)
+    u32 SerialPort::read(u32 address)
     {
         MARK_UNUSED(address);
         TODO();
     }
 
-    void SPU::write(u32 address, u32 value)
+    void SerialPort::write(u32 address, u32 value)
     {
         MARK_UNUSED(address);
         MARK_UNUSED(value);
-        LOG_WARNING(fmt::format("write to SPU detected 0x{:08x} = 0x{:08x}", address, value));
+        TODO();
     }
 
-    void SPU::reset()
+    void SerialPort::reset()
     {
         TODO();
     }

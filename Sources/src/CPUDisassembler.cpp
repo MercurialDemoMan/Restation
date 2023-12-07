@@ -91,8 +91,10 @@ namespace PSX
      */
     static std::string BEQ(const CPUInstruction& ins)
     {
-        return fmt::format("BEQ 0x{:08x}", 
-            ins.target * 4
+        return fmt::format("BEQ [r{}] [r{}] {}", 
+            ins.register_source,
+            ins.register_target,
+            ins.immediate_signed * 4
         );
     }
     
@@ -101,8 +103,10 @@ namespace PSX
      */
     static std::string BNE(const CPUInstruction& ins)
     {
-        return fmt::format("BNE 0x{:08x}", 
-            ins.target * 4
+        return fmt::format("BNE [r{}] [r{}] {}",
+            ins.register_source,
+            ins.register_target,
+            ins.immediate_signed * 4
         );
     }
     
@@ -111,8 +115,9 @@ namespace PSX
      */
     static std::string BLEZ(const CPUInstruction& ins)
     {
-        return fmt::format("BLEZ 0x{:08x}", 
-            ins.target * 4
+        return fmt::format("BLEZ [r{}] 0x{:08x}", 
+            ins.register_source,
+            ins.immediate_signed * 4
         );
     }
     
@@ -121,8 +126,9 @@ namespace PSX
      */
     static std::string BGTZ(const CPUInstruction& ins)
     {
-        return fmt::format("BGTZ 0x{:08x}", 
-            ins.target * 4
+        return fmt::format("BGTZ [r{}] 0x{:08x}", 
+            ins.register_source,
+            ins.immediate_signed * 4
         );
     }
     
@@ -226,8 +232,10 @@ namespace PSX
      */
     static std::string COP0(const CPUInstruction& ins)
     {
-        return fmt::format("COP0 0x{:08x}", 
-            ins.raw
+        return fmt::format("COP0 [r{}] [r{}] [r{}]",
+            ins.register_source,
+            ins.register_target,
+            ins.register_destination
         );
     }
     
@@ -844,7 +852,7 @@ namespace PSX
     {
         if(instruction.opcode == static_cast<u32>(BaseOpcode::ExtendedFunction))
         {
-            return extended_function_to_string[instruction.opcode](instruction);
+            return extended_function_to_string[instruction.function](instruction);
         }
         else
         {

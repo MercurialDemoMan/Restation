@@ -41,28 +41,59 @@
 namespace PSX
 {
     /**
+     * @brief enumeration of all exception interrupt causes 
+     */
+    enum class Interrupt
+    {
+        VBlank     = 0,
+        GPU        = 1,
+        CDROM      = 2,
+        DMA        = 3,
+        Timer0     = 4,
+        Timer1     = 5,
+        Timer2     = 6,
+        Peripheral = 7,
+        SIO        = 8,
+        SPU        = 9,
+        Lightpen   = 10
+    };
+
+    /**
      * @brief PSX Direct memory access controller
      */
     class InterruptController final : public Component
     {
     public:
 
-        InterruptController(const std::shared_ptr<Bus>& bus) :
-            m_bus(bus)
+        InterruptController(const std::shared_ptr<ExceptionController>& exception_controller) :
+            m_exception_controller(exception_controller)
         {
-            
+            reset();
         }
         
         virtual ~InterruptController() override = default;
 
-        virtual void execute(u32 num_steps) override;
+        virtual void execute(u32) override {};
         virtual u32  read(u32 address) override;
         virtual void write(u32 address, u32 value) override;
         virtual void reset() override;
 
+        /**
+         * @brief check for queued up interrupt 
+         */
+        bool is_interrupt_pending();
+
+        /**
+         * @brief send exception to the cpu
+         */
+        void trigger_interrupt(Interrupt);
+
     private:
 
-        std::shared_ptr<Bus> m_bus;
+        std::shared_ptr<ExceptionController> m_exception_controller;
+
+        Register<u32> m_status;
+        Register<u32> m_mask;
 
     };
 }

@@ -1,14 +1,14 @@
 /**
- * @file      SPU.cpp
+ * @file      TimerTypes.hpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Implementation of the PSX Sound processing unit
+ * @brief     Definition for PSX Timer types
  *
  * @version   0.1
  *
- * @date      26. 10. 2023, 16:20 (created)
+ * @date      6. 11. 2023, 8:59 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -31,34 +31,21 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#include "SPU.hpp"
-#include "Bus.hpp"
-#include "Macros.hpp"
-#include <fmt/core.h>
+#ifndef TIMERTYPES_HPP
+#define TIMERTYPES_HPP
 
 namespace PSX
 {
-    void SPU::execute(u32 num_steps)
+    /**
+     * @brief enumeration of timer source clock 
+     */
+    enum class ClockSource
     {
-        MARK_UNUSED(num_steps);
-        TODO();
-    }
+        DotClock,
+        HBlank,
+        SystemClock
+    };
 
-    u32 SPU::read(u32 address)
-    {
-        MARK_UNUSED(address);
-        TODO();
-    }
-
-    void SPU::write(u32 address, u32 value)
-    {
-        MARK_UNUSED(address);
-        MARK_UNUSED(value);
-        LOG_WARNING(fmt::format("write to SPU detected 0x{:08x} = 0x{:08x}", address, value));
-    }
-
-    void SPU::reset()
-    {
-        TODO();
-    }
 }
+
+#endif // TIMERTYPES_HPP

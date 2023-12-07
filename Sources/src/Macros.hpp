@@ -36,6 +36,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <string>
 
 /**
  * @brief mark variable as unused
@@ -47,11 +48,19 @@
 /**
  * @brief abort and print information where the abort occured
  */
+#ifdef __FILE_NAME__ /// prints only basename of the source file instead of the full path (supported in clang and gcc)
 #define ABORT_WITH_MESSAGE(message) do \
 { \
-    std::fprintf(stderr, "Encountered %s at %s:%u, aborting...\n", message, __FILE__, __LINE__); \
+    std::fprintf(stderr, "[%s]: %s:%u, aborting...\n", std::string(message).c_str(), __FILE_NAME__, __LINE__); \
     std::exit(1); \
 } while(0)
+#else
+#define ABORT_WITH_MESSAGE(message) do \
+{ \
+    std::fprintf(stderr, "[%s]: %s:%u, aborting...\n", std::string(message).c_str(), __FILE__, __LINE__); \
+    std::exit(1); \
+} while(0)
+#endif
 
 #define UNREACHABLE() ABORT_WITH_MESSAGE("\e[1;91munreachable code\e[0m")
 #define TODO()        ABORT_WITH_MESSAGE("\e[1;95mtodo\e[0m")
@@ -63,5 +72,35 @@
 #define DELETE_MOVE_CONSTRUCTOR(class_name) class_name(const class_name&&) = delete
 #define DELETE_COPY_ASSIGNMENT(class_name) class_name operator=(const class_name&) = delete
 #define DELETE_MOVE_ASSIGNMENT(class_name) class_name operator=(const class_name&&) = delete
+
+/**
+ * logging utilities 
+ */
+#define LOG(message) do \
+{ \
+    std::fprintf(stdout, "[\e[0;36minfo\e[0m]: %s\n", std::string(message).c_str()); \
+} while(0)
+
+#ifndef LOG_DEBUG_LEVEL
+#define LOG_DEBUG(level, message)
+#else
+#define LOG_DEBUG(level, message) do \
+{ \
+    if((level) <= LOG_DEBUG_LEVEL) \
+    { \
+        std::fprintf(stdout, "[\e[0;35mdebug\e[0m]: %s\n", std::string(message).c_str()); \
+    } \
+} while(0)
+#endif
+
+#define LOG_WARNING(message) do \
+{ \
+    std::fprintf(stdout, "[\e[0;33mwarning\e[0m]: %s\n", std::string(message).c_str()); \
+} while(0)
+
+#define LOG_ERROR(message) do \
+{ \
+    std::fprintf(stderr, "[\e[1;31merror\e[0m]: %s\n", std::string(message).c_str()); \
+} while(0)
 
 #endif // MACROS_HPP

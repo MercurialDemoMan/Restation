@@ -1,14 +1,14 @@
 /**
- * @file      SPU.cpp
+ * @file      RamController.hpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Implementation of the PSX Sound processing unit
+ * @brief     Header for the PSX Ram Controller
  *
  * @version   0.1
  *
- * @date      26. 10. 2023, 16:20 (created)
+ * @date      4. 11. 2023, 14:06 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -31,34 +31,38 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#include "SPU.hpp"
-#include "Bus.hpp"
-#include "Macros.hpp"
-#include <fmt/core.h>
+#ifndef RAMCONTROLLER_HPP
+#define RAMCONTROLLER_HPP
+
+#include "Component.hpp"
+#include "Utils.hpp"
 
 namespace PSX
 {
-    void SPU::execute(u32 num_steps)
+    /**
+     * @brief PSX Ram controller 
+     */
+    class RamController final : public Component
     {
-        MARK_UNUSED(num_steps);
-        TODO();
-    }
+    public:
 
-    u32 SPU::read(u32 address)
-    {
-        MARK_UNUSED(address);
-        TODO();
-    }
+        RamController()
+        {
+            reset();
+        }
+        
+        virtual ~RamController() override = default;
 
-    void SPU::write(u32 address, u32 value)
-    {
-        MARK_UNUSED(address);
-        MARK_UNUSED(value);
-        LOG_WARNING(fmt::format("write to SPU detected 0x{:08x} = 0x{:08x}", address, value));
-    }
+        virtual void execute(u32) override {}
+        virtual u32  read(u32 address) override;
+        virtual void write(u32 address, u32 value) override;
+        virtual void reset() override;
 
-    void SPU::reset()
-    {
-        TODO();
-    }
+    private:
+
+        Register<u32> m_ram_size;
+        
+    };
 }
+
+#endif // RAMCONTROLLER_HPP

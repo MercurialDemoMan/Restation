@@ -7,10 +7,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED On)
 
 # set optimization level
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -ggdb")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ggdb")
 
 # set verbose compilers warnings
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+
+# set debug logging verbosity
+add_compile_definitions(LOG_DEBUG_LEVEL=5)
 
 # add fmt to the project
 add_subdirectory(${CMAKE_SOURCE_DIR}/deps/fmt-10.1.1)
@@ -30,9 +33,15 @@ add_executable(emu
     src/MDEC.cpp
     src/CDROM.cpp
     src/Timer.cpp
+    src/IOPorts.cpp
+    src/SerialPort.cpp
     src/Peripherals.cpp
+    src/RamController.cpp
+    src/MemController.cpp
     src/DMAController.cpp
+    src/CacheController.cpp
     src/CPUDisassembler.cpp
+    src/ExceptionController.cpp
     src/InterruptController.cpp
     src/Bus.cpp)
 

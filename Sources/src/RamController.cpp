@@ -1,14 +1,14 @@
 /**
- * @file      SPU.cpp
+ * @file      RamController.cpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Implementation of the PSX Sound processing unit
+ * @brief     Implementation for the PSX RAM Controller
  *
  * @version   0.1
  *
- * @date      26. 10. 2023, 16:20 (created)
+ * @date      4. 11. 2023, 12:56 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -31,34 +31,32 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#include "SPU.hpp"
-#include "Bus.hpp"
-#include "Macros.hpp"
-#include <fmt/core.h>
+#include "RamController.hpp"
 
 namespace PSX
 {
-    void SPU::execute(u32 num_steps)
+    u32 RamController::read(u32 address)
     {
-        MARK_UNUSED(num_steps);
-        TODO();
+        switch(address)
+        {
+            case  0 ... 3: return m_ram_size.read(address);
+        }
+
+        UNREACHABLE();
     }
 
-    u32 SPU::read(u32 address)
+    void RamController::write(u32 address, u32 value)
     {
-        MARK_UNUSED(address);
-        TODO();
+        switch(address)
+        {
+            case  0 ... 3: m_ram_size.write(address, static_cast<u8>(value)); return;
+        }
+
+        UNREACHABLE();
     }
 
-    void SPU::write(u32 address, u32 value)
+    void RamController::reset()
     {
-        MARK_UNUSED(address);
-        MARK_UNUSED(value);
-        LOG_WARNING(fmt::format("write to SPU detected 0x{:08x} = 0x{:08x}", address, value));
-    }
-
-    void SPU::reset()
-    {
-        TODO();
+        m_ram_size.raw() = 0x00000B88;
     }
 }

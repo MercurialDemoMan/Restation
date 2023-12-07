@@ -34,11 +34,16 @@
 #ifndef BUS_HPP
 #define BUS_HPP
 
+#include <array>
+#include <string>
 #include <memory>
 #include "Types.hpp"
 #include "Macros.hpp"
 #include "Constants.hpp"
+#include "Component.hpp"
+#include "MemoryRegion.hpp"
 #include "Forward.hpp"
+#include "TimerTypes.hpp"
 
 namespace PSX
 {
@@ -54,6 +59,28 @@ namespace PSX
          */
         static std::shared_ptr<Bus> create();
 
+        /**
+         * @brief reads bios from host file and loads it into the bios memory
+         */
+        void meta_load_bios(const std::string& bios_path);
+
+        /**
+         * @brief execute all components for num_steps clock cycles
+         */
+        void execute(u32 num_steps);
+
+        /**
+         * @brief dispatch read to component or memory region according to memory map
+         */
+        template<typename T>
+        T dispatch_read(u32 address);
+
+        /**
+         * @brief dispatch write to component or memory region according to memory map
+         */
+        template<typename T>
+        void dispatch_write(u32 address, T value);
+        
     private:
 
         /**
@@ -72,20 +99,83 @@ namespace PSX
          */
         void initialize_components();
 
-        std::shared_ptr<CPU>                 m_cpu;
-        std::shared_ptr<GPU>                 m_gpu;
-        std::shared_ptr<SPU>                 m_spu;
-        std::shared_ptr<MDEC>                m_mdec;
-        std::shared_ptr<CDROM>               m_cdrom;
-        std::shared_ptr<Timer>               m_timer;
-        std::shared_ptr<Peripherals>         m_peripherals;
-        std::shared_ptr<DMAController>       m_dma_controller;
-        std::shared_ptr<InterruptController> m_interrupt_controller;
+        /**
+         * @brief convert virtual address to physical 
+         */
+        template<typename T>
+        u32 virtual_to_physical(u32 virtual_address)
+        {
+            if constexpr (sizeof(T) == sizeof(u8))  return virtual_address & 0x1FFFFFFF;
+            if constexpr (sizeof(T) == sizeof(u16)) return virtual_address & 0x1FFFFFFE;
+            if constexpr (sizeof(T) == sizeof(u32)) return virtual_address & 0x1FFFFFFC;
+
+            UNREACHABLE();
+        }
+
+        /**
+         * @brief dispatch read to component
+         */
+        template<typename T>
+        T component_read(const std::shared_ptr<Component>& component, u32 address)
+        {
+            if constexpr (sizeof(T) == sizeof(u8))
+            {
+                return component->read(address);
+            }
+
+            if constexpr (sizeof(T) == sizeof(u16))
+            {
+                return (component->read(address + 0) << 0) |
+                       (component->read(address + 1) << 8);
+            }
+
+            if constexpr (sizeof(T) == sizeof(u32))
+            {
+                return (component->read(address + 0) <<  0) |
+                       (component->read(address + 1) <<  8) |
+                       (component->read(address + 2) << 16) |
+                       (component->read(address + 3) << 24);
+            }
+
+            UNREACHABLE();
+
+            return 0;
+        }
+
+        /**
+         * @brief dispatch write to component
+         */
+        template<typename T>
+        void component_write(const std::shared_ptr<Component>& component, u32 address, T value)
+        {
+            if constexpr (sizeof(T) == sizeof(u8))
+            {
+                component->write(address, value);
+                return;
+            }
+
+            if constexpr (sizeof(T) == sizeof(u16))
+            {
+                component->write(address + 0, static_cast<u8>((value >> 0) & 0xFF));
+                component->write(address + 1, static_cast<u8>((value >> 8) & 0xFF));
+                return;
+            }
+
+            if constexpr (sizeof(T) == sizeof(u32))
+            {
+                component->write(address + 0, static_cast<u8>((value >>  0) & 0xFF));
+                component->write(address + 1, static_cast<u8>((value >>  8) & 0xFF));
+                component->write(address + 2, static_cast<u8>((value >> 16) & 0xFF));
+                component->write(address + 3, static_cast<u8>((value >> 23) & 0xFF));
+                return;
+            }
+
+            UNREACHABLE();
+        }
 
         static constexpr const u32 RamBase          = 0x00000000;
         static constexpr const u32 ExpansionBase    = 0x1F000000;
         static constexpr const u32 ScratchpadBase   = 0x1F800000;
-        static constexpr const u32 IoBase           = 0x1F801000;
         static constexpr const u32 MemControlBase   = 0x1F801000;
         static constexpr const u32 PeripheralsBase  = 0x1f801040;
         static constexpr const u32 SerialBase       = 0x1F801050;
@@ -99,14 +189,13 @@ namespace PSX
         static constexpr const u32 GpuBase          = 0x1F801810;
         static constexpr const u32 MdecBase         = 0x1F801820;
         static constexpr const u32 SpuBase          = 0x1F801C00;
-        static constexpr const u32 Expansion2Base   = 0x1F802000;
+        static constexpr const u32 IOPortsBase      = 0x1F802000;
         static constexpr const u32 BiosBase         = 0x1FC00000;
         static constexpr const u32 CacheControlBase = 0x1FFE0130;
         
-        static constexpr const u32 RamSize          = 2   * MiB;
-        static constexpr const u32 ExpansionSize    = 1   * MiB;
-        static constexpr const u32 ScratchpadSize   = 1   * KiB;
-        static constexpr const u32 IoSize           = 8   * KiB;
+        static constexpr const u32 RamSize          = 2 * MiB;
+        static constexpr const u32 ExpansionSize    = 1 * MiB;
+        static constexpr const u32 ScratchpadSize   = 1 * KiB;
         static constexpr const u32 MemControlSize   = 0x24;
         static constexpr const u32 PeripheralsSize  = 0x10;
         static constexpr const u32 SerialSize       = 0x10;
@@ -120,9 +209,31 @@ namespace PSX
         static constexpr const u32 GpuSize          = 0x8;
         static constexpr const u32 MdecSize         = 0x8;
         static constexpr const u32 SpuSize          = 0x400;
-        static constexpr const u32 Expansion2Size   = 0x2000;
+        static constexpr const u32 IOPortsSize      = 0x2000;
         static constexpr const u32 BiosSize         = 512 * KiB;
         static constexpr const u32 CacheControlSize = 0x4;
+
+        std::shared_ptr<CPU>                 m_cpu;                           /// CPU Component
+        std::shared_ptr<GPU>                 m_gpu;                           /// GPU Component
+        std::shared_ptr<SPU>                 m_spu;                           /// SPU Component
+        std::shared_ptr<MDEC>                m_mdec;                          /// MDEC Component
+        std::shared_ptr<CDROM>               m_cdrom;                         /// CDROM Component
+        std::shared_ptr<IOPorts>             m_io_ports;                      /// IOPorts Component
+        std::shared_ptr<SerialPort>          m_serial_port;                   /// SerialPort Component
+        std::shared_ptr<Peripherals>         m_peripherals;                   /// Peripherals Component
+        std::shared_ptr<RamController>       m_ram_controller;                /// RamController Component
+        std::shared_ptr<MemController>       m_mem_controller;                /// MemController Component
+        std::shared_ptr<DMAController>       m_dma_controller;                /// DMA Controller
+        std::shared_ptr<CacheController>     m_cache_controller;              /// Cache Controller
+        std::shared_ptr<InterruptController> m_interrupt_controller;          /// InterruptController
+        std::shared_ptr<Timer<ClockSource::DotClock>>    m_timer_dotclock;    /// Timer with DotClock source Component
+        std::shared_ptr<Timer<ClockSource::HBlank>>      m_timer_hblank;      /// Timer with HBlank source Component
+        std::shared_ptr<Timer<ClockSource::SystemClock>> m_timer_systemclock; /// Timer with SystemClock source Component
+
+        MemoryRegion<RamSize>        m_ram;        /// RAM memory
+        MemoryRegion<BiosSize>       m_bios;       /// BIOS memory
+        MemoryRegion<ScratchpadSize> m_scratchpad; /// Scratchpad memory
+        MemoryRegion<ExpansionSize>  m_expansion;  /// Expansion memory
     };
 }
 

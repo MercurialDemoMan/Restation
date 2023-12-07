@@ -1,14 +1,14 @@
 /**
- * @file      SPU.cpp
+ * @file      IOPorts.cpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Implementation of the PSX Sound processing unit
+ * @brief     Implementation of the PSX IO Ports
  *
  * @version   0.1
  *
- * @date      26. 10. 2023, 16:20 (created)
+ * @date      5. 11. 2023, 19:34 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -31,34 +31,22 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#include "SPU.hpp"
-#include "Bus.hpp"
-#include "Macros.hpp"
-#include <fmt/core.h>
+#include "IOPorts.hpp"
 
 namespace PSX
 {
-    void SPU::execute(u32 num_steps)
+    u32 IOPorts::read(u32)
     {
-        MARK_UNUSED(num_steps);
-        TODO();
+        return 0;
     }
 
-    u32 SPU::read(u32 address)
+    void IOPorts::write(u32, u32)
     {
-        MARK_UNUSED(address);
-        TODO();
+
     }
 
-    void SPU::write(u32 address, u32 value)
+    void IOPorts::reset()
     {
-        MARK_UNUSED(address);
-        MARK_UNUSED(value);
-        LOG_WARNING(fmt::format("write to SPU detected 0x{:08x} = 0x{:08x}", address, value));
-    }
-
-    void SPU::reset()
-    {
-        TODO();
+        
     }
 }

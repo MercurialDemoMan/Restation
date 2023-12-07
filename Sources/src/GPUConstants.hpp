@@ -1,14 +1,14 @@
 /**
- * @file      SPU.cpp
+ * @file      GPUConstants.hpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Implementation of the PSX Sound processing unit
+ * @brief     Definition of GPU constants and timings
  *
  * @version   0.1
  *
- * @date      26. 10. 2023, 16:20 (created)
+ * @date      6. 11. 2023, 10:54 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -31,34 +31,29 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#include "SPU.hpp"
-#include "Bus.hpp"
-#include "Macros.hpp"
-#include <fmt/core.h>
+#ifndef GPUTIMINGS_HPP
+#define GPUTIMINGS_HPP
+
+#include "Types.hpp"
 
 namespace PSX
 {
-    void SPU::execute(u32 num_steps)
-    {
-        MARK_UNUSED(num_steps);
-        TODO();
-    }
+    /**
+     * GPU screen constants 
+     */
+    constexpr const u32 PALScanlines  = 314;
+    constexpr const u32 NTSCScanlines = 264;
+    constexpr const u32 PALScanlineCycles  = 3406;
+    constexpr const u32 NTSCScanlineCycles = 3413;
 
-    u32 SPU::read(u32 address)
-    {
-        MARK_UNUSED(address);
-        TODO();
-    }
-
-    void SPU::write(u32 address, u32 value)
-    {
-        MARK_UNUSED(address);
-        MARK_UNUSED(value);
-        LOG_WARNING(fmt::format("write to SPU detected 0x{:08x} = 0x{:08x}", address, value));
-    }
-
-    void SPU::reset()
-    {
-        TODO();
-    }
+    /**
+     * GPU timings 
+     */
+    constexpr const u32 DotClockStep256 = 10;
+    constexpr const u32 DotClockStep320 = 8;
+    constexpr const u32 DotClockStep368 = 7;
+    constexpr const u32 DotClockStep512 = 5;
+    constexpr const u32 DotClockStep640 = 4;
 }
+
+#endif // GPUTIMINGS_HPP

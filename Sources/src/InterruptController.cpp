@@ -32,31 +32,88 @@
  */
 
 #include "InterruptController.hpp"
-#include "Bus.hpp"
+#include "ExceptionController.hpp"
+#include <fmt/core.h>
 
 namespace PSX
 {
-    void InterruptController::execute(u32 num_steps)
-    {
-        MARK_UNUSED(num_steps);
-        TODO();
-    }
-
     u32 InterruptController::read(u32 address)
     {
-        MARK_UNUSED(address);
-        TODO();
+        switch(address)
+        {
+            case 0 ... 3:
+            {
+                return m_status.read(address - 0);
+            }
+            case 4 ... 7:
+            {
+                return m_mask.read(address - 4);
+            }
+        }
+
+        UNREACHABLE();
     }
 
     void InterruptController::write(u32 address, u32 value)
     {
-        MARK_UNUSED(address);
-        MARK_UNUSED(value);
-        TODO();
+        switch(address)
+        {
+            case 0 ... 3:
+            {
+                m_status.write(address - 0, m_status.read(address - 0) & value);
+                m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 0b1111 : 0);
+                return;
+            }
+
+            case 4 ... 7:
+            {
+                m_mask.write(address - 4, value);
+                m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 0b1111 : 0);
+                return;
+            }
+        }
+
+        UNREACHABLE();
     }
 
     void InterruptController::reset()
     {
-        TODO();
+        m_status = 0;
+        m_mask   = 0;
+    }
+    
+    /**
+     * @brief check for queued up interrupt 
+     */
+    bool InterruptController::is_interrupt_pending()
+    {
+        return m_status.raw() & m_mask.raw();
+    }
+
+    /**
+     * @brief send exception to the cpu
+     */
+    void InterruptController::trigger_interrupt(Interrupt interrupt)
+    {
+        static constexpr const char* interrupt_name[] =
+        {
+            "Vblank", 
+            "GPU", 
+            "CDRom", 
+            "DMA", 
+            "Timer0", 
+            "Timer1", 
+            "Timer2", 
+            "Controller", 
+            "SIO", 
+            "SPU", 
+            "Lightpen"
+        };
+
+        LOG_DEBUG(4, fmt::format("interrupt trigger: {}", interrupt_name[static_cast<u32>(interrupt)]));
+
+        m_status.raw() |= (1 << static_cast<u32>(interrupt));
+
+        m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 0b1111 : 0);
     }
 }

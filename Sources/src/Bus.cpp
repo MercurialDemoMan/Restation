@@ -38,12 +38,28 @@
 #include "MDEC.hpp"
 #include "CDROM.hpp"
 #include "Timer.hpp"
+#include "IOPorts.hpp"
+#include "SerialPort.hpp"
 #include "Peripherals.hpp"
+#include "RamController.hpp"
+#include "MemController.hpp"
 #include "DMAController.hpp"
+#include "CacheController.hpp"
 #include "InterruptController.hpp"
+#include "Macros.hpp"
+
+#include <vector>
+#include <fstream>
+#include <iterator>
+#include <cstring>
+
+#include <fmt/core.h>
 
 namespace PSX
 {
+    /**
+     * @brief The core of the PSX. Its' main purpose is dispatching reads and writes.
+     */
     std::shared_ptr<Bus> Bus::create()
     {
         auto bus = std::shared_ptr<Bus>(new Bus());
@@ -51,16 +67,311 @@ namespace PSX
         return bus;
     }
 
+    /**
+     * @brief allocate all components and connect them together 
+     */
     void Bus::initialize_components()
     {
+        LOG("initializing all hardware components");
+
         m_cpu                  = std::make_shared<CPU>(shared_from_this());
         m_gpu                  = std::make_shared<GPU>(shared_from_this());
         m_spu                  = std::make_shared<SPU>(shared_from_this());
         m_mdec                 = std::make_shared<MDEC>(shared_from_this());
         m_cdrom                = std::make_shared<CDROM>(shared_from_this());
-        m_timer                = std::make_shared<Timer>(shared_from_this());
+        m_io_ports             = std::make_shared<IOPorts>();
+        m_serial_port          = std::make_shared<SerialPort>();
         m_peripherals          = std::make_shared<Peripherals>(shared_from_this());
+        m_ram_controller       = std::make_shared<RamController>();
+        m_mem_controller       = std::make_shared<MemController>();
         m_dma_controller       = std::make_shared<DMAController>(shared_from_this());
-        m_interrupt_controller = std::make_shared<InterruptController>(shared_from_this());
+        m_cache_controller     = std::make_shared<CacheController>();
+        m_interrupt_controller = std::make_shared<InterruptController>(m_cpu->exception_controller());
+        m_timer_dotclock       = std::make_shared<Timer<ClockSource::DotClock>>(m_interrupt_controller);   
+        m_timer_hblank         = std::make_shared<Timer<ClockSource::HBlank>>(m_interrupt_controller);     
+        m_timer_systemclock    = std::make_shared<Timer<ClockSource::SystemClock>>(m_interrupt_controller);
+        
+        LOG("initialized all hardware components");
     }
+
+    /**
+     * @brief dispatch read to component or memory region according to memory map
+     */
+    template<typename T>
+    T Bus::dispatch_read(u32 address)
+    {
+        // convert virtual address to physical
+        u32 physical_address = virtual_to_physical<T>(address);
+
+        switch(physical_address)
+        {
+            // access RAM
+            case (RamBase) ... (RamBase + RamSize * 4 - 1):
+            {
+                return m_ram.read<T>((physical_address - RamBase) % RamSize);
+            }
+            // access Expansion
+            case (ExpansionBase) ... (ExpansionBase + ExpansionSize - 1):
+            {
+                return m_expansion.read<T>(physical_address - ExpansionBase);
+            }
+            // access Scratchpad
+            case (ScratchpadBase) ... (ScratchpadBase + ScratchpadSize - 1):
+            {
+                return m_scratchpad.read<T>(physical_address - ScratchpadBase);
+            }
+            // access MemController
+            case (MemControlBase) ... (MemControlBase + MemControlSize - 1):
+            {
+                return component_read<T>(m_mem_controller, physical_address - MemControlBase);
+            }
+            // access Peripherals
+            case (PeripheralsBase) ... (PeripheralsBase + PeripheralsSize - 1):
+            {
+                return component_read<T>(m_peripherals, physical_address - PeripheralsBase);
+            }
+            // access SerialPort
+            case (SerialBase) ... (SerialBase + SerialSize - 1):
+            {
+                return component_read<T>(m_serial_port, physical_address - SerialBase);
+            }
+            // access RamController
+            case (RamControlBase) ... (RamControlBase + RamControlSize - 1):
+            {
+                return component_read<T>(m_ram_controller, physical_address - RamControlBase);
+            }
+            // access InterruptController
+            case (InterruptBase) ... (InterruptBase + InterruptSize - 1):
+            {
+                return component_read<T>(m_interrupt_controller, physical_address - InterruptBase);
+            }
+            // access DMA
+            case (DmaBase) ... (DmaBase + DmaSize - 1):
+            {
+                return component_read<T>(m_dma_controller, physical_address - DmaBase);
+            }
+            // access Timer0
+            case (Timer0Base) ... (Timer0Base + Timer0Size - 1):
+            {
+                return component_read<T>(m_timer_dotclock, physical_address - Timer0Base);
+            }
+            // access Timer1
+            case (Timer1Base) ... (Timer1Base + Timer1Size - 1):
+            {
+                return component_read<T>(m_timer_hblank, physical_address - Timer1Base);
+            }
+            // access Timer2
+            case (Timer2Base) ... (Timer2Base + Timer2Size - 1):
+            {
+                return component_read<T>(m_timer_systemclock, physical_address - Timer2Base);
+            }
+            // access CDROM
+            case (CdromBase) ... (CdromBase + CdromSize - 1):
+            {
+                return component_read<T>(m_cdrom, physical_address - CdromBase);
+            }
+            // access GPU
+            case (GpuBase) ... (GpuBase + GpuSize - 1):
+            {
+                TODO(); return 0;
+            }
+            // access MDEC
+            case (MdecBase) ... (MdecBase + MdecSize - 1):
+            {
+                TODO(); return 0;
+            }
+            // access SPU
+            case (SpuBase) ... (SpuBase + SpuSize - 1):
+            {
+                return component_read<T>(m_spu, physical_address - SpuBase);
+            }
+            // access IOPorts
+            case (IOPortsBase) ... (IOPortsBase + IOPortsSize - 1):
+            {
+                return component_read<T>(m_io_ports, physical_address - IOPortsBase);
+            }
+            // access BIOS
+            case (BiosBase) ... (BiosBase + BiosSize - 1):
+            {
+                return m_bios.read<T>(physical_address - BiosBase);
+            }
+            // access CacheController
+            case (CacheControlBase) ... (CacheControlBase + CacheControlSize - 1):
+            {
+                return component_read<T>(m_cache_controller, physical_address - CacheControlBase);
+            }
+        }
+
+        ABORT_WITH_MESSAGE(fmt::format("unknown bus address while dispatching read: 0x{:08x}", physical_address));
+    }
+
+    /**
+     * @brief dispatch write to component or memory region according to memory map
+     */
+    template<typename T>
+    void Bus::dispatch_write(u32 address, T value)
+    {
+        // if cpu has isolated cache, it means writes should go into the cpu cache,
+        // but since we do not implement the cache, we let writes just fall through
+        if(m_cpu->is_cache_isolated())
+            return;
+        
+        // convert virtual address to physical
+        u32 physical_address = virtual_to_physical<T>(address);
+
+        switch(physical_address)
+        {
+            // access RAM
+            case (RamBase) ... (RamBase + RamSize * 4 - 1):
+            {
+                m_ram.write<T>((physical_address - RamBase) % RamSize, value); return;
+            }
+            // access Expansion
+            case (ExpansionBase) ... (ExpansionBase + ExpansionSize - 1):
+            {
+                m_expansion.write<T>(physical_address - ExpansionBase, value); return;
+            }
+            // access Scratchpad
+            case (ScratchpadBase) ... (ScratchpadBase + ScratchpadSize - 1):
+            {
+                m_scratchpad.write<T>(physical_address - ScratchpadBase, value); return;
+            }
+            // access MemController
+            case (MemControlBase) ... (MemControlBase + MemControlSize - 1):
+            {
+                component_write<T>(m_mem_controller, physical_address - MemControlBase, value); return;
+            }
+            // access Peripherals
+            case (PeripheralsBase) ... (PeripheralsBase + PeripheralsSize - 1):
+            {
+                component_write<T>(m_peripherals, physical_address - PeripheralsBase, value); return;
+            }
+            // access SerialPort
+            case (SerialBase) ... (SerialBase + SerialSize - 1):
+            {
+                component_write<T>(m_serial_port, physical_address - SerialBase, value); return;
+            }
+            // access RamController
+            case (RamControlBase) ... (RamControlBase + RamControlSize - 1):
+            {
+                component_write<T>(m_ram_controller, physical_address - RamControlBase, value); return;
+            }
+            // access InterruptController
+            case (InterruptBase) ... (InterruptBase + InterruptSize - 1):
+            {
+                component_write<T>(m_interrupt_controller, physical_address - InterruptBase, value); return;
+            }
+            // access DMA
+            case (DmaBase) ... (DmaBase + DmaSize - 1):
+            {
+                component_write<T>(m_dma_controller, physical_address - DmaBase, value); return;
+            }
+            // access Timer0
+            case (Timer0Base) ... (Timer0Base + Timer0Size - 1):
+            {
+                component_write<T>(m_timer_dotclock, physical_address - Timer0Base, value); return;
+            }
+            // access Timer1
+            case (Timer1Base) ... (Timer1Base + Timer1Size - 1):
+            {
+                component_write<T>(m_timer_hblank, physical_address - Timer1Base, value); return;
+            }
+            // access Timer2
+            case (Timer2Base) ... (Timer2Base + Timer2Size - 1):
+            {
+                component_write<T>(m_timer_systemclock, physical_address - Timer2Base, value); return;
+            }
+            // access CDROM
+            case (CdromBase) ... (CdromBase + CdromSize - 1):
+            {
+                component_write<T>(m_cdrom, physical_address - CdromBase, value); return;
+            }
+            // access GPU
+            case (GpuBase) ... (GpuBase + GpuSize - 1):
+            {
+                TODO(); return;
+            }
+            // access MDEC
+            case (MdecBase) ... (MdecBase + MdecSize - 1):
+            {
+                TODO(); return;
+            }
+            // access SPU
+            case (SpuBase) ... (SpuBase + SpuSize - 1):
+            {
+                component_write<T>(m_spu, physical_address - SpuBase, value); return;
+            }
+            // access IO Ports
+            case (IOPortsBase) ... (IOPortsBase + IOPortsSize - 1):
+            {
+                component_write<T>(m_io_ports, physical_address - IOPortsBase, value); return;
+            }
+            // access BIOS
+            case (BiosBase) ... (BiosBase + BiosSize - 1):
+            {
+                m_bios.write<T>(physical_address - BiosBase, value); return;
+            }
+            // access CacheController
+            case (CacheControlBase) ... (CacheControlBase + CacheControlSize - 1):
+            {
+                component_write<T>(m_cache_controller, physical_address - CacheControlBase, value); return;
+            }
+        }
+
+        ABORT_WITH_MESSAGE(fmt::format("unknown bus address while dispatching write: 0x{:08x}", physical_address));
+    }
+
+    /**
+     * @brief execute all components for num_steps clock cycles
+     */
+    void Bus::execute(u32 num_steps)
+    {
+        m_cpu->execute(num_steps);
+        m_timer_dotclock->execute(num_steps);    // TODO: figure out better timing setup
+        m_timer_hblank->execute(num_steps);      // TODO: figure out better timing setup
+        m_timer_systemclock->execute(num_steps); // TODO: figure out better timing setup
+    }
+
+    /**
+     * @brief reads bios from file and loads it into the bios memory
+     */
+    void Bus::meta_load_bios(const std::string& bios_path)
+    {
+        LOG_DEBUG(1, fmt::format("loading bios from {}", bios_path));
+
+        // open bios file
+        std::ifstream bios_file(bios_path, std::ios::binary);
+
+        if(!bios_file.is_open())
+        {
+            LOG_ERROR("bios file could not be opened");
+            return;
+        }
+
+        // read file contents
+        std::vector<u8> bios_file_contents((std::istreambuf_iterator<char>(bios_file)),
+                                            std::istreambuf_iterator<char>());
+        
+        // do basic size check
+        if(bios_file_contents.size() != BiosSize)
+        {
+            LOG_ERROR(fmt::format("bios file content does not have the correct size (correct size: {} Bytes)", BiosSize));
+            return;
+        }
+        
+        // initialize bios
+        std::memcpy(m_bios.data(), bios_file_contents.data(), BiosSize);
+
+        LOG_DEBUG(1, "bios loaded");
+    }
+
+    /**
+     * instantiate templated arguments 
+     */
+    template u8 Bus::dispatch_read<u8>(u32 address);
+    template u16 Bus::dispatch_read<u16>(u32 address);
+    template u32 Bus::dispatch_read<u32>(u32 address);
+    template void Bus::dispatch_write<u8>(u32 address, u8 value);
+    template void Bus::dispatch_write<u16>(u32 address, u16 value);
+    template void Bus::dispatch_write<u32>(u32 address, u32 value);
 }

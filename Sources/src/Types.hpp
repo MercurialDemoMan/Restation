@@ -76,7 +76,7 @@ namespace PSX
 
         Register& operator=(const T& other)
         {
-            m_raw = other.m_raw;
+            m_raw = other;
             return *this;
         }
 
