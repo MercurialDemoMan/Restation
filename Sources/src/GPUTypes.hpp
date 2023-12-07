@@ -231,6 +231,33 @@ namespace PSX
 
         u32 raw;
     };
+
+    /**
+     * @brief GPU VRAM Color 
+     */
+    union Color
+    {
+        static Color create_from_24bit(u32 raw)
+        {
+            return Color
+            {
+                .r = static_cast<u16>((((raw >>  0) & 0xFF) >> 3) & 0b11),
+                .g = static_cast<u16>((((raw >>  8) & 0xFF) >> 3) & 0b11),
+                .b = static_cast<u16>((((raw >> 16) & 0xFF) >> 3) & 0b11),
+                .mask = 0
+            };
+        }
+
+        struct
+        {
+            u16 r: 5;
+            u16 g: 5;
+            u16 b: 5;
+            u16 mask: 1;
+        };
+        
+        u16 raw;
+    };
 }
 
 #endif // GPUTYPES_HPP
