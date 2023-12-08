@@ -102,6 +102,8 @@ namespace PSX
                 u32 pio_master_enable:      1;
                 u32 otc_priority:           3;
                 u32 otc_master_enable:      1;
+                
+                u32: 4;
             };
 
             u32 raw;
