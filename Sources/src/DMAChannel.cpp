@@ -35,6 +35,8 @@
 
 #include "DMAChannel.hpp"
 #include "Bus.hpp"
+#include "Macros.hpp"
+#include <fmt/core.h>
 
 namespace PSX
 {
@@ -93,12 +95,14 @@ namespace PSX
             }
             case 8 ... 11:
             {
-                m_channel_control.bytes[address - 8] = value; return;
+                m_channel_control.bytes[address - 8] = value;
 
                 if(m_channel_control.enabled)
                 {
                     execute(1);
                 }
+
+                return;
             }
         }
 
