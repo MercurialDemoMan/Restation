@@ -24,6 +24,9 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/deps/glm)
 # add sdl2 to the project
 add_subdirectory(${CMAKE_SOURCE_DIR}/deps/SDL2-2.28.4)
 
+# add stb image write to the project
+include_directories(${CMAKE_SOURCE_DIR}/deps/stb)
+
 # include sources
 add_executable(emu 
 	src/main.cpp
