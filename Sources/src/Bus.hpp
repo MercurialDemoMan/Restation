@@ -81,7 +81,7 @@ namespace PSX
          */
         template<typename T>
         void dispatch_write(u32 address, T value);
-        void print();
+        
     private:
 
         /**
@@ -167,7 +167,7 @@ namespace PSX
                 component->write(address + 0, static_cast<u8>((value >>  0) & 0xFF));
                 component->write(address + 1, static_cast<u8>((value >>  8) & 0xFF));
                 component->write(address + 2, static_cast<u8>((value >> 16) & 0xFF));
-                component->write(address + 3, static_cast<u8>((value >> 23) & 0xFF));
+                component->write(address + 3, static_cast<u8>((value >> 24) & 0xFF));
                 return;
             }
 
