@@ -108,9 +108,10 @@ namespace PSX
         PolygonRender   = 2,
         LineRender      = 3,
         RectangleRender = 4,
-        CopyCPUToVRam   = 5,
-        CopyVRamToCPU   = 6,
-        CopyVRamToVRam  = 7
+        CopyCPUToVRamParsingPhase = 5,
+        CopyCPUToVRamDataPhase    = 6,
+        CopyVRamToCPU   = 7,
+        CopyVRamToVRam  = 8
     };
 
     /**

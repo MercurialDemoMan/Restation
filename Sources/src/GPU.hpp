@@ -75,22 +75,22 @@ namespace PSX
     private:
 
         /**
-         * @brief accumulate information from registers
+         * @brief accumulate information from registers into the GPUSTAT register
          */
         u32 read_stat();
 
         /**
-         * @brief read from vram 
+         * @brief read from vram into the GPUREAD register
          */
         u32 read_vram();
 
         /**
-         * @brief 
+         * @brief execute GP0 command
          */
         void execute_gp0_command(u32 command);
 
         /**
-         * @brief 
+         * @brief execute GP1 command
          */
         void execute_gp1_command(u32 command);
 
@@ -132,7 +132,12 @@ namespace PSX
         /**
          * @brief Copy RAM to VRAM GPU Command 
          */
-        void copy_cpu_to_vram();
+        void copy_cpu_to_vram_parsing_phase();
+
+        /**
+         * @brief Copy RAM to VRAM GPU Command 
+         */
+        void copy_cpu_to_vram_data_phase();
 
         /**
          * @brief Copy VRAM to RAM GPU Command 
@@ -203,6 +208,18 @@ namespace PSX
          * @brief mask dma copy parameters 
          */
         u32 mask_dma_height(u32 height) const;
+
+        /**
+         * @brief write to vram with respect to masking (the highest bit of the 16bit half word)
+         *        since the vram contains colors with 15bit color depth the 16th bit can be used
+         *        as a mask, whether it is allowed to draw into that specific vram space
+         */
+        void vram_write_with_mask(u32 x, u32 y, u16 color);
+
+        /**
+         * @brief read color from vram
+         */
+        u16 vram_read(u32 x, u32 y) const;
 
         /**
          * @brief connections

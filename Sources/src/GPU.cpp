@@ -83,8 +83,6 @@ namespace PSX
 
     u32 GPU::read(u32 address)
     {
-        LOG_DEBUG(3, fmt::format("GPU read 0x{:08}", address));
-
         switch(address)
         {
             case 0 ... 3:
@@ -110,8 +108,6 @@ namespace PSX
 
     void GPU::write(u32 address, u32 value)
     {
-        LOG_DEBUG(3, fmt::format("GPU write 0x{:08} 0x{:08}", address, value));
-
         switch(address)
         {
             case 0 ... 3:
@@ -209,11 +205,11 @@ namespace PSX
     }
 
     /**
-     * @brief read from vram 
+     * @brief read from vram into the GPUREAD
      */
     u32 GPU::read_vram()
     {
-        u16 low  = m_vram[(VRamHeight) * (m_dma_current_y % VRamHeight) + (m_dma_current_x % VRamWidth)];
+        u16 low = vram_read(m_dma_current_x % VRamWidth, m_dma_current_y % VRamHeight);
 
         m_dma_current_x++;
         if(m_dma_current_x >= m_dma_end_x)
@@ -226,7 +222,7 @@ namespace PSX
             }
         }
 
-        u16 high = m_vram[(VRamHeight) * (m_dma_current_y % VRamHeight) + (m_dma_current_x % VRamWidth)];
+        u16 high = vram_read(m_dma_current_x % VRamWidth, m_dma_current_y % VRamHeight);
 
         m_dma_current_x++;
         if(m_dma_current_x >= m_dma_end_x)
@@ -243,7 +239,7 @@ namespace PSX
     }
 
     /**
-     * @brief 
+     * @brief execute GP0 command
      */
     void GPU::execute_gp0_command(u32 value)
     {
@@ -316,7 +312,7 @@ namespace PSX
 
                 case GPUGP0Instruction::CPUToVRamStart ... GPUGP0Instruction::CPUToVRamEnd:
                 {
-                    m_current_command = GPUCommand::CopyCPUToVRam;
+                    m_current_command = GPUCommand::CopyCPUToVRamParsingPhase;
                     m_command_num_arguments = 3;
                     break;
                 }
@@ -412,7 +408,7 @@ namespace PSX
     }
 
     /**
-     * @brief 
+     * @brief execute GP1 command
      */
     void GPU::execute_gp1_command(u32 command)
     {
@@ -560,54 +556,51 @@ namespace PSX
         {
             case GPUCommand::Nop:
             {
-                break;
+                return;
             }
 
             case GPUCommand::VRamFill:
             {
-                vram_fill();
-                m_current_command = GPUCommand::Nop;
-                break;
+                vram_fill(); return;
             }
 
             case GPUCommand::PolygonRender:
             {
-                polygon_render();
-                break;
+                polygon_render(); return;
             }
 
             case GPUCommand::LineRender:
             {
-                line_render();
-                break;
+                line_render(); return;
             }
 
             case GPUCommand::RectangleRender:
             {
-                rectangle_render();
-                m_current_command = GPUCommand::Nop;
-                break;
+                rectangle_render(); return;
             }
 
-            case GPUCommand::CopyCPUToVRam:
+            case GPUCommand::CopyCPUToVRamParsingPhase:
             {
-                copy_cpu_to_vram();
-                break;
+                copy_cpu_to_vram_parsing_phase(); return;
+            }
+
+            case GPUCommand::CopyCPUToVRamDataPhase:
+            {
+                copy_cpu_to_vram_data_phase(); return;
             }
 
             case GPUCommand::CopyVRamToCPU:
             {
-                copy_vram_to_cpu();
-                m_current_command = GPUCommand::Nop;
-                break;
+                copy_vram_to_cpu(); return;
             }
 
             case GPUCommand::CopyVRamToVRam:
             {
-                copy_vram_to_vram();
-                break;
+                copy_vram_to_vram(); return;
             }
         }
+
+        UNREACHABLE();
     }
 
     /**
@@ -639,6 +632,9 @@ namespace PSX
                 .size_y  = size_y,
                 .color   = Color::create_from_24bit(color)
         });
+
+        // reset command queue
+        m_current_command = GPUCommand::Nop;
     }
 
     /**
@@ -758,6 +754,9 @@ namespace PSX
             .is_semi_transparent = command.is_semi_transparent,
             .is_raw_texture      = command.is_raw_texture
         });
+
+        // reset command queue
+        m_current_command = GPUCommand::Nop;
     }
 
     /**
@@ -787,7 +786,7 @@ namespace PSX
             for(s32 x = min_x, u = uv_x; x < max_x; x++, u += dir_x)
             {
                 // get original color for blending
-                Color original_color = Color(m_vram[y * VRamWidth + x]);
+                Color original_color = Color(vram_read(x, y));
 
                 if(m_mask_bit_setting.check_mask_before_draw)
                 {
@@ -834,9 +833,63 @@ namespace PSX
     /**
      * @brief Copy RAM to VRAM GPU Command 
      */
-    void GPU::copy_cpu_to_vram()
+    void GPU::copy_cpu_to_vram_parsing_phase()
     {
-        TODO();
+        m_dma_start_x = m_dma_current_x = mask_dma_x((m_command_fifo.at(1) >>  0) & 0xFFFF);
+        m_dma_start_y = m_dma_current_y = mask_dma_y((m_command_fifo.at(1) >> 16) & 0xFFFF);
+        m_dma_end_x   = m_dma_start_x + mask_dma_width((m_command_fifo.at(2) >>  0) & 0xFFFF);
+        m_dma_end_y   = m_dma_start_y + mask_dma_height((m_command_fifo.at(2) >> 16) & 0xFFFF);
+
+
+        // expect cpu data from the command queue
+        m_current_command = GPUCommand::CopyCPUToVRamDataPhase;
+        m_command_fifo.clear();
+        m_command_num_arguments = 1;
+    }
+
+    /**
+     * @brief Copy RAM to VRAM GPU Command 
+     */
+    void GPU::copy_cpu_to_vram_data_phase()
+    {
+        // extract value
+        u32 value = m_command_fifo.at(0);
+
+        // expect next data point
+        m_command_fifo.clear();
+
+        vram_write_with_mask(m_dma_current_x, m_dma_current_y, (value >>  0) & 0xFFFF);
+
+        m_dma_current_x++;
+        if(m_dma_current_x >= m_dma_end_x)
+        {
+            m_dma_current_x = m_dma_start_x;
+            m_dma_current_y++;
+            if(m_dma_current_y >= m_dma_end_y)
+            {
+                // we reached the end, reset the command queue
+                m_current_command = GPUCommand::Nop;
+                return;
+            }
+        }
+
+        vram_write_with_mask(m_dma_current_x, m_dma_current_y, (value >> 16) & 0xFFFF);
+
+        m_dma_current_x++;
+        if(m_dma_current_x >= m_dma_end_x)
+        {
+            m_dma_current_x = m_dma_start_x;
+            m_dma_current_y++;
+            if(m_dma_current_y >= m_dma_end_y)
+            {
+                // we reached the end, reset the command queue
+                m_current_command = GPUCommand::Nop;
+                return;
+            }
+        }
+
+        // keep the current command as CopyCPUToVRamDataPhase
+        // only change it when we reached the end of the DMA
     }
 
     /**
@@ -847,10 +900,13 @@ namespace PSX
         m_dma_start_x = m_dma_current_x = mask_dma_x((m_command_fifo.at(1) >>  0) & 0xFFFF);
         m_dma_start_y = m_dma_current_y = mask_dma_y((m_command_fifo.at(1) >> 16) & 0xFFFF);
         m_dma_end_x   = m_dma_start_x + mask_dma_width((m_command_fifo.at(2) >>  0) & 0xFFFF);
-        m_dma_end_y   = m_dma_start_y + mask_dma_width((m_command_fifo.at(2) >> 16) & 0xFFFF);
+        m_dma_end_y   = m_dma_start_y + mask_dma_height((m_command_fifo.at(2) >> 16) & 0xFFFF);
 
         // make VRAM accessible to DMA through the GPUREAD register
         m_read_mode = 1;
+
+        // reset command queue
+        m_current_command = GPUCommand::Nop;
     }
 
     /**
@@ -858,7 +914,24 @@ namespace PSX
      */
     void GPU::copy_vram_to_vram()
     {
-        TODO();
+        u32 source_x      = mask_dma_x((m_command_fifo.at(1) >>  0) & 0xFFFF);
+        u32 source_y      = mask_dma_y((m_command_fifo.at(1) >> 16) & 0xFFFF);
+        u32 destination_x = mask_dma_x((m_command_fifo.at(2) >>  0) & 0xFFFF);
+        u32 destination_y = mask_dma_y((m_command_fifo.at(2) >> 16) & 0xFFFF);
+        u32 width         = mask_dma_width((m_command_fifo.at(3) >>  0) & 0xFFFF);
+        u32 height        = mask_dma_height((m_command_fifo.at(3) >> 16) & 0xFFFF);
+
+        for(u32 y = 0; y < height; y++)
+        {
+            for(u32 x = 0; x < width; x++)
+            {
+                auto color = vram_read((source_x + x) % VRamWidth, (source_y + y) % VRamHeight);
+                vram_write_with_mask(destination_x + x, destination_y + y, color);
+            }
+        }
+
+        // reset command queue
+        m_current_command = GPUCommand::Nop;
     }
 
     /**
@@ -938,7 +1011,7 @@ namespace PSX
         u32 num_entries = color_depth == 2 ? 256 : 16;
         for(u32 i = 0; i < num_entries; i++)
         {
-            m_clut_cache[i] = m_vram[clut_y * VRamWidth + (clut_x + i)];
+            m_clut_cache[i] = vram_read(clut_x + i, clut_y);
         }
     }
 
@@ -954,7 +1027,7 @@ namespace PSX
             {
                 u32 x = (texpage_x + uv_x / 4) % 1024;
                 u32 y = (texpage_y + uv_y) % 512;
-                u16 clut_cache_index = m_vram[y * VRamWidth + x];
+                u16 clut_cache_index = vram_read(x, y);
                 return Color(m_clut_cache[(clut_cache_index >> ((uv_x & 3) * 4)) & 0x0F]);
             }
             // 8bit color depth
@@ -962,7 +1035,7 @@ namespace PSX
             {
                 u32 x = (texpage_x + uv_x / 2) % 1024;
                 u32 y = (texpage_y + uv_y) % 512;
-                u16 clut_cache_index = m_vram[y * VRamWidth + x];
+                u16 clut_cache_index = vram_read(x, y);
                 return Color(m_clut_cache[(clut_cache_index >> ((uv_x & 1) * 8)) & 0xFF]);
             }
             // 16bit color depth
@@ -970,7 +1043,7 @@ namespace PSX
             {
                 u32 x = (texpage_x + uv_x) % 1024;
                 u32 y = (texpage_y + uv_y) % 512;
-                return Color(m_vram[y * VRamWidth + x]);
+                return Color(vram_read(x, y));
             }
         }
 
@@ -1008,6 +1081,37 @@ namespace PSX
     u32 GPU::mask_dma_height(u32 height) const
     {
         return ((height - 1) & 0x1FF) + 1;
+    }
+
+    /**
+     * @brief write to vram with respect to masking (the highest bit of the 16bit half word)
+     *        since the vram contains colors with 15bit color depth the 16th bit can be used
+     *        as a mask, whether it is allowed to draw into that specific vram space
+     */
+    void GPU::vram_write_with_mask(u32 x, u32 y, u16 color)
+    {
+        x %= VRamWidth;
+        y %= VRamHeight;
+
+        u16 mask = m_mask_bit_setting.set_mask_while_drawing ? 0x8000 : 0x0000;
+
+        if(m_mask_bit_setting.check_mask_before_draw)
+        {
+            if(vram_read(x, y) & 0x8000)
+                return;
+        }
+
+        m_vram[y * VRamWidth + x] = color | mask;
+    }
+
+    /**
+     * @brief read color from vram
+     */
+    u16 GPU::vram_read(u32 x, u32 y) const
+    {
+        if(x > VRamWidth - 1) UNREACHABLE();
+        if(y > VRamHeight - 1) UNREACHABLE();
+        return m_vram[y * VRamWidth + x];
     }
 
     /**
