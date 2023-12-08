@@ -39,6 +39,12 @@
 #include <algorithm>
 #include <fmt/core.h>
 
+extern "C"
+{
+    #define STB_IMAGE_WRITE_IMPLEMENTATION
+    #include <stb_image_write.h>
+}
+
 namespace PSX
 {
     void GPU::execute(u32 num_steps)
@@ -46,7 +52,12 @@ namespace PSX
         m_meta_cycles += num_steps;
         
         u32 line_cycles = m_display_mode.video_mode ? PALScanlineCycles : NTSCScanlineCycles;
-        u32 num_lines   = m_display_mode.video_mode ? PALScanlines : NTSCScanlines;
+        u32 num_lines   = m_display_mode.video_mode ? PALScanlines      : NTSCScanlines;
+
+        u32 new_lines   = m_meta_cycles / line_cycles;
+
+        if(new_lines == 0)
+            return;
 
         m_meta_lines  += m_meta_cycles / line_cycles;
         m_meta_cycles %= line_cycles;
@@ -167,6 +178,34 @@ namespace PSX
     }
 
     /**
+     * @brief soft reset made by GP1 command 
+     */
+    void GPU::soft_reset()
+    {
+        m_draw_mode.raw              = 0;
+        m_texture_window_setting.raw = 0;
+        m_mask_bit_setting.raw       = 0;
+        m_display_mode.raw           = 0;
+        m_dma_direction              = 0;
+        m_display_area_start_x       = 0;
+        m_display_area_start_y       = 0;
+        m_display_range_x_1          = 0x200;
+        m_display_range_x_2          = 0x200 + 256 * 10;
+        m_display_range_y_1          = 0x010;
+        m_display_range_y_2          = 0x010 + 240;
+        m_drawing_area_top           = 0;
+        m_drawing_area_left          = 0;
+        m_drawing_area_right         = 0;
+        m_drawing_area_bottom        = 0;
+        m_drawing_offset_x           = 0;
+        m_drawing_offset_y           = 0;
+        m_display_disable            = true;
+        m_interrupt_request          = false;
+        m_clut_cache_x               = {};
+        m_clut_cache_y               = {};
+    }
+
+    /**
      * @brief accumulate information from registers
      */
     u32 GPU::read_stat()
@@ -243,6 +282,7 @@ namespace PSX
      */
     void GPU::execute_gp0_command(u32 value)
     {
+        LOG(fmt::format("gpu gp0 0x{:08x}", value));
         // set initial command if no command is currently being processed
         if(m_current_command == GPUCommand::Nop)
         {
@@ -419,7 +459,7 @@ namespace PSX
         {
             case GPUGP1Instruction::ResetGPU:
             {
-                reset();
+                soft_reset();
                 break;
             }
 
@@ -1119,6 +1159,19 @@ namespace PSX
      */
     void GPU::meta_dump_vram() const
     {
-        TODO();
+        LOG("dumping vram to vram.png");
+
+        std::vector<u8> vram(VRamWidth * VRamHeight * 4);
+
+        for(u32 i = 0; i < VRamWidth * VRamHeight; i++)
+        {
+            Color parsed_color = Color(m_vram[i]);
+            vram[i * 4 + 0] = parsed_color.r << 3;
+            vram[i * 4 + 1] = parsed_color.g << 3;
+            vram[i * 4 + 2] = parsed_color.b << 3;
+            vram[i * 4 + 3] = 255;
+        }
+
+        stbi_write_png("vram.png", VRamWidth, VRamHeight, 4, vram.data(), VRamWidth * 4);
     }
 }

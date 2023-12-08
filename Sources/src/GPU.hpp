@@ -75,6 +75,11 @@ namespace PSX
     private:
 
         /**
+         * @brief soft reset made by GP1 command 
+         */
+        void soft_reset();
+
+        /**
          * @brief accumulate information from registers into the GPUSTAT register
          */
         u32 read_stat();
