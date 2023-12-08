@@ -367,6 +367,8 @@ namespace PSX
         LOG_DEBUG(1, "bios loaded");
     }
 
+    void Bus::print() { std::cout << m_cpu->to_string() << std::endl; }
+
     /**
      * instantiate templated arguments 
      */

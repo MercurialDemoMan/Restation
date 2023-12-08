@@ -37,6 +37,7 @@
 #include <array>
 #include <string>
 #include <memory>
+#include <iostream>
 #include "Types.hpp"
 #include "Macros.hpp"
 #include "Constants.hpp"
@@ -80,7 +81,7 @@ namespace PSX
          */
         template<typename T>
         void dispatch_write(u32 address, T value);
-        
+        void print();
     private:
 
         /**

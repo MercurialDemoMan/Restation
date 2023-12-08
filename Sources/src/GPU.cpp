@@ -37,6 +37,7 @@
 #include "InterruptController.hpp"
 #include "Utils.hpp"
 #include <algorithm>
+#include <fmt/core.h>
 
 namespace PSX
 {
@@ -54,22 +55,36 @@ namespace PSX
         if(m_meta_lines >= num_lines)
         {
             m_meta_lines %= num_lines;
+            m_meta_frames++;
             m_is_line_odd = false;
-            m_rendered_new_frame = true;
+            m_interrupt_controller->trigger_interrupt(Interrupt::VBlank);
         }
         // we are still rendering
         else
         {
-            if(m_display_mode.vertical_interlace_enabled)
+            switch(m_display_mode.vertical_resolution)
             {
-                m_is_line_odd = (m_meta_lines % 2);
+                // 240 lines
+                case 0:
+                {
+                    m_is_line_odd = m_meta_lines & 1;
+                    break;
+                }
+
+                // 480 lines
+                case 1:
+                {
+                    m_is_line_odd = m_meta_frames & 1;
+                    break;
+                }
             }
-            m_rendered_new_frame = false;
         }
     }
 
     u32 GPU::read(u32 address)
     {
+        LOG_DEBUG(3, fmt::format("GPU read 0x{:08}", address));
+
         switch(address)
         {
             case 0 ... 3:
@@ -95,6 +110,8 @@ namespace PSX
 
     void GPU::write(u32 address, u32 value)
     {
+        LOG_DEBUG(3, fmt::format("GPU write 0x{:08} 0x{:08}", address, value));
+
         switch(address)
         {
             case 0 ... 3:
@@ -144,11 +161,13 @@ namespace PSX
         m_ready_to_receive_dma_block = 1;
         m_is_line_odd                = false;
         m_current_command            = GPUCommand::Nop;
-        m_clut_cache_x               = -1;
-        m_clut_cache_y               = -1;
+        m_clut_cache_x               = {};
+        m_clut_cache_y               = {};
         m_clut_cache_depth           = 0;
         m_command_num_arguments      = 0;
         m_meta_cycles                = 0;
+        m_meta_lines                 = 0;
+        m_meta_frames                = 0;
     }
 
     /**
@@ -313,7 +332,6 @@ namespace PSX
                 {
                     m_draw_mode.raw = value;
                     m_command_num_arguments = 1;
-                    TODO();
                     break;
                 }
 
@@ -596,6 +614,8 @@ namespace PSX
      */
     void GPU::vram_fill()
     {
+        LOG_DEBUG(3, fmt::format("GPU vram fill"));
+
         // extract arguments
         u32 color   = (m_command_fifo.at(0) & 0x00FF'FFFF);
         u32 start_x = (m_command_fifo.at(1) >>  0) & 0xFFFF;
@@ -699,14 +719,14 @@ namespace PSX
             switch(m_draw_mode.texture_page_colors)
             {
                 // 4bit depth
-                case 0: { color_bits = 4; }
+                case 0: { color_bits = 4; break; }
                 // 8bit depth
-                case 1: { color_bits = 8; }
+                case 1: { color_bits = 8; break; }
                 // 15bit depth
                 case 2:
                 // reserved = 15bit depth
-                case 3: { color_bits = 16; }
-                default: { UNREACHABLE(); }
+                case 3: { color_bits = 16; break; }
+                default: { UNREACHABLE(); break; }
             }
 
             u32 clut_value = m_command_fifo.at(2);
@@ -899,8 +919,8 @@ namespace PSX
                                   (m_clut_cache_y.value_or(-1) == clut_y);
         auto clut_depth_changed = m_clut_cache_depth != color_depth;
 
-        // clut position didn't change and texture format didn't change
-        if(!clut_pos_changed && !clut_pos_changed)
+        // clut position didn't change and texture color depth didn't change
+        if(!clut_pos_changed && !clut_depth_changed)
             return;
 
         // update clut cache
@@ -949,5 +969,13 @@ namespace PSX
 
         UNREACHABLE();
         return Color();
+    }
+
+    /**
+     * @brief dump VRAM into a image file 
+     */
+    void GPU::meta_dump_vram() const
+    {
+
     }
 }

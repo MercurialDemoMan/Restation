@@ -35,6 +35,8 @@
 #define GPUTYPES_HPP
 
 #include "Types.hpp"
+#include "Macros.hpp"
+#include <algorithm>
 
 namespace PSX
 {
@@ -254,15 +256,36 @@ namespace PSX
      */
     union Color
     {
+        Color() :
+            raw(0)
+        {
+
+        }
+
+        Color(u32 raw) :
+            raw(raw)
+        {
+            
+        }
+
+        Color(u16 r, u16 g, u16 b, u16 mask) :
+            r(r),
+            g(g),
+            b(b),
+            mask(mask)
+        {
+            
+        }
+
         static Color create_from_24bit(u32 raw)
         {
             return Color
-            {
-                .r = static_cast<u16>((((raw >>  0) & 0xFF) >> 3) & 0b11),
-                .g = static_cast<u16>((((raw >>  8) & 0xFF) >> 3) & 0b11),
-                .b = static_cast<u16>((((raw >> 16) & 0xFF) >> 3) & 0b11),
-                .mask = 0
-            };
+            (
+                static_cast<u16>((((raw >>  0) & 0xFF) >> 3) & 0b11),
+                static_cast<u16>((((raw >>  8) & 0xFF) >> 3) & 0b11),
+                static_cast<u16>((((raw >> 16) & 0xFF) >> 3) & 0b11),
+                0
+            );
         }
 
         static Color create_blended(Color source, Color destination, u32 transparency_type)
@@ -274,10 +297,10 @@ namespace PSX
                 {
                     return Color
                     {
-                        .r = static_cast<u16>(std::min(31, (source.r + destination.r) / 2)),
-                        .g = static_cast<u16>(std::min(31, (source.g + destination.g) / 2)),
-                        .b = static_cast<u16>(std::min(31, (source.b + destination.b) / 2)),
-                        .mask = destination.mask
+                        static_cast<u16>(std::min(31, (source.r + destination.r) / 2)),
+                        static_cast<u16>(std::min(31, (source.g + destination.g) / 2)),
+                        static_cast<u16>(std::min(31, (source.b + destination.b) / 2)),
+                        destination.mask
                     };
                 }
                 /// additive
@@ -285,10 +308,10 @@ namespace PSX
                 {
                     return Color
                     {
-                        .r = static_cast<u16>(std::min(31, source.r + destination.r)),
-                        .g = static_cast<u16>(std::min(31, source.g + destination.g)),
-                        .b = static_cast<u16>(std::min(31, source.b + destination.b)),
-                        .mask = destination.mask
+                        static_cast<u16>(std::min(31, source.r + destination.r)),
+                        static_cast<u16>(std::min(31, source.g + destination.g)),
+                        static_cast<u16>(std::min(31, source.b + destination.b)),
+                        destination.mask
                     };
                 }
                 /// subtractive
@@ -296,10 +319,10 @@ namespace PSX
                 {
                     return Color
                     {
-                        .r = static_cast<u16>(std::max(0, source.r - destination.r)),
-                        .g = static_cast<u16>(std::max(0, source.g - destination.g)),
-                        .b = static_cast<u16>(std::max(0, source.b - destination.b)),
-                        .mask = destination.mask
+                        static_cast<u16>(std::max(0, source.r - destination.r)),
+                        static_cast<u16>(std::max(0, source.g - destination.g)),
+                        static_cast<u16>(std::max(0, source.b - destination.b)),
+                        destination.mask
                     };
                 }
                 /// additive/4
@@ -307,10 +330,10 @@ namespace PSX
                 {
                     return Color
                     {
-                        .r = static_cast<u16>(std::min(31, source.r + (destination.r / 4))),
-                        .g = static_cast<u16>(std::min(31, source.g + (destination.g / 4))),
-                        .b = static_cast<u16>(std::min(31, source.b + (destination.b / 4))),
-                        .mask = destination.mask
+                        static_cast<u16>(std::min(31, source.r + (destination.r / 4))),
+                        static_cast<u16>(std::min(31, source.g + (destination.g / 4))),
+                        static_cast<u16>(std::min(31, source.b + (destination.b / 4))),
+                        destination.mask
                     };
                 }
             }
@@ -322,12 +345,12 @@ namespace PSX
         static Color create_mix(Color source, Color destination)
         {
             return Color
-            {
-                .r = static_cast<u16>(std::min(31, (source.r * destination.r) / 128)),
-                .g = static_cast<u16>(std::min(31, (source.g * destination.g) / 128)),
-                .b = static_cast<u16>(std::min(31, (source.b * destination.b) / 128)),
-                .mask = destination.mask
-            };
+            (
+                static_cast<u16>(std::min(31, (source.r * destination.r) / 128)),
+                static_cast<u16>(std::min(31, (source.g * destination.g) / 128)),
+                static_cast<u16>(std::min(31, (source.b * destination.b) / 128)),
+                destination.mask
+            );
         }
 
         struct

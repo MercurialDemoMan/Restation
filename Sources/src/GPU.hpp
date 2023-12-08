@@ -66,14 +66,11 @@ namespace PSX
         virtual u32  read(u32 address) override;
         virtual void write(u32 address, u32 value) override;
         virtual void reset() override;
-
+        
         /**
-         * @brief did GPU render a whole frame? 
+         * @brief dump VRAM into a image file 
          */
-        bool rendered_new_frame() const
-        {
-            return m_rendered_new_frame;
-        }
+        void meta_dump_vram() const;
 
     private:
 
@@ -314,7 +311,6 @@ namespace PSX
         u32                  m_dma_current_y;
         bool                 m_ready_to_receive_dma_block;
         bool                 m_is_line_odd;
-        bool                 m_rendered_new_frame;
         GPUCommand           m_current_command;
         std::deque<u32>      m_command_fifo;
         u32                  m_command_num_arguments;
@@ -327,6 +323,7 @@ namespace PSX
          */
         u32 m_meta_cycles;
         u32 m_meta_lines;
+        u32 m_meta_frames;
 
         /**
          * GPU memory regions 

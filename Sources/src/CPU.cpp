@@ -967,7 +967,7 @@ namespace PSX
     /**
      * @brief Break opcode 
      */
-    void CPU::BREAK(const CPUInstruction& ins)
+    void CPU::BREAK(const CPUInstruction&)
     {
         trigger_exception(Exception::Break);
     }
