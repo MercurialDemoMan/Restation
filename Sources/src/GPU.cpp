@@ -598,6 +598,7 @@ namespace PSX
             case GPUCommand::CopyVRamToCPU:
             {
                 copy_vram_to_cpu();
+                m_current_command = GPUCommand::Nop;
                 break;
             }
 
@@ -843,7 +844,13 @@ namespace PSX
      */
     void GPU::copy_vram_to_cpu()
     {
-        TODO();
+        m_dma_start_x = m_dma_current_x = mask_dma_x((m_command_fifo.at(1) >>  0) & 0xFFFF);
+        m_dma_start_y = m_dma_current_y = mask_dma_y((m_command_fifo.at(1) >> 16) & 0xFFFF);
+        m_dma_end_x   = m_dma_start_x + mask_dma_width((m_command_fifo.at(2) >>  0) & 0xFFFF);
+        m_dma_end_y   = m_dma_start_y + mask_dma_width((m_command_fifo.at(2) >> 16) & 0xFFFF);
+
+        // make VRAM accessible to DMA through the GPUREAD register
+        m_read_mode = 1;
     }
 
     /**
@@ -972,10 +979,42 @@ namespace PSX
     }
 
     /**
+     * @brief mask dma copy parameters 
+     */
+    u32 GPU::mask_dma_x(u32 x) const
+    {
+        return x & 0x3FF;
+    }
+
+    /**
+     * @brief mask dma copy parameters 
+     */
+    u32 GPU::mask_dma_y(u32 y) const
+    {
+        return y & 0x1FF;
+    }
+
+    /**
+     * @brief mask dma copy parameters 
+     */
+    u32 GPU::mask_dma_width(u32 width) const
+    {
+        return ((width - 1) & 0x3FF) + 1;
+    }
+
+    /**
+     * @brief mask dma copy parameters 
+     */
+    u32 GPU::mask_dma_height(u32 height) const
+    {
+        return ((height - 1) & 0x1FF) + 1;
+    }
+
+    /**
      * @brief dump VRAM into a image file 
      */
     void GPU::meta_dump_vram() const
     {
-
+        TODO();
     }
 }

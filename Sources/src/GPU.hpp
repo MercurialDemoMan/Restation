@@ -66,7 +66,7 @@ namespace PSX
         virtual u32  read(u32 address) override;
         virtual void write(u32 address, u32 value) override;
         virtual void reset() override;
-        
+
         /**
          * @brief dump VRAM into a image file 
          */
@@ -183,6 +183,26 @@ namespace PSX
          * @brief fetch texture color 
          */
         Color vram_fetch_texture_color(u32 color_depth, u32 uv_x, u32 uv_y, u32 texpage_x, u32 texpage_y);
+
+        /**
+         * @brief mask dma copy parameters 
+         */
+        u32 mask_dma_x(u32 x) const;
+
+        /**
+         * @brief mask dma copy parameters 
+         */
+        u32 mask_dma_y(u32 y) const;
+
+        /**
+         * @brief mask dma copy parameters 
+         */
+        u32 mask_dma_width(u32 width) const;
+
+        /**
+         * @brief mask dma copy parameters 
+         */
+        u32 mask_dma_height(u32 height) const;
 
         /**
          * @brief connections
