@@ -58,17 +58,29 @@ namespace PSX
     {
         switch(address)
         {
-            case 0 ... 3:
+            case 0 ... 1:
             {
                 m_status.write(address - 0, m_status.read(address - 0) & value);
-                m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 0b1111 : 0);
+                m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 4 : 0);
                 return;
             }
 
-            case 4 ... 7:
+            case 2 ... 3:
+            {
+                m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 4 : 0);
+                return;
+            }
+
+            case 4 ... 5:
             {
                 m_mask.write(address - 4, value);
-                m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 0b1111 : 0);
+                m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 4 : 0);
+                return;
+            }
+
+            case 6 ... 7:
+            {
+                m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 4 : 0);
                 return;
             }
         }
@@ -114,6 +126,6 @@ namespace PSX
 
         m_status.raw() |= (1 << static_cast<u32>(interrupt));
 
-        m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 0b1111 : 0);
+        m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 4 : 0);
     }
 }
