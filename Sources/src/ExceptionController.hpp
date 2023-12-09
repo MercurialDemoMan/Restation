@@ -193,7 +193,7 @@ namespace PSX
                 
                 u32: 2;
 
-                u32 reverse_endianness; /// doesn't exist in psx
+                u32 reverse_endianness: 1; /// doesn't exist in psx
 
                 u32: 2;
 
