@@ -287,7 +287,7 @@ namespace PSX
         // adjust exception when we have branch delay
         if(m_exception_branch_delay_active)
         {
-            m_exception_controller->adjust_for_branch_delay(m_branching, m_program_counter);
+            m_exception_controller->adjust_for_branch_delay(m_exception_branching, m_program_counter);
         }
 
         u32 exception_handler_address = m_exception_controller->get_handler_address();
