@@ -112,12 +112,17 @@ namespace PSX
         /**
          * @brief Perform Quick VRAM rectangle fill GPU Command
          */
-        void do_vram_fill(const VRamFillArguments&);
+        void do_vram_fill(VRamFillArguments);
 
         /**
          * @brief Render Polygon GPU Command 
          */
         void polygon_render();
+
+        /**
+         * @brief Perform Render Polygon GPU Command
+         */
+        void do_polygon_render(PolygonRenderArguments);
 
         /**
          * @brief Render Line GPU Command 
@@ -132,7 +137,7 @@ namespace PSX
         /**
          * @brief Perform Render Rectangle GPU Command 
          */
-        void do_rectangle_render(const RectangleRenderArguments&);
+        void do_rectangle_render(RectangleRenderArguments);
 
         /**
          * @brief Copy RAM to VRAM GPU Command 
@@ -192,7 +197,7 @@ namespace PSX
         /**
          * @brief fetch texture color 
          */
-        Color vram_fetch_texture_color(u32 color_depth, u32 uv_x, u32 uv_y, u32 texpage_x, u32 texpage_y);
+        Color15Bit vram_fetch_texture_color(u32 color_depth, s32 uv_x, s32 uv_y, s32 texpage_x, s32 texpage_y);
 
         /**
          * @brief mask dma copy parameters 
