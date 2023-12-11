@@ -97,6 +97,8 @@ namespace PSX
             {
                 m_channel_control.bytes[address - 8] = value;
 
+                mask_channel_control_register();
+
                 if(m_channel_control.enabled)
                 {
                     execute(1);

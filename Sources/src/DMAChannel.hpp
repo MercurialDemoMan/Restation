@@ -117,6 +117,14 @@ namespace PSX
             return false;
         }
 
+        /**
+         * @brief mask channel control register when writing into it
+         */
+        virtual void mask_channel_control_register()
+        {
+            
+        }
+
     protected:
 
         std::shared_ptr<Bus> m_bus;
