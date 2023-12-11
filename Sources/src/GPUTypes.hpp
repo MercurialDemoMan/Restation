@@ -36,6 +36,7 @@
 
 #include "Types.hpp"
 #include "Macros.hpp"
+#include "Utils.hpp"
 #include <algorithm>
 
 namespace PSX
@@ -115,6 +116,212 @@ namespace PSX
     };
 
     /**
+     * @brief GPU 24bit Color 
+     */
+    union Color24Bit
+    {
+        Color24Bit()
+            : raw(0)
+        {
+
+        }
+
+        Color24Bit(u32 raw)
+            : raw(raw)
+        {
+
+        }
+
+        Color24Bit(u8 r, u8 g, u8 b)
+            : r(r),
+              g(g),
+              b(b)
+        {
+
+        }
+
+        struct
+        {
+            u32 r: 8;
+            u32 g: 8;
+            u32 b: 8;
+ 
+            u32: 8;
+        };
+        
+        u32 raw;
+    };
+
+    /**
+     * @brief GPU VRAM 15bit Color 
+     */
+    union Color15Bit
+    {
+        Color15Bit() :
+            raw(0)
+        {
+
+        }
+
+        Color15Bit(u16 raw) :
+            raw(raw)
+        {
+            
+        }
+
+        Color15Bit(u8 r, u8 g, u8 b, u8 mask) :
+            r(r),
+            g(g),
+            b(b),
+            mask(mask)
+        {
+            
+        }
+
+        static Color15Bit create_from_24bit(Color24Bit color)
+        {
+            return Color15Bit
+            (
+                color.r >> 3,
+                color.g >> 3,
+                color.b >> 3,
+                0
+            );
+        }
+
+        static Color15Bit create_blended(Color15Bit source, Color15Bit destination, u32 transparency_type)
+        {
+            switch(transparency_type)
+            {
+                /// half from each color
+                case 0:
+                {
+                    return Color15Bit
+                    {
+                        static_cast<u16>(std::min(31, (source.r + destination.r) / 2)),
+                        static_cast<u16>(std::min(31, (source.g + destination.g) / 2)),
+                        static_cast<u16>(std::min(31, (source.b + destination.b) / 2)),
+                        destination.mask
+                    };
+                }
+                /// additive
+                case 1:
+                {
+                    return Color15Bit
+                    {
+                        static_cast<u16>(std::min(31, source.r + destination.r)),
+                        static_cast<u16>(std::min(31, source.g + destination.g)),
+                        static_cast<u16>(std::min(31, source.b + destination.b)),
+                        destination.mask
+                    };
+                }
+                /// subtractive
+                case 2:
+                {
+                    return Color15Bit
+                    {
+                        static_cast<u16>(std::max(0, source.r - destination.r)),
+                        static_cast<u16>(std::max(0, source.g - destination.g)),
+                        static_cast<u16>(std::max(0, source.b - destination.b)),
+                        destination.mask
+                    };
+                }
+                /// additive/4
+                case 3:
+                {
+                    return Color15Bit
+                    {
+                        static_cast<u16>(std::min(31, source.r + (destination.r / 4))),
+                        static_cast<u16>(std::min(31, source.g + (destination.g / 4))),
+                        static_cast<u16>(std::min(31, source.b + (destination.b / 4))),
+                        destination.mask
+                    };
+                }
+            }
+
+            UNREACHABLE();
+            return Color15Bit();
+        }
+
+        static Color15Bit create_mix(Color24Bit source, Color15Bit destination)
+        {
+            return Color15Bit
+            (
+                static_cast<u16>(std::min(31, (source.r * destination.r) >> 7)),
+                static_cast<u16>(std::min(31, (source.g * destination.g) >> 7)),
+                static_cast<u16>(std::min(31, (source.b * destination.b) >> 7)),
+                destination.mask
+            );
+        }
+
+        struct
+        {
+            u16 r: 5;
+            u16 g: 5;
+            u16 b: 5;
+            u16 mask: 1;
+        };
+        
+        u16 raw;
+    };
+
+    /**
+     * @brief GPU Polygon Vertex 
+     */
+    struct Vertex
+    {
+        s16 pos_x;
+        s16 pos_y;
+        Color24Bit color;
+        u16 uv_x;
+        u16 uv_y;
+    };
+
+    /**
+     * @brief Per-fragment attributes
+     */
+    struct FragmentAttributes
+    {
+        fixed<s32, 16> r;
+        fixed<s32, 16> g;
+        fixed<s32, 16> b;
+        fixed<s32, 16> u;
+        fixed<s32, 16> v;
+    };
+
+    /**
+     * @brief Per-fragment attribute delta
+     */
+    struct FragmentAttributeDelta
+    {
+        fixed<s32, 16> x;
+        fixed<s32, 16> y;
+    };
+
+    /**
+     * @brief Per-fragment attributes deltas
+     */
+    struct FragmentAttributesDeltas
+    {
+        FragmentAttributeDelta r;
+        FragmentAttributeDelta g;
+        FragmentAttributeDelta b;
+        FragmentAttributeDelta u;
+        FragmentAttributeDelta v;
+    };
+
+    /**
+     * @brief GPU Texture Info 
+     */
+    struct TextureInfo
+    {
+        u32 palette_index { 0 };
+        u32 texpage_index { 0 };
+        u16 uv_x { 0 };
+        u16 uv_y { 0 };
+    };
+
+    /**
      * @brief Parse Polygon render command 
      */
     union PolygonRenderCommand
@@ -144,6 +351,14 @@ namespace PSX
                 result += (is_quad ? 4 : 3) - 1;
 
             return 1 + result;
+        }
+
+        /**
+         * @brief calculate number of vertices of the current polygon
+         */
+        u32 num_vertices() const
+        {
+            return is_quad ? 4 : 3;
         }
 
         struct
@@ -253,119 +468,6 @@ namespace PSX
     };
 
     /**
-     * @brief GPU VRAM Color 
-     */
-    union Color
-    {
-        Color() :
-            raw(0)
-        {
-
-        }
-
-        Color(u32 raw) :
-            raw(raw)
-        {
-            
-        }
-
-        Color(u16 r, u16 g, u16 b, u16 mask) :
-            r(r),
-            g(g),
-            b(b),
-            mask(mask)
-        {
-            
-        }
-
-        static Color create_from_24bit(u32 raw)
-        {
-            return Color
-            (
-                static_cast<u16>((((raw >>  0) & 0xFF) >> 3) & 0b11),
-                static_cast<u16>((((raw >>  8) & 0xFF) >> 3) & 0b11),
-                static_cast<u16>((((raw >> 16) & 0xFF) >> 3) & 0b11),
-                0
-            );
-        }
-
-        static Color create_blended(Color source, Color destination, u32 transparency_type)
-        {
-            switch(transparency_type)
-            {
-                /// half from each color
-                case 0:
-                {
-                    return Color
-                    {
-                        static_cast<u16>(std::min(31, (source.r + destination.r) / 2)),
-                        static_cast<u16>(std::min(31, (source.g + destination.g) / 2)),
-                        static_cast<u16>(std::min(31, (source.b + destination.b) / 2)),
-                        destination.mask
-                    };
-                }
-                /// additive
-                case 1:
-                {
-                    return Color
-                    {
-                        static_cast<u16>(std::min(31, source.r + destination.r)),
-                        static_cast<u16>(std::min(31, source.g + destination.g)),
-                        static_cast<u16>(std::min(31, source.b + destination.b)),
-                        destination.mask
-                    };
-                }
-                /// subtractive
-                case 2:
-                {
-                    return Color
-                    {
-                        static_cast<u16>(std::max(0, source.r - destination.r)),
-                        static_cast<u16>(std::max(0, source.g - destination.g)),
-                        static_cast<u16>(std::max(0, source.b - destination.b)),
-                        destination.mask
-                    };
-                }
-                /// additive/4
-                case 3:
-                {
-                    return Color
-                    {
-                        static_cast<u16>(std::min(31, source.r + (destination.r / 4))),
-                        static_cast<u16>(std::min(31, source.g + (destination.g / 4))),
-                        static_cast<u16>(std::min(31, source.b + (destination.b / 4))),
-                        destination.mask
-                    };
-                }
-            }
-
-            UNREACHABLE();
-            return Color();
-        }
-
-        static Color create_mix(Color source, Color destination)
-        {
-            return Color
-            (
-                static_cast<u16>(std::min(31, (source.r * destination.r) / 128)),
-                static_cast<u16>(std::min(31, (source.g * destination.g) / 128)),
-                static_cast<u16>(std::min(31, (source.b * destination.b) / 128)),
-                destination.mask
-            );
-        }
-
-        struct
-        {
-            u16 r: 5;
-            u16 g: 5;
-            u16 b: 5;
-            u16 mask: 1;
-        };
-        
-        u16 raw;
-    };
-
-    /**
      * @brief helper for passing arguments to the VRamFill command
      */
     struct VRamFillArguments
@@ -374,7 +476,7 @@ namespace PSX
         u32 start_y;
         u32 size_x;
         u32 size_y;
-        Color color;
+        Color15Bit color;
     };
 
     /**
@@ -386,7 +488,7 @@ namespace PSX
         s32 start_y;
         u32 width;
         u32 height;
-        Color color;
+        Color24Bit color;
         u32 color_depth;
         u32 uv_x;
         u32 uv_y;
@@ -396,6 +498,25 @@ namespace PSX
         u32 texpage_y;
         u32 is_semi_transparent;
         u32 is_raw_texture;
+    };
+
+    /**
+     * @brief helper for passing arguments to the PolygonRender command
+     */
+    struct PolygonRenderArguments
+    {
+        Vertex vertex_a;
+        Vertex vertex_b;
+        Vertex vertex_c;
+        u32    color_depth;
+        u16    texpage_x;
+        u16    texpage_y;
+        u16    clut_x;
+        u16    clut_y;
+        u32    semi_transparency;
+        u32    is_raw_texture;
+        u32    is_semi_transparent;
+        u32    is_gouraud_shaded;
     };
 }
 
