@@ -149,6 +149,37 @@ namespace PSX
 
         return value.bits = x;
     }
+
+
+    /**
+     * @brief helper for managing fixed point arithmetic 
+     */
+    template<typename T, u32 Bits>
+    union fixed
+    {
+        fixed(): raw(0)
+        {
+
+        }
+
+        fixed(float value)
+        {
+            raw = static_cast<u32>(value * (1 << Bits));
+        }
+
+        float to_float() const
+        {
+            return float(raw) / (1 << Bits);
+        }
+
+        struct
+        {
+            T fraction: Bits;
+            T integer: (sizeof(T) * 8) - Bits;
+        };
+
+        T raw;
+    };
 }
 
 #endif // UTILS_HPP
