@@ -37,6 +37,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string>
+#include <fmt/core.h>
 
 /**
  * @brief mark variable as unused
