@@ -54,7 +54,8 @@ add_executable(emu
     src/DMAChannelMDECOUT.cpp
     src/ExceptionController.cpp
     src/InterruptController.cpp
-    src/Bus.cpp)
+    src/Bus.cpp
+    deps/stb/stb_image_write.c)
 
 # link libraries with the project
 target_link_libraries(emu
