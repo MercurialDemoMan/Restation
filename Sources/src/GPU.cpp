@@ -909,6 +909,21 @@ namespace PSX
             }
         };
 
+        // assure counter clock wise winding of the rasterized triangle
+        {
+            glm::ivec2 temp_vertex_a = { args.vertex_a.pos_x, args.vertex_a.pos_y };
+            glm::ivec2 temp_vertex_b = { args.vertex_b.pos_x, args.vertex_b.pos_y };
+            glm::ivec2 temp_vertex_c = { args.vertex_c.pos_x, args.vertex_c.pos_y };
+            auto temp_ba = temp_vertex_b - temp_vertex_a;
+            auto temp_ca = temp_vertex_c - temp_vertex_a;
+
+            // if clock-wise windwing -> flip the triangle order
+            if(cross(temp_ba, temp_ca) < 0)
+            {
+                std::swap(args.vertex_b, args.vertex_c);
+            }
+        }
+
         TODO();
     }
 
