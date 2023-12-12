@@ -1048,6 +1048,21 @@ namespace PSX
                 if( (half_space_x.x > 0 || half_space_x.y > 0 || half_space_x.z > 0) &&
                    !(half_space_x.x < 0 || half_space_x.y < 0 || half_space_x.z < 0))
                 {
+                    auto original_color = Color15Bit(vram_read(x, y));
+
+                    if(m_mask_bit_setting.check_mask_before_draw)
+                    {
+                        // skip masked fragments
+                        if(original_color.mask)
+                        {
+                            half_space_x.x += delta_cb.y;
+                            half_space_x.y += delta_ac.y;
+                            half_space_x.z += delta_ba.y;
+                            update_attributes_x(current_attributes, frag_attrs_deltas, 1);
+                            continue;
+                        }
+                    }
+
                     TODO();
                 }
 
