@@ -198,10 +198,10 @@ namespace PSX
                 {
                     return Color15Bit
                     {
-                        static_cast<u16>(std::min(31, (source.r + destination.r) / 2)),
-                        static_cast<u16>(std::min(31, (source.g + destination.g) / 2)),
-                        static_cast<u16>(std::min(31, (source.b + destination.b) / 2)),
-                        destination.mask
+                        static_cast<u8>(std::min(31, (source.r + destination.r) / 2)),
+                        static_cast<u8>(std::min(31, (source.g + destination.g) / 2)),
+                        static_cast<u8>(std::min(31, (source.b + destination.b) / 2)),
+                        static_cast<u8>(destination.mask)
                     };
                 }
                 /// additive
@@ -209,10 +209,10 @@ namespace PSX
                 {
                     return Color15Bit
                     {
-                        static_cast<u16>(std::min(31, source.r + destination.r)),
-                        static_cast<u16>(std::min(31, source.g + destination.g)),
-                        static_cast<u16>(std::min(31, source.b + destination.b)),
-                        destination.mask
+                        static_cast<u8>(std::min(31, source.r + destination.r)),
+                        static_cast<u8>(std::min(31, source.g + destination.g)),
+                        static_cast<u8>(std::min(31, source.b + destination.b)),
+                        static_cast<u8>(destination.mask)
                     };
                 }
                 /// subtractive
@@ -220,10 +220,10 @@ namespace PSX
                 {
                     return Color15Bit
                     {
-                        static_cast<u16>(std::max(0, source.r - destination.r)),
-                        static_cast<u16>(std::max(0, source.g - destination.g)),
-                        static_cast<u16>(std::max(0, source.b - destination.b)),
-                        destination.mask
+                        static_cast<u8>(std::max(0, source.r - destination.r)),
+                        static_cast<u8>(std::max(0, source.g - destination.g)),
+                        static_cast<u8>(std::max(0, source.b - destination.b)),
+                        static_cast<u8>(destination.mask)
                     };
                 }
                 /// additive/4
@@ -231,10 +231,10 @@ namespace PSX
                 {
                     return Color15Bit
                     {
-                        static_cast<u16>(std::min(31, source.r + (destination.r / 4))),
-                        static_cast<u16>(std::min(31, source.g + (destination.g / 4))),
-                        static_cast<u16>(std::min(31, source.b + (destination.b / 4))),
-                        destination.mask
+                        static_cast<u8>(std::min(31, source.r + (destination.r / 4))),
+                        static_cast<u8>(std::min(31, source.g + (destination.g / 4))),
+                        static_cast<u8>(std::min(31, source.b + (destination.b / 4))),
+                        static_cast<u8>(destination.mask)
                     };
                 }
             }
@@ -247,10 +247,10 @@ namespace PSX
         {
             return Color15Bit
             (
-                static_cast<u16>(std::min(31, (source.r * destination.r) >> 7)),
-                static_cast<u16>(std::min(31, (source.g * destination.g) >> 7)),
-                static_cast<u16>(std::min(31, (source.b * destination.b) >> 7)),
-                destination.mask
+                static_cast<u8>(std::min(31, (source.r * destination.r) >> 7)),
+                static_cast<u8>(std::min(31, (source.g * destination.g) >> 7)),
+                static_cast<u8>(std::min(31, (source.b * destination.b) >> 7)),
+                static_cast<u8>(destination.mask)
             );
         }
 
