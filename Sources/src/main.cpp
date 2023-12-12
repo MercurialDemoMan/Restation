@@ -16,11 +16,6 @@ std::shared_ptr<PSX::Bus> b;
 
 void sigint_handler(int)
 {
-    if(b)
-    {
-        b->print();
-    }
-
     exit(1);
 }
 
@@ -40,7 +35,6 @@ int main(int argc, char* argv[])
     sigaction(SIGINT, &sig_action, NULL);
 
     b->meta_load_bios(argv[1]);
-
     while(true)
     {
         b->execute(301);
