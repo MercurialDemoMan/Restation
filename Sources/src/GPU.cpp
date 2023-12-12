@@ -924,6 +924,65 @@ namespace PSX
             }
         }
 
+        // collect vertex positions so we can use
+        // "glm" to work with them more efficiently
+        glm::ivec2 vertices[3] =
+        {
+            { args.vertex_a.pos_x, args.vertex_a.pos_y },
+            { args.vertex_b.pos_x, args.vertex_b.pos_y },
+            { args.vertex_c.pos_x, args.vertex_c.pos_y }
+        };
+
+        s32 area = cross(vertices[1] - vertices[0], 
+                         vertices[2] - vertices[0]);
+
+        if(area == 0)
+            return;
+
+        // calculate triangle bounds
+        glm::ivec2 min = 
+        {
+            std::min(std::min(vertices[0].x, vertices[1].x), vertices[2].x),
+            std::min(std::min(vertices[0].y, vertices[1].y), vertices[2].y),
+        };
+
+        glm::ivec2 max = 
+        {
+            std::max(std::max(vertices[0].x, vertices[1].x), vertices[2].x),
+            std::max(std::max(vertices[0].y, vertices[1].y), vertices[2].y),
+        };
+
+        // limit triangle size
+        glm::ivec2 size = max - min;
+
+        if(size.x > 1023 || size.y > 511)
+            return;
+
+        update_clut_cache(args.color_depth, args.clut_x, args.clut_y);
+
+        min.x = clamp_drawing_area_left(min.x);
+        min.y = clamp_drawing_area_top(min.y);
+        max.x = clamp_drawing_area_right(max.x);
+        max.y = clamp_drawing_area_bottom(max.y);
+
+        glm::ivec2 delta_ba
+        (
+            vertices[1].x - vertices[0].x, 
+            vertices[0].y - vertices[1].y
+        );
+
+        glm::ivec2 delta_cb
+        (
+            vertices[2].x - vertices[1].x, 
+            vertices[1].y - vertices[2].y
+        );
+
+        glm::ivec2 delta_ac
+        (
+            vertices[0].x - vertices[2].x, 
+            vertices[2].y - vertices[0].y
+        );
+
         TODO();
     }
 
