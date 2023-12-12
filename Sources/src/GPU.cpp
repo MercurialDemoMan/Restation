@@ -38,10 +38,10 @@
 #include "Utils.hpp"
 #include <algorithm>
 #include <fmt/core.h>
+#include <glm/glm.hpp>
 
 extern "C"
 {
-    #define STB_IMAGE_WRITE_IMPLEMENTATION
     #include <stb_image_write.h>
 }
 
@@ -282,14 +282,14 @@ namespace PSX
      */
     void GPU::execute_gp0_command(u32 value)
     {
-        LOG(fmt::format("gpu gp0 0x{:08x}", value));
         // set initial command if no command is currently being processed
         if(m_current_command == GPUCommand::Nop)
         {
             m_command_fifo.clear();
             m_command_fifo.push_back(value);
 
-            auto instruction = GPUGP0Instruction(value >> 24);
+            u32  instruction_raw = value >> 24;
+            auto instruction = GPUGP0Instruction(instruction_raw);
 
             switch(instruction)
             {
@@ -325,21 +325,21 @@ namespace PSX
                 case GPUGP0Instruction::PolygonRenderStart ... GPUGP0Instruction::PolygonRenderEnd:
                 {
                     m_current_command = GPUCommand::PolygonRender;
-                    m_command_num_arguments = PolygonRenderCommand(value).num_arguments();
+                    m_command_num_arguments = PolygonRenderCommand(instruction_raw).num_arguments();
                     break;
                 }
 
                 case GPUGP0Instruction::LineRenderStart ... GPUGP0Instruction::LineRenderEnd:
                 {
                     m_current_command = GPUCommand::LineRender;
-                    m_command_num_arguments = LineRenderCommand(value).num_arguments();
+                    m_command_num_arguments = LineRenderCommand(instruction_raw).num_arguments();
                     break;
                 }
 
                 case GPUGP0Instruction::RectangleRenderStart ... GPUGP0Instruction::RectangleRenderEnd:
                 {
                     m_current_command = GPUCommand::RectangleRender;
-                    m_command_num_arguments = RectangleRenderCommand(value).num_arguments();
+                    m_command_num_arguments = RectangleRenderCommand(instruction_raw).num_arguments();
                     break;
                 }
 
@@ -716,7 +716,7 @@ namespace PSX
      */
     void GPU::rectangle_render()
     {
-        RectangleRenderCommand command(m_command_fifo.at(0));
+        RectangleRenderCommand command(m_command_fifo.at(0) >> 24);
 
         u32 width, height; width = height = command.actual_size();
 
