@@ -232,6 +232,12 @@ namespace PSX
         u16 vram_read(u32 x, u32 y) const;
 
         /**
+         * @brief dither color if enabled in texpage attribute
+         *        to make 16bit colors look nicer
+         */
+        Color24Bit dither(Color24Bit, u32 x, u32 y);
+
+        /**
          * @brief connections
          */
         std::shared_ptr<Bus> m_bus;
