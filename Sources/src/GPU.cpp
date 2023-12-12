@@ -830,6 +830,15 @@ namespace PSX
      */
     void GPU::do_polygon_render(PolygonRenderArguments args)
     {
+        /**
+         * @brief calculate 2D cector cross product 
+         */
+        auto cross = [](const glm::ivec2& a, const glm::ivec2& b) 
+        -> s32
+        {
+            return a.x * b.y - a.y * b.x;
+        };
+
         TODO();
     }
 
