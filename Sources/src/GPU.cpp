@@ -754,13 +754,13 @@ namespace PSX
             switch(m_draw_mode.texture_page_colors)
             {
                 // 4bit depth
-                case 0: { color_bits = 4; break; }
+                case 0: { color_bits = 1; break; }
                 // 8bit depth
-                case 1: { color_bits = 8; break; }
+                case 1: { color_bits = 2; break; }
                 // 15bit depth
                 case 2:
                 // reserved = 15bit depth
-                case 3: { color_bits = 16; break; }
+                case 3: { color_bits = 3; break; }
                 default: { UNREACHABLE(); break; }
             }
 
