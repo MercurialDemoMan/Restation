@@ -839,6 +839,76 @@ namespace PSX
             return a.x * b.y - a.y * b.x;
         };
 
+        /**
+         * @brief calculate vertex argument interpolation
+         */
+        auto fragment_attribute = [cross](s32 area, glm::ivec2 vertices[3], s32 biases[3], s32 atrributes[3])
+        -> fixed<s32, 16>
+        {
+            float attr_a = cross(vertices[1], vertices[2]) * atrributes[0] - biases[0];
+            float attr_b = cross(vertices[2], vertices[0]) * atrributes[1] - biases[1];
+            float attr_c = cross(vertices[0], vertices[1]) * atrributes[2] - biases[2];
+
+            return fixed<s32, 16>((attr_a + attr_b + attr_c) / area + 0.5f);
+        };
+
+        /**
+         * @brief calculate attribute 2D offset 
+         */
+        auto fragment_attribute_delta = [](s32 area, glm::ivec2 vertices[3], s32 attributes[3])
+        -> FragmentAttributeDelta
+        {
+            return
+            {
+                fixed<s32, 16>(((vertices[1].y - vertices[2].y) * attributes[0] + 
+                                (vertices[2].y - vertices[0].y) * attributes[1] + 
+                                (vertices[0].y - vertices[1].y) * attributes[2]) / float(area)),
+                fixed<s32, 16>(((vertices[2].x - vertices[1].x) * attributes[0] + 
+                                (vertices[0].x - vertices[2].x) * attributes[1] + 
+                                (vertices[1].x - vertices[0].x) * attributes[2]) / float(area)),
+            };
+        };
+
+        /**
+         * @brief efficiently update the attributes interpolation when
+         *        moving onto the next pixel in the horizontal direction 
+         */
+        auto update_attributes_x = [args](FragmentAttributes& attributes, const FragmentAttributesDeltas& deltas, s32 delta)
+        {
+            if(args.is_gouraud_shaded)
+            {
+                attributes.r = fixed<s32, 16>(attributes.r.to_float() + deltas.r.x.to_float() * delta);
+                attributes.g = fixed<s32, 16>(attributes.g.to_float() + deltas.g.x.to_float() * delta);
+                attributes.b = fixed<s32, 16>(attributes.b.to_float() + deltas.b.x.to_float() * delta);
+            }
+
+            if(args.color_depth != 0)
+            {
+                attributes.u = fixed<s32, 16>(attributes.u.to_float() + deltas.u.x.to_float() * delta);
+                attributes.v = fixed<s32, 16>(attributes.v.to_float() + deltas.v.x.to_float() * delta);
+            }
+        };
+
+        /**
+         * @brief efficiently update the attributes interpolation when
+         *        moving onto the next pixel in the vertical direction 
+         */
+        auto update_attributes_y = [args](FragmentAttributes& attributes, const FragmentAttributesDeltas& deltas, s32 delta)
+        {
+            if(args.is_gouraud_shaded)
+            {
+                attributes.r = fixed<s32, 16>(attributes.r.to_float() + deltas.r.y.to_float() * delta);
+                attributes.g = fixed<s32, 16>(attributes.g.to_float() + deltas.g.y.to_float() * delta);
+                attributes.b = fixed<s32, 16>(attributes.b.to_float() + deltas.b.y.to_float() * delta);
+            }
+
+            if(args.color_depth != 0)
+            {
+                attributes.u = fixed<s32, 16>(attributes.u.to_float() + deltas.u.y.to_float() * delta);
+                attributes.v = fixed<s32, 16>(attributes.v.to_float() + deltas.v.y.to_float() * delta);
+            }
+        };
+
         TODO();
     }
 
