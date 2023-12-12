@@ -698,6 +698,138 @@ namespace PSX
      */
     void GPU::polygon_render()
     {
+        PolygonRenderCommand command(m_command_fifo.at(0) >> 24);
+
+        std::vector<Vertex> vertices;
+        TextureInfo         texture_info;
+
+        // preallocate vertices
+        for(u32 i = 0; i < command.num_vertices(); i++)
+            vertices.push_back(Vertex());
+
+        // parse vertices
+        for(u32 i = 0, j = 1; i < command.num_vertices(); i++)
+        {
+            // vertex position
+            vertices[i].pos_x = m_drawing_offset_x + extend_sign<s16, 11>((m_command_fifo.at(j) >>  0) & 0xFFFF);
+            vertices[i].pos_y = m_drawing_offset_y + extend_sign<s16, 11>((m_command_fifo.at(j) >> 16) & 0xFFFF);
+
+            j++;
+
+            // vertex color
+            if(i == 0 || !command.is_gouraud_shaded)
+            {
+                vertices[i].color = m_command_fifo.at(0) & 0x00FF'FFFF;
+            }
+
+            // vertex uv coordinates + texture info
+            if(command.is_texture_mapped)
+            {
+                if(i == 0)
+                    texture_info.palette_index = m_command_fifo.at(j);
+                if(i == 1)
+                    texture_info.texpage_index = m_command_fifo.at(j);
+
+                vertices[i].uv_x = (m_command_fifo.at(j) >> 0) & 0xFF;
+                vertices[i].uv_y = (m_command_fifo.at(j) >> 8) & 0xFF;
+                j++;
+            }
+
+            // vertex interpolation
+            if(command.is_gouraud_shaded && i < command.num_vertices() - 1)
+            {
+                vertices[i + 1].color = m_command_fifo.at(j) & 0x00FF'FFFF;
+                j++;
+            }
+        }
+
+        auto args = PolygonRenderArguments
+        {
+            .vertex_a = vertices[0],
+            .vertex_b = vertices[1],
+            .vertex_c = vertices[2],
+            .color_depth = 0,
+            .texpage_x   = 0,
+            .texpage_y   = 0,
+            .clut_x      = 0,
+            .clut_y      = 0,
+            .semi_transparency   = m_draw_mode.semi_transparency,
+            .is_raw_texture      = command.is_raw_texture,
+            .is_semi_transparent = command.is_semi_transparent,
+            .is_gouraud_shaded   = command.is_gouraud_shaded
+        };
+
+        // accumulate detailed information about the texture
+        if(command.is_texture_mapped)
+        {
+            switch((texture_info.texpage_index & 0x0180'0000) >> 23)
+            {
+                // 4bit
+                case 0:
+                {
+                    args.color_depth = 1;
+                    break;
+                }
+
+                // 8bit
+                case 1:
+                {
+                    args.color_depth = 2;
+                    break;
+                }
+
+                // 15bit
+                case 2:
+                // reserved
+                case 3:
+                {
+                    args.color_depth = 3;
+                    break;
+                }
+
+                default: { UNREACHABLE(); }
+            }
+
+            args.texpage_x   = ((texture_info.texpage_index & 0x000F'0000) >> 16) * 64;
+            args.texpage_y   = ((texture_info.texpage_index & 0x0010'0000) >> 20) * 256;
+            args.clut_x      = ((texture_info.palette_index & 0x003F'0000) >> 16) * 16;
+            args.clut_y      = ((texture_info.palette_index & 0x7FC0'0000) >> 22);
+            args.semi_transparency = (texture_info.texpage_index & 0x0060'0000) >> 21;
+
+            // update draw mode texture information texpage
+            // index identically maps on the structure
+            // of the GP0(0xE1) DrawMode register
+            u16 new_bits = (texture_info.texpage_index >> 16) & 0b0000100111111111;
+            if(!m_new_texture_disable)
+            {
+                new_bits &= ~(1 << 11);
+            }
+            m_draw_mode.raw &= ~0b0000100111111111;
+            m_draw_mode.raw |= new_bits;
+        }
+
+        if(command.is_quad)
+        {
+            do_polygon_render(args);
+            args.vertex_a = vertices[1];
+            args.vertex_b = vertices[2];
+            args.vertex_c = vertices[3];
+            do_polygon_render(args);
+        }
+        else
+        {
+            do_polygon_render(args);
+        }
+
+        // reset command queue
+        m_current_command = GPUCommand::Nop;
+    }
+
+    /**
+     * @brief Perform Render Polygon GPU Command
+     */
+    void GPU::do_polygon_render(PolygonRenderArguments args)
+    {
         TODO();
     }
 
