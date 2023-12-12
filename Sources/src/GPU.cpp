@@ -1031,6 +1031,40 @@ namespace PSX
         update_attributes_y(frag_attrs_init, frag_attrs_deltas, min.y);
         update_attributes_x(frag_attrs_init, frag_attrs_deltas, min.x);
         
+        // begin rasterization
+        for(s32 y = min.y; y <= max.y; y++)
+        {
+            // start interpolating vertex attributes
+            FragmentAttributes current_attributes = frag_attrs_init;
+            glm::ivec3 half_space_x =
+            {
+                half_space_y.x,
+                half_space_y.y,
+                half_space_y.z
+            };
+            for(s32 x = min.x; x <= max.x; x++)
+            {
+                // if we are inside the triangle
+                if( (half_space_x.x > 0 || half_space_x.y > 0 || half_space_x.z > 0) &&
+                   !(half_space_x.x < 0 || half_space_x.y < 0 || half_space_x.z < 0))
+                {
+                    TODO();
+                }
+
+                // update per-fragment attributes in the horizontal direction
+                half_space_x.x += delta_cb.y;
+                half_space_x.y += delta_ac.y;
+                half_space_x.z += delta_ba.y;
+                update_attributes_x(current_attributes, frag_attrs_deltas, 1);
+            }
+
+            // update per-fragment attributes in the vertical direction
+            half_space_y.x += delta_cb.x;
+            half_space_y.y += delta_ac.x;
+            half_space_y.z += delta_ba.x;
+            update_attributes_y(frag_attrs_init, frag_attrs_deltas, 1);
+        }
+
         TODO();
     }
 
