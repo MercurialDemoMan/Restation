@@ -1121,7 +1121,18 @@ namespace PSX
                         }
                     }
 
-                    TODO();
+                    // blend if transparent
+                    if(args.is_semi_transparent)
+                    {
+                        if(new_color.mask || args.color_depth == 0)
+                        {
+                            new_color = Color15Bit::create_blended(original_color, new_color, args.semi_transparency);
+                        }
+                    }
+                    
+                    // update vram
+                    new_color.mask |= m_mask_bit_setting.set_mask_while_drawing;
+                    m_vram[y * VRamWidth + x] = new_color.raw;
                 }
 
                 // update per-fragment attributes in the horizontal direction
