@@ -1063,6 +1063,18 @@ namespace PSX
                         }
                     }
 
+                    auto new_color_from_interpolation = Color24Bit
+                    (
+                        current_attributes.r.to_float(),
+                        current_attributes.g.to_float(),
+                        current_attributes.b.to_float()
+                    );
+
+                    if(!args.is_raw_texture && m_draw_mode.dither_24_to_15)
+                    {
+                        new_color_from_interpolation = dither(new_color_from_interpolation, x, y);
+                    }
+
                     TODO();
                 }
 
