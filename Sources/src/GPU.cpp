@@ -648,10 +648,8 @@ namespace PSX
      */
     void GPU::vram_fill()
     {
-        LOG_DEBUG(3, fmt::format("GPU vram fill"));
-
         // extract arguments
-        u32 color   = (m_command_fifo.at(0) & 0x00FF'FFFF);
+        auto color  = Color24Bit(m_command_fifo.at(0) & 0x00FF'FFFF);
         u32 start_x = (m_command_fifo.at(1) >>  0) & 0xFFFF;
         u32 start_y = (m_command_fifo.at(1) >> 16) & 0xFFFF;
         u32 size_x  = (m_command_fifo.at(2) >>  0) & 0xFFFF;
@@ -670,7 +668,7 @@ namespace PSX
                 .start_y = start_y,
                 .size_x  = size_x,
                 .size_y  = size_y,
-                .color   = Color::create_from_24bit(color)
+                .color   = Color15Bit::create_from_24bit(color)
         });
 
         // reset command queue
@@ -680,7 +678,7 @@ namespace PSX
     /**
      * @brief Perform Quick VRAM rectangle fill GPU Command
      */
-    void GPU::do_vram_fill(const VRamFillArguments& args)
+    void GPU::do_vram_fill(VRamFillArguments args)
     {
         // fill vram with a color value
         // final row and column is not filled
@@ -737,7 +735,7 @@ namespace PSX
         s32 start_y = extend_sign<s32, 11>((start_value >> 16) & 0xFFFF) + m_drawing_offset_y;
 
         // get fill color
-        u32 color = m_command_fifo.at(0) & 0x00FF'FFFF;
+        auto color = Color24Bit(m_command_fifo.at(0) & 0x00FF'FFFF);
 
         // color bit depth
         u32 color_bits = 0;
@@ -783,7 +781,7 @@ namespace PSX
             .start_y     = start_y,
             .width       = width,
             .height      = height,
-            .color       = Color::create_from_24bit(color),
+            .color       = color,
             .color_depth = color_bits,
             .uv_x        = uv_x,
             .uv_y        = uv_y,
@@ -802,10 +800,12 @@ namespace PSX
     /**
      * @brief Perform Render Rectangle GPU Command 
      */
-    void GPU::do_rectangle_render(const RectangleRenderArguments& args)
+    void GPU::do_rectangle_render(RectangleRenderArguments args)
     {
         if(args.width > 1023 || args.height > 511)
             return;
+
+        update_clut_cache(args.color_depth, args.clut_x, args.clut_y);
 
         s32 min_x = clamp_drawing_area_left(args.start_x);
         s32 min_y = clamp_drawing_area_top(args.start_y);
@@ -819,14 +819,14 @@ namespace PSX
         s32 dir_x = m_draw_mode.texture_rect_x_flip ? 1 : -1;
         s32 dir_y = m_draw_mode.texture_rect_y_flip ? 1 : -1;
 
-        update_clut_cache(args.color_depth, args.clut_x, args.clut_y);
+        Color15Bit color_15_bit = Color15Bit::create_from_24bit(args.color);
 
         for(s32 y = min_y, v = uv_y; y < max_y; y++, v += dir_y)
         {
             for(s32 x = min_x, u = uv_x; x < max_x; x++, u += dir_x)
             {
                 // get original color for blending
-                Color original_color = Color(vram_read(x, y));
+                Color15Bit original_color = Color15Bit(vram_read(x, y));
 
                 if(m_mask_bit_setting.check_mask_before_draw)
                 {
@@ -835,11 +835,11 @@ namespace PSX
                 }
 
                 // create new color
-                Color new_color;
+                Color15Bit new_color;
 
                 if(args.color_depth == 0)
                 {
-                    new_color      = args.color;
+                    new_color      = color_15_bit;
                     new_color.mask = 0;
                 }
                 else
@@ -850,7 +850,7 @@ namespace PSX
                     // mix texture with the rectangle color
                     if(!args.is_raw_texture)
                     {
-                        new_color = Color::create_mix(args.color, new_color);
+                        new_color = Color15Bit::create_mix(args.color, new_color);
                     }
                 }
 
@@ -859,7 +859,7 @@ namespace PSX
                 {
                     if(new_color.mask || args.color_depth != 0)
                     {
-                        new_color = Color::create_blended(original_color, new_color, m_draw_mode.semi_transparency);
+                        new_color = Color15Bit::create_blended(original_color, new_color, m_draw_mode.semi_transparency);
                     }
                 }
 
@@ -1012,8 +1012,8 @@ namespace PSX
     s32 GPU::mask_texture_u(s32 u) const
     {
         return ((u % 256) & ~(m_texture_window_setting.texture_window_mask_x * 8)) | 
-               ((m_texture_window_setting.texture_window_offset_x & 
-                 m_texture_window_setting.texture_window_mask_x) * 8);
+                ((m_texture_window_setting.texture_window_offset_x & 
+                  m_texture_window_setting.texture_window_mask_x) * 8);
     }
 
     /**
@@ -1058,7 +1058,7 @@ namespace PSX
     /**
      * @brief fetch texture color 
      */
-    Color GPU::vram_fetch_texture_color(u32 color_depth, u32 uv_x, u32 uv_y, u32 texpage_x, u32 texpage_y)
+    Color15Bit GPU::vram_fetch_texture_color(u32 color_depth, s32 uv_x, s32 uv_y, s32 texpage_x, s32 texpage_y)
     {
         switch(color_depth)
         {
@@ -1068,7 +1068,7 @@ namespace PSX
                 u32 x = (texpage_x + uv_x / 4) % 1024;
                 u32 y = (texpage_y + uv_y) % 512;
                 u16 clut_cache_index = vram_read(x, y);
-                return Color(m_clut_cache[(clut_cache_index >> ((uv_x & 3) * 4)) & 0x0F]);
+                return Color15Bit(m_clut_cache[(clut_cache_index >> ((uv_x & 3) * 4)) & 0x0F]);
             }
             // 8bit color depth
             case 2:
@@ -1076,19 +1076,19 @@ namespace PSX
                 u32 x = (texpage_x + uv_x / 2) % 1024;
                 u32 y = (texpage_y + uv_y) % 512;
                 u16 clut_cache_index = vram_read(x, y);
-                return Color(m_clut_cache[(clut_cache_index >> ((uv_x & 1) * 8)) & 0xFF]);
+                return Color15Bit(m_clut_cache[(clut_cache_index >> ((uv_x & 1) * 8)) & 0xFF]);
             }
             // 16bit color depth
             case 3:
             {
                 u32 x = (texpage_x + uv_x) % 1024;
                 u32 y = (texpage_y + uv_y) % 512;
-                return Color(vram_read(x, y));
+                return Color15Bit(vram_read(x, y));
             }
         }
 
         UNREACHABLE();
-        return Color();
+        return Color15Bit();
     }
 
     /**
@@ -1165,13 +1165,13 @@ namespace PSX
 
         for(u32 i = 0; i < VRamWidth * VRamHeight; i++)
         {
-            Color parsed_color = Color(m_vram[i]);
+            Color15Bit parsed_color = Color15Bit(m_vram[i]);
             vram[i * 4 + 0] = parsed_color.r << 3;
             vram[i * 4 + 1] = parsed_color.g << 3;
             vram[i * 4 + 2] = parsed_color.b << 3;
             vram[i * 4 + 3] = 255;
         }
 
-        stbi_write_png("vram.png", VRamWidth, VRamHeight, 4, vram.data(), VRamWidth * 4);
+        stbi_write_png(fmt::format("vram/vram{}.png", m_meta_frames).c_str(), VRamWidth, VRamHeight, 4, vram.data(), VRamWidth * 4);
     }
 }
