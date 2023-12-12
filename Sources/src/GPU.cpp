@@ -1075,6 +1075,23 @@ namespace PSX
                         new_color_from_interpolation = dither(new_color_from_interpolation, x, y);
                     }
 
+                    auto new_color = Color15Bit();
+                    if(args.color_depth == 0)
+                    {
+                        if(args.is_gouraud_shaded)
+                        {
+                            new_color = Color15Bit::create_from_24bit(new_color_from_interpolation);
+                        }
+                        else
+                        {
+                            new_color = Color15Bit::create_from_24bit(args.vertex_a.color);
+                        }
+                    }
+                    else
+                    {
+                        TODO();
+                    }
+
                     TODO();
                 }
 
