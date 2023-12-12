@@ -1089,7 +1089,36 @@ namespace PSX
                     }
                     else
                     {
-                        TODO();
+                        new_color = vram_fetch_texture_color
+                        (
+                            args.color_depth, 
+                            mask_texture_u(current_attributes.u.to_float()), 
+                            mask_texture_v(current_attributes.v.to_float()), 
+                            args.texpage_x, 
+                            args.texpage_y
+                        );
+                        
+                        // 16bit texture is fully transparent when the source color is 0
+                        if(new_color.raw == 0x0000)
+                        {
+                            half_space_x.x += delta_cb.y;
+                            half_space_x.y += delta_ac.y;
+                            half_space_x.z += delta_ba.y;
+                            update_attributes_x(current_attributes, frag_attrs_deltas, 1);
+                            continue;
+                        }
+
+                        if(!args.is_raw_texture)
+                        {
+                            if(args.is_gouraud_shaded)
+                            {
+                                new_color = Color15Bit::create_mix(new_color_from_interpolation, new_color);
+                            }
+                            else
+                            {
+                                new_color = Color15Bit::create_mix(args.vertex_a.color, new_color);
+                            }
+                        }
                     }
 
                     TODO();
