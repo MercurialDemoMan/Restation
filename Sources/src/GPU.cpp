@@ -1035,8 +1035,8 @@ namespace PSX
         if(color_depth != 1 && color_depth != 2)
             return;
 
-        auto clut_pos_changed   = (m_clut_cache_x.value_or(-1) == clut_x) && 
-                                  (m_clut_cache_y.value_or(-1) == clut_y);
+        auto clut_pos_changed   = (m_clut_cache_x.value_or(-1) != clut_x) || 
+                                  (m_clut_cache_y.value_or(-1) != clut_y);
         auto clut_depth_changed = m_clut_cache_depth != color_depth;
 
         // clut position didn't change and texture color depth didn't change
@@ -1152,6 +1152,29 @@ namespace PSX
         if(x > VRamWidth - 1) UNREACHABLE();
         if(y > VRamHeight - 1) UNREACHABLE();
         return m_vram[y * VRamWidth + x];
+    }
+
+    /**
+     * @brief dither color if enabled in texpage attribute
+     */
+    Color24Bit GPU::dither(Color24Bit color, u32 x, u32 y)
+    {
+        static constexpr s32 dither_table[] =
+        {
+            -4, +0, -3, +1,
+            +2, -2, +3, -1,
+            -3, +1, -4, +0,
+            +3, -1, +2, -2
+        };
+
+        x &= 0b11;
+        y &= 0b11;
+
+        color.r = std::clamp(color.r + dither_table[y * 4 + x], 0, 255);
+        color.g = std::clamp(color.g + dither_table[y * 4 + x], 0, 255);
+        color.b = std::clamp(color.b + dither_table[y * 4 + x], 0, 255);
+
+        return color;
     }
 
     /**
