@@ -983,6 +983,54 @@ namespace PSX
             vertices[2].y - vertices[0].y
         );
 
+        s32 biases[3] =
+        {
+            (delta_cb.y < 0 || (delta_cb.y == 0 && delta_cb.x < 0)) ? -1 : 0,
+            (delta_ac.y < 0 || (delta_ac.y == 0 && delta_ac.x < 0)) ? -1 : 0,
+            (delta_ba.y < 0 || (delta_ba.y == 0 && delta_ba.x < 0)) ? -1 : 0
+        };
+
+        glm::ivec3 half_space_y =
+        {
+            cross(vertices[2] - vertices[1],
+                  min         - vertices[1]) + biases[0],
+            cross(vertices[0] - vertices[2],
+                  min         - vertices[2]) + biases[1],
+            cross(vertices[1] - vertices[0],
+                  min         - vertices[0]) + biases[2],
+        };
+
+        // calculate per-fragment initial attributes and deltas
+        FragmentAttributes       frag_attrs_init;
+        FragmentAttributesDeltas frag_attrs_deltas;
+
+        if(args.is_gouraud_shaded)
+        {
+            s32 attr_color_r[3] = { args.vertex_a.color.r, args.vertex_b.color.r, args.vertex_c.color.r };
+            s32 attr_color_g[3] = { args.vertex_a.color.g, args.vertex_b.color.g, args.vertex_c.color.g };
+            s32 attr_color_b[3] = { args.vertex_a.color.b, args.vertex_b.color.b, args.vertex_c.color.b };
+
+            frag_attrs_init.r = fragment_attribute(area, vertices, biases, attr_color_r);
+            frag_attrs_init.g = fragment_attribute(area, vertices, biases, attr_color_g);
+            frag_attrs_init.b = fragment_attribute(area, vertices, biases, attr_color_b);
+            frag_attrs_deltas.r = fragment_attribute_delta(area, vertices, attr_color_r);
+            frag_attrs_deltas.g = fragment_attribute_delta(area, vertices, attr_color_g);
+            frag_attrs_deltas.b = fragment_attribute_delta(area, vertices, attr_color_b);
+        }
+
+        if(args.color_depth != 0)
+        {
+            s32 u[3] = { args.vertex_a.uv_x, args.vertex_b.uv_x, args.vertex_c.uv_x };
+            s32 v[3] = { args.vertex_a.uv_y, args.vertex_b.uv_y, args.vertex_c.uv_y };
+            frag_attrs_init.u = fragment_attribute(area, vertices, biases, u);
+            frag_attrs_init.v = fragment_attribute(area, vertices, biases, v);
+            frag_attrs_deltas.u = fragment_attribute_delta(area, vertices, u);
+            frag_attrs_deltas.v = fragment_attribute_delta(area, vertices, v);
+        }
+
+        update_attributes_y(frag_attrs_init, frag_attrs_deltas, min.y);
+        update_attributes_x(frag_attrs_init, frag_attrs_deltas, min.x);
+        
         TODO();
     }
 
