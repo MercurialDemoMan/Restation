@@ -1,0 +1,61 @@
+\makeatletter
+\makeatother
+\begin{thebibliography}{1}
+
+\bibitem{SonyVsConnectix}
+{\em Sony Computer Entertainment v. Connectix Corp., 203 F.3d 596 (9th Cir.
+  2000)} [online].
+\newblock 2000.
+\newblock Dostupn{\'{e}} z:
+  ~{\small\url{https://casetext.com/case/sony-computer-entertainment-v-connectix-corp-2}}.
+
+\bibitem{PlayStationNintendo}
+{\em Nintendo PlayStation prototype - PlayStation Wikipedia} [online].
+\newblock 2020.
+\newblock Dostupn{\'{e}} z:
+  ~{\small\url{https://playstation.fandom.com/wiki/Nintendo_PlayStation}}.
+
+\bibitem{MIPSSpec}
+{\sc\bgroup}Integrated Device Technology{\egroup}, I.
+\newblock {\em IDT R30xx Family Software Reference Manual} [online].
+\newblock 1994.
+\newblock Dostupn{\'{e}} z:
+  ~{\small\url{https://hitmen.c02.at/files/docs/psx/3467.pdf}}.
+
+\bibitem{PSXSpec}
+{\sc\bgroup}Korth{\egroup}, M. 'nocash'.
+\newblock {\em PlayStation Specifications} [online].
+\newblock 2022.
+\newblock Dostupn{\'{e}} z: ~{\small\url{https://psx-spx.consoledev.net/}}.
+
+\bibitem{VideoGameProfit}
+{\sc\bgroup}newzoo.com{\egroup}.
+\newblock {\em Key Numbers, Archived from https://newzoo.com/key-numbers/}
+  [online].
+\newblock 2019.
+\newblock Dostupn{\'{e}} z:
+  ~{\small\url{https://web.archive.org/web/20190509014637/https://newzoo.com/key-numbers/}}.
+
+\bibitem{PinedaAlgorithm}
+{\sc\bgroup}Pineda{\egroup}, J.
+\newblock {\em A Parallel Algorithm for Polygon Rasterization} [online].
+\newblock Apollo Computer Inc., 1988.
+\newblock Dostupn{\'{e}} z:
+  ~{\small\url{https://www.cs.drexel.edu/~deb39/Classes/Papers/comp175-06-pineda.pdf}}.
+
+\bibitem{MIPSInsSpec}
+{\sc\bgroup}Price{\egroup}, C.
+\newblock {\em MIPS IV Instruction Set} [online].
+\newblock 1995.
+\newblock Dostupn{\'{e}} z:
+  ~{\small\url{https://www.cs.cmu.edu/afs/cs/academic/class/15740-f97/public/doc/mips-isa.pdf}}.
+
+\bibitem{VideoGameSurvery}
+{\sc\bgroup}Salvador{\egroup}, P.
+\newblock {\em Survey of the Video Game Reissue Market in the United States
+  (1.1)} [online].
+\newblock 2023.
+\newblock Dostupn{\'{e}} z:
+  ~{\small\url{https://doi.org/10.5281/zenodo.8161056}}.
+
+\end{thebibliography}

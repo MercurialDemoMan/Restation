@@ -1,0 +1,44 @@
+\babel@toc {czech}{}\relax 
+\contentsline {chapter}{\numberline {1}Úvod}{4}{chapter.1}%
+\contentsline {subsection}{\numberline {1.0.1}Dostupnost her}{4}{subsection.1.0.1}%
+\contentsline {subsection}{\numberline {1.0.2}Emulátory}{4}{subsection.1.0.2}%
+\contentsline {chapter}{\numberline {2}PlayStation}{6}{chapter.2}%
+\contentsline {section}{\numberline {2.1}NTSC/PAL a bezpečnost}{6}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Existující emulátory}{8}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Renderovací rozlišení}{9}{section.2.3}%
+\contentsline {chapter}{\numberline {3}Architektura}{11}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Nástroje}{11}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Hardwarová komponenta}{11}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Návrh architektury}{12}{section.3.3}%
+\contentsline {chapter}{\numberline {4}Hardwarové komponenty}{14}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Sběrnice}{14}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Virtuální paměť}{15}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Vyrovnávací paměť instrukcí}{16}{subsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.1.3}Časování}{16}{subsection.4.1.3}%
+\contentsline {section}{\numberline {4.2}CPU}{16}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Vnitřní stav \textit {CPU}}{17}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Zpoždění načítání hodnot}{17}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Zpoždění skoku}{17}{subsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.2.4}Instrukční sada}{17}{subsection.4.2.4}%
+\contentsline {subsection}{\numberline {4.2.5}Koprocesory}{18}{subsection.4.2.5}%
+\contentsline {section}{\numberline {4.3}GPU}{19}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}VRAM}{19}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Geometrická primitiva}{20}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}Barvy}{20}{subsection.4.3.3}%
+\contentsline {subsection}{\numberline {4.3.4}Rasterizace primitiv}{21}{subsection.4.3.4}%
+\contentsline {subsection}{\numberline {4.3.5}Zvýšení rozlišení}{21}{subsection.4.3.5}%
+\contentsline {section}{\numberline {4.4}DMA}{21}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Ovladač přerušení/výjimek}{22}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Časovače}{23}{section.4.6}%
+\contentsline {section}{\numberline {4.7}MDEC}{23}{section.4.7}%
+\contentsline {section}{\numberline {4.8}CD-ROM mechanika}{24}{section.4.8}%
+\contentsline {section}{\numberline {4.9}Periférie}{24}{section.4.9}%
+\contentsline {chapter}{\numberline {5}BIOS}{25}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Odrazový bod}{25}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Funkce}{25}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Fáze BIOSu}{26}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Zaváděcí fáze}{26}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Jádro BIOSu}{26}{subsection.5.3.2}%
+\contentsline {chapter}{\numberline {6}Závěr}{28}{chapter.6}%
+\contentsline {chapter}{Literatura}{29}{chapter*.3}%
+\contentsfinish 
