@@ -1,0 +1,75 @@
+\chapter{BIOS}
+
+\section{Odrazový bod}
+
+Aby člověk byl schopen vytvořit emulátor jakéhokoliv systému, je vždy potřeba určitý odrazový bod od kterého lze
+začít emulátor implementovat a který současně slouží i jako test korektnosti fungování emulátoru. Ve většině případů jde o zaváděcí
+program, který systém inicializuje. V případě \textit{PlayStationu} jde o \textit{Basic Input/Output System (BIOS)},
+který je zabudován do \textit{ROM} paměti každé \textit{PlayStation} konzole. Verzí \textit{BIOSu}
+existuje nemálo. Hlavní dělení je regionální/verze základní desky, kde se rozlišují 3 hlavní verze \textit{BIOSu} a to
+\textit{Americký (SCEA)}, \textit{Japonský (SCEI)} a \textit{Evropský (SCEE)}. \textit{Sony} také
+vytvořil modifikované \textit{BIOSy}, které pak používal v konzolích dalších generací, pro hladší
+emulaci \textit{PlayStation} systému.
+
+Tento \textit{BIOS} se dá použít pro strukturovanou implementaci celého emulátoru, kde nejdříve je dle
+paměťové mapy vytvořena paměťová struktura emulátoru a poté je instrukce po instrukci \textit{BIOS} spouštěn.
+Jakmile emulátor narazí na instrukci, funkcionalitu či přístup do ještě neimplementované hardwarové komponenty,
+emulátor zahlásí chybu a chybějící funkcionalitu je třeba buďto plně naimplementovat nebo ji utišit, v závislosti
+na její závažnosti a schopnosti systému fungovat bez ní.
+
+\section{Funkce}
+
+Ačkoliv tomuto zaváděcímu programu ve \textit{PlayStation} komunitě říká \textit{BIOS}, do jisté
+míry jde o velmi odlehčený operační systém, který poskytuje systémová volání pro snažší přístup k
+hardwaru.
+
+Uživatel mohl nastartovat \textit{PlayStation} konzoli i bez hry uvnitř \textit{CD-ROM} čtečky a byl přivítán
+úvodní obrazovkou \textit{BIOSu}, to jest \textit{shellem}. V tomto menu uživatel měl možnost spravovat, kopírovat a mazat uložený postup her, pokud
+do konzole byla zapojená speciální paměťová karta.
+
+V tomto menu uživatel měl také možnost přehrávat \textit{Audio CD}.
+
+Nicméně hlavní funkcionalitu \textit{BIOS} nabízí skrz speciální instrukci systémového volání, či speciální
+tabulky rutin, které se nacházejí na začátku paměti \textit{RAM}.
+Skrz toto \textit{API}, \textit{BIOS} nabízí nemálo funkcí, jako například přístup k souborovému systému
+\textit{CD-ROM}, správa paměti, debugovací výpisy, ale také zpracování výjimek, práce s řetězci, přístup k \textit{GPU}, \textit{SPU},
+\textit{GTE} a mnoho dalších.
+
+\section{Fáze BIOSu}
+
+\subsection{Zaváděcí fáze}
+
+Ačkoliv se jednotlivé verze \textit{BIOSu} liší ve své funkcionalitě, všechny následují velmi podobný
+zaváděcí proces. Při zapnutí/resetu konzole se \textit{Program Counter} procesoru nastaví na hodnotu 
+\textbf{0xBFC00000}, což je začátek adresy kde je uložen \textit{BIOS}. V tomto bodě je uložen resetovací
+logika. V prvé řadě jsou registry \textit{CPU} vyčištěny a poté se začne inicializovat hardware.
+
+Nejdříve se nastaví registry \textit{paměťového ovladače}. Tento kus hardwaru je diskutabilně do jisté míry ostatek z reálného
+počítače, obsahující informace o velikostech jednotlivých pamětí (\textit{RAM}, \textit{BIOS}, \textit{Scratchpad}, ...).
+
+Dále se odizoluje \textit{vyrovnávací paměť instrukcí}, což způsobí že všechny zápisy se převedou místo na 
+sběrnici do této \textit{vyrovnávací paměti}. \textit{BIOS} poté tuto paměť vyplní a vyčistí nulami. 
+
+V další fázi \textit{BIOS} přistupuje k \textit{ovladači vyrovnávací paměti} a zapne instrukční a datovou vyrovnávací paměť. 
+Tato komponenta slouží jako globální vypínač jednotlivých vyrovnávacích pamětí (\textit{d-cache, i-cache, scratchpad}), ovšem podobně
+jako \textit{paměťový ovladač}, jde spíše o formalitu, neboť do tohoto ovladače se dále už nepřistupuje.
+
+\textit{BIOS} pak zresetuje \textbf{koprocesor 0} (ovladač výjimek) tak, že všechny jeho registry nastaví na nulu a
+utlumí všechny kanály \textit{SPU}.
+
+Pokud \textit{BIOS} běžel na vývojářské verzi konzole, programátor mohl utilizovat \textit{Expansion Port (PIO)}, což
+do jisté míry je \textit{GPIO}, použitelné pro debugování vývoje hry. Aby \textit{PIO} mohlo být použito,
+zařízení na druhé straně muselo zaslat speciální ascii řetězec: \textit{"Licensed by Sony Computer Entertainment Inc."} kvůli verifikaci.
+
+\subsection{Jádro BIOSu}
+
+Po inciálním resetu hardwaru je do paměti zkopírován obraz jádra a je spuštěn. Jádro zpřístupní svou funkcionalitu tak, že
+vyplní speciální rutinní tabulky na začátku paměti \textit{RAM}, spustí \textit{shell} a zobrazí úvodní animaci. 
+
+TODO boot screen
+
+Po dokončení této animace je zkontrolována \textit{CD-ROM} mechanika, zda-li je její poklop uzavřen a zda-li mechanika obsahuje
+\textit{CD}. Pokud tato podmínka je splněna, \textit{BIOS} začne analyzovat souborový systém \textit{CD} a začne hledat
+hlavní spustitelný soubor a pokud je přítomen je posléze spuštěn. 
+
+Pokud v \textit{CD-ROM} mechanice není nic, \textit{BIOS} spustí \textit{shell}, a dále pak již nic neřeší.
