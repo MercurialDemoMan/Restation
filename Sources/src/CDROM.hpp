@@ -62,6 +62,72 @@ namespace PSX
 
     private:
 
+        /**
+         * base commands
+         */
+        void UNK();        /// Unknown Command
+        void GETSTAT();    /// Get Status Register
+        void SETLOC();     /// Set Seek Target 
+        void PLAY();       /// Start Audio Playback
+        void FORWARD();    /// Skip Sectors Forwards
+        void BACKWARD();   /// Skip Sectors Backwards
+        void READN();      /// Read With Retry
+        void MOTORON();    /// Activate Drive Motor
+        void STOP();       /// Stop Motor With Magnetic Brakes
+        void PAUSE();      /// Abort Reading And Playing
+        void INIT();       /// Initialize CD-ROM
+        void MUTE();       /// Turn Off Audio Streaming To SPU
+        void DEMUTE();     /// Turn On Audio Streaming To SPU
+        void SETFILTER();  /// ADPCM Filter
+        void SETMODE();    /// Set Mode Register
+        void GETPARAM();   /// Get Status, Mode, Filter and Null
+        void GETLOCL();    /// Get Sector Header And Subheader
+        void GETLOCP();    /// Get Position From Subchannel Q
+        void SETSESSION(); /// Seek To Session
+        void GETTN();      /// Get First Track Number
+        void GETTD();      /// Get Track Address
+        void SEEKL();      /// Seek To SETLOC In Data Mode
+        void SEEKP();      /// Seek To SETLOC In Audio Mode
+        void TEST();       /// Test Of Hardware
+        void GETID();      /// Get Disk Identificator
+        void READS();      /// Read Without Retry
+        void RESET();      /// Reset CD-ROM
+        void GETQ();       /// Get Position From Subchannel Q (mm:ss:ff)
+        void READTOC();    /// Reread Table Of Contents Of Current Session
+        void VIDEOCD();    /// Firmware Specific Command
+        void SECRET1();    /// Backdoor For Checking Region Code
+        void SECRET2();    /// Backdoor For Checking Region Code
+        void SECRET3();    /// Backdoor For Checking Region Code
+        void SECRET4();    /// Backdoor For Checking Region Code
+        void SECRET5();    /// Backdoor For Checking Region Code
+        void SECRET6();    /// Backdoor For Checking Region Code
+        void SECRET7();    /// Backdoor For Checking Region Code
+        void SECRETLOCK(); /// Backdoor For Checking Region Code
+
+        /**
+         * command handler map
+         */
+        typedef void(CDROM::*CommandHandler)();
+        CommandHandler m_handlers[128] =
+        {
+            &CDROM::UNK,     &CDROM::GETSTAT, &CDROM::SETLOC,     &CDROM::PLAY,    &CDROM::FORWARD, &CDROM::BACKWARD,  &CDROM::READN,   &CDROM::MOTORON,
+            &CDROM::STOP,    &CDROM::PAUSE,   &CDROM::INIT,       &CDROM::MUTE,    &CDROM::DEMUTE,  &CDROM::SETFILTER, &CDROM::SETMODE, &CDROM::GETPARAM,
+            &CDROM::GETLOCL, &CDROM::GETLOCP, &CDROM::SETSESSION, &CDROM::GETTN,   &CDROM::GETTD,   &CDROM::SEEKL,     &CDROM::SEEKP,   &CDROM::UNK,
+            &CDROM::UNK,     &CDROM::TEST,    &CDROM::GETID,      &CDROM::READS,   &CDROM::RESET,   &CDROM::GETQ,      &CDROM::READTOC, &CDROM::VIDEOCD, 
+            &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,        &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,       &CDROM::UNK,     &CDROM::UNK,     
+            &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,        &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,       &CDROM::UNK,     &CDROM::UNK,     
+            &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,        &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,       &CDROM::UNK,     &CDROM::UNK,     
+            &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,        &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,       &CDROM::UNK,     &CDROM::UNK,     
+            &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,        &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,       &CDROM::UNK,     &CDROM::UNK,     
+            &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,        &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,       &CDROM::UNK,     &CDROM::UNK,  
+            &CDROM::SECRET1, &CDROM::SECRET2, &CDROM::SECRET3,    &CDROM::SECRET4, &CDROM::SECRET5, &CDROM::SECRET6,   &CDROM::SECRET7, &CDROM::SECRETLOCK,
+            &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,        &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,       &CDROM::UNK,     &CDROM::UNK,     
+            &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,        &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,       &CDROM::UNK,     &CDROM::UNK,     
+            &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,        &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,       &CDROM::UNK,     &CDROM::UNK,     
+            &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,        &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,       &CDROM::UNK,     &CDROM::UNK,     
+            &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,        &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,       &CDROM::UNK,     &CDROM::UNK
+        };
+
         std::shared_ptr<Bus> m_bus;
 
     };
