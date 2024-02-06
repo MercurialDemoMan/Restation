@@ -62,6 +62,11 @@ namespace PSX
          * @brief special word copy
          */
         virtual void word_copy() override;
+
+        /**
+         * @brief special control masking
+         */
+        virtual void mask_channel_control_register() override;
     };
 }
 

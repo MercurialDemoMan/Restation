@@ -35,6 +35,8 @@
 
 #include "DMAChannel.hpp"
 #include "Bus.hpp"
+#include "Macros.hpp"
+#include <fmt/core.h>
 
 namespace PSX
 {
@@ -93,12 +95,16 @@ namespace PSX
             }
             case 8 ... 11:
             {
-                m_channel_control.bytes[address - 8] = value; return;
+                m_channel_control.bytes[address - 8] = value;
+
+                mask_channel_control_register();
 
                 if(m_channel_control.enabled)
                 {
                     execute(1);
                 }
+
+                return;
             }
         }
 
@@ -142,7 +148,7 @@ namespace PSX
         s32 step_direction = m_channel_control.memory_address_step ? -sizeof(u32) : sizeof(u32);
 
         // be able to specify max amount of words
-        if(num_words)
+        if(num_words == 0)
             num_words = 0x10000;
 
         switch(m_channel_control.transfer_direction)

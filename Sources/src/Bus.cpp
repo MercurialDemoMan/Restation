@@ -75,7 +75,6 @@ namespace PSX
         LOG("initializing all hardware components");
 
         m_cpu                  = std::make_shared<CPU>(shared_from_this());
-        m_gpu                  = std::make_shared<GPU>(shared_from_this());
         m_spu                  = std::make_shared<SPU>(shared_from_this());
         m_mdec                 = std::make_shared<MDEC>(shared_from_this());
         m_cdrom                = std::make_shared<CDROM>(shared_from_this());
@@ -86,6 +85,7 @@ namespace PSX
         m_mem_controller       = std::make_shared<MemController>();
         m_cache_controller     = std::make_shared<CacheController>();
         m_interrupt_controller = std::make_shared<InterruptController>(m_cpu->exception_controller());
+        m_gpu                  = std::make_shared<GPU>(shared_from_this(), m_interrupt_controller);
         m_dma_controller       = std::make_shared<DMAController>(shared_from_this(), m_mdec, m_gpu, m_spu, m_cdrom, m_interrupt_controller);
         m_timer_dotclock       = std::make_shared<Timer<ClockSource::DotClock>>(m_interrupt_controller);   
         m_timer_hblank         = std::make_shared<Timer<ClockSource::HBlank>>(m_interrupt_controller);     
@@ -173,12 +173,12 @@ namespace PSX
             // access GPU
             case (GpuBase) ... (GpuBase + GpuSize - 1):
             {
-                TODO(); return 0;
+                return m_gpu->read(physical_address - GpuBase);
             }
             // access MDEC
             case (MdecBase) ... (MdecBase + MdecSize - 1):
             {
-                TODO(); return 0;
+                return m_mdec->read(physical_address - MdecBase);
             }
             // access SPU
             case (SpuBase) ... (SpuBase + SpuSize - 1):
@@ -289,12 +289,12 @@ namespace PSX
             // access GPU
             case (GpuBase) ... (GpuBase + GpuSize - 1):
             {
-                TODO(); return;
+                m_gpu->write(physical_address - GpuBase, value); return;
             }
             // access MDEC
             case (MdecBase) ... (MdecBase + MdecSize - 1):
             {
-                TODO(); return;
+                m_mdec->write(physical_address - MdecBase, value); return;
             }
             // access SPU
             case (SpuBase) ... (SpuBase + SpuSize - 1):
@@ -322,7 +322,7 @@ namespace PSX
     }
 
     /**
-     * @brief execute all components for num_steps clock cycles
+     * @brief execute all components for num_steps clock cycles (relatively to CPU speed)
      */
     void Bus::execute(u32 num_steps)
     {
@@ -331,6 +331,7 @@ namespace PSX
         m_timer_dotclock->execute(num_steps);    // TODO: figure out better timing setup
         m_timer_hblank->execute(num_steps);      // TODO: figure out better timing setup
         m_timer_systemclock->execute(num_steps); // TODO: figure out better timing setup
+        m_gpu->execute(num_steps * (11.0/7.0));
     }
 
     /**

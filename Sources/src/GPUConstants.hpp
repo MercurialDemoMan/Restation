@@ -42,9 +42,17 @@ namespace PSX
      * GPU screen constants 
      */
     constexpr const u32 PALScanlines  = 314;
-    constexpr const u32 NTSCScanlines = 264;
+    constexpr const u32 NTSCScanlines = 263;
     constexpr const u32 PALScanlineCycles  = 3406;
     constexpr const u32 NTSCScanlineCycles = 3413;
+
+    /**
+     * GPU internal constants 
+     */
+    constexpr const u32 VRamWidth      = 1024;
+    constexpr const u32 VRamHeight     = 512;
+    constexpr const u32 GPUFIFOMaxSize = 32;
+    constexpr const u32 ClutCacheSize  = 256;
 
     /**
      * GPU timings 

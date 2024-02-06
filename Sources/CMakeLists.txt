@@ -24,6 +24,9 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/deps/glm)
 # add sdl2 to the project
 add_subdirectory(${CMAKE_SOURCE_DIR}/deps/SDL2-2.28.4)
 
+# add stb image write to the project
+include_directories(${CMAKE_SOURCE_DIR}/deps/stb)
+
 # include sources
 add_executable(emu 
 	src/main.cpp
@@ -51,7 +54,8 @@ add_executable(emu
     src/DMAChannelMDECOUT.cpp
     src/ExceptionController.cpp
     src/InterruptController.cpp
-    src/Bus.cpp)
+    src/Bus.cpp
+    deps/stb/stb_image_write.c)
 
 # link libraries with the project
 target_link_libraries(emu

@@ -37,10 +37,44 @@
 namespace PSX
 {
     /**
-     * @brief special word copy
+     * @brief reverse clear of ordering tables
      */
     void DMAChannelOTC::word_copy()
     {
-        TODO();
+        m_channel_control.start_trigger = 0;
+
+        u32 start_address  = m_base_address.address;
+        u32 num_words      = m_block_control.sync_mode_0.num_words;
+
+        // be able to specify max amount of words
+        if(num_words == 0)
+            num_words = 0x10000;
+
+        // clear OT in reverse order
+        for(u32 i = num_words; i --> 0; )
+        {
+            if(i == 0)
+                m_bus->dispatch_write<u32>(start_address, 0x00FF'FFFF);
+            else
+                m_bus->dispatch_write<u32>(start_address, (start_address - sizeof(u32)) & 0x00FF'FFFF);
+            
+            start_address -= sizeof(u32);
+        }
+
+        m_channel_control.enabled = 0;
+        m_meta_interrupt_request  = true;
+    }
+
+    /**
+     * @brief special control masking
+     */
+    void DMAChannelOTC::mask_channel_control_register()
+    {
+        m_channel_control.transfer_direction = 0;
+        m_channel_control.sync_mode = 0;
+        m_channel_control.memory_address_step = 1;
+        m_channel_control.chopping_enable = false;
+        m_channel_control.chopping_cpu_window_size = 0;
+        m_channel_control.chopping_dma_window_size = 0;
     }
 }

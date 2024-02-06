@@ -65,7 +65,7 @@ namespace PSX
             case 6:  {                     return; }
             case 7:  { m_dcic.raw = value; return; }
             case 9:  { m_bdam = value;     return; }
-            case 11: { m_bdam = value;     return; }
+            case 11: { m_bpcm = value;     return; }
             case 12: { m_sr.raw = value;   return; }
             // cause is read only except for bits 8-9
             case 13: 

@@ -2,5 +2,9 @@
 Sources/build/*
 !Sources/build/empty.txt
 
+# Ignore prototypes
+Sources/src/*.cpp.bak
+Sources/src/*.hpp.bak
+
 # Ignore vscode config
 .vscode/*
