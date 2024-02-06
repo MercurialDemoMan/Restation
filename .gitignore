@@ -8,3 +8,13 @@ Sources/src/*.hpp.bak
 
 # Ignore vscode config
 .vscode/*
+
+# Ignore latex immediate files
+*.blg
+*.bbl
+*.toc
+*.aux
+*.out
+*.lof
+*.log
+*.ptc

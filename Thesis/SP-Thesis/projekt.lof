@@ -1,0 +1,19 @@
+\babel@toc {czech}{}\relax 
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces První pokus společnosti \textit {Sony} proniknout na herní trh byl velmi úspěšný. Celkem se prodalo přibližně 102,49 milionu kusů. Pro srovnání, \textit {Nintendo 64} od společnosti \textit {Nintendo} se prodalo pouze 32,93 milionu}}{7}{figure.2.1}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Nedávno se objevil prototyp konzole, která je důkazem vztahu mezi společnostmi \textit {Sony} a \textit {Nintendo}. Konzole fungovala jako hybrid, do kterého bylo možné nahrávat hry z \textit {CD} nebo kazet. Nakonec tato konzole nebyla nikdy vydána, protože \textit {Sony} chtělo kontrolovat licencování \textit {CD} verzí her a \textit {Nintendo} to tento požadavek zamítlo\cite {PlayStationNintendo}.}}{8}{figure.2.2}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces \textit {Dolphin} emulátor umí zvýšit interní renderovací rozlišení, což může vylepšit herní zážitek}}{9}{figure.2.3}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Rozhraní, které každá hardwarová komponenta musí respektovat.}}{12}{figure.3.1}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Kompletní návrh zapojení nejen hardwarových komponent emulátoru, ale i nadstavby nutné pro zpřístupnění stavu konzole.}}{13}{figure.3.2}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Sběrnice pomocí \textit {shared\_ptr} struktury může vlastnit jednotlivé komponenty, ale také umožňuje sdílení mezi těmito komponentami.}}{14}{figure.4.1}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Kompletní mapa všech \textbf {69} instrukcí podle specifikace\cite {MIPSInsSpec}.}}{18}{figure.4.2}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces \textit {MIPS} má celkem 3 způsoby, jak zakódovat instrukci do 32 bitů.}}{19}{figure.4.3}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Pomocí 7 instrukcí a správným prokládáním lze docílit maximální rychlosti při kopírování dat. Každý cyklus přenese 4 byty.}}{21}{figure.4.4}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces \textit {MDEC} má velmi podobnou strukturu jako \textit {JPEG} až na vynechaný krok Huffmanova dekódování.}}{24}{figure.4.5}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Úvodní obrazovka indikující správnou inicializi systému.}}{27}{figure.5.1}%
+\addvspace {10\p@ }
+\contentsfinish 
