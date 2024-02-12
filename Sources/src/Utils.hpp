@@ -34,10 +34,13 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
+#include <array>
+#include <string>
 #include <cstring>
 #include <climits>
 #include <type_traits>
 #include "Types.hpp"
+#include "Constants.hpp"
 
 namespace PSX
 {
@@ -149,7 +152,6 @@ namespace PSX
 
         return value.bits = x;
     }
-
 
     /**
      * @brief helper for managing fixed point arithmetic 
