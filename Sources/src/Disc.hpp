@@ -37,6 +37,7 @@
 
 #include <vector>
 #include <memory>
+#include <optional>
 #include "DiscTypes.hpp"
 
 namespace PSX
@@ -52,6 +53,11 @@ namespace PSX
 
         ~Disc();
 
+        /**
+         * @brief read sector from the disc 
+         */
+        Sector read_sector(const Position&);
+
     private:
 
         Disc() {}
@@ -60,6 +66,16 @@ namespace PSX
          * @brief load 'bin' disc dump and initialize the disc 
          */
         void initialize_from_bin(const std::string& meta_file_path);
+
+        /**
+         * @brief get track index based on an absolute position 
+         */
+        std::optional<u32> get_track_index(const Position&);
+
+        /**
+         * @brief get track position offset 
+         */
+        Position get_track_offset(u32 index);
 
         std::vector<Track> m_tracks;
     };

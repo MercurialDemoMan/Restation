@@ -37,6 +37,7 @@
 #include <vector>
 #include <fstream>
 #include "Types.hpp"
+#include "DiscConstants.hpp"
 
 namespace PSX
 {
@@ -45,14 +46,24 @@ namespace PSX
      */
     struct Position
     {
-        u32 minutes;
-        u32 seconds;
-        u32 fractions;
+        static Position create(u32 linear_block_address)
+        {
+            return Position
+            {
+                .minutes   = (linear_block_address / (SecondsPerMinute / FractionsPerSecond)),
+                .seconds   = (linear_block_address % (SecondsPerMinute * FractionsPerSecond)) / FractionsPerSecond,
+                .fractions = (linear_block_address % FractionsPerSecond)
+            };
+        }
 
         u32 linear_block_address() const
         {
-            return (minutes * 60 * 75) + (seconds * 75) + fractions;
+            return (minutes * SecondsPerMinute * FractionsPerSecond) + (seconds * FractionsPerSecond) + fractions;
         }
+
+        u32 minutes;
+        u32 seconds;
+        u32 fractions;
     };
 
     /**

@@ -35,6 +35,7 @@
 #include <cmath>
 #include "Disc.hpp"
 #include "Macros.hpp"
+#include "DiscConstants.hpp"
 
 namespace PSX
 {
@@ -84,6 +85,56 @@ namespace PSX
         };
 
         m_tracks.push_back(track);
+    }
+
+    /**
+     * @brief get track position offset 
+     */
+    Position Disc::get_track_offset(u32 index)
+    {
+        u32 index = 0;
+
+        for(u32 i = 0; i < index; i++)
+        {
+            index += m_tracks[i].num_sectors;
+
+            if(i == 0 && m_tracks[i].type == Track::Type::Data)
+            {
+                index += FractionsPerSecond * 2;
+            }
+        }
+
+        return Position::create(index);
+    }
+
+    /**
+     * @brief get track index based on an absolute position 
+     */
+    std::optional<u32> Disc::get_track_index(const Position& pos)
+    {
+        for(u32 i = 0; i < m_tracks.size(); i++)
+        {
+            auto offset = get_track_offset(i);
+            auto size   = m_tracks[i].num_sectors;
+
+            if(pos.linear_block_address() >= offset.linear_block_address() &&
+               pos.linear_block_address() <  offset.linear_block_address() + size)
+            {
+                return i;
+            }
+        }
+
+        return {};
+    }
+
+    /**
+     * @brief read sector from the disc 
+     */
+    Sector Disc::read_sector(const Position& pos)
+    {
+        auto index = get_track_index(pos);
+
+        TODO();
     }
 
     Disc::~Disc()
