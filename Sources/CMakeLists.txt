@@ -29,11 +29,13 @@ include_directories(${CMAKE_SOURCE_DIR}/deps/stb)
 
 # include sources
 add_executable(emu 
-	src/main.cpp
+    src/Bus.cpp
     src/CPU.cpp
     src/GPU.cpp
     src/SPU.cpp
+	src/main.cpp
     src/MDEC.cpp
+    src/Utils.cpp
     src/CDROM.cpp
     src/Timer.cpp
     src/IOPorts.cpp
@@ -54,7 +56,6 @@ add_executable(emu
     src/DMAChannelMDECOUT.cpp
     src/ExceptionController.cpp
     src/InterruptController.cpp
-    src/Bus.cpp
     deps/stb/stb_image_write.c)
 
 # link libraries with the project

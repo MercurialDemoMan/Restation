@@ -155,6 +155,11 @@ namespace PSX
     }
 
     /**
+     * @brief convert binary-coded decimal to binary number
+     */
+    u8 bcd_to_binary(u8 bcd);
+
+    /**
      * @brief circular fixed sized queue 
      */
     template<typename T, u32 Capacity>
