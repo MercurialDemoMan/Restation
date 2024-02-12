@@ -170,14 +170,28 @@ namespace PSX
          */
         u8 read_interrupt();
 
+        /**
+         * @brief push byte into response fifo
+         */
+        void push_to_response_fifo(u8);
+
+        /**
+         * @brief push byte into interrupt fifo
+         */
+        void push_to_interrupt_fifo(u8);
+
+        /**
+         * @brief pop byte from parameter fifo
+         */
+        u8 pop_from_parameter_fifo();
+
         std::shared_ptr<Bus> m_bus;
         std::shared_ptr<Disc> m_disc;
 
         Status m_status;
-
-
+        fixed_queue<u8, ParameterFIFOSize> m_parameter_fifo;
         fixed_queue<u8, ResponseFIFOSize> m_response_fifo;
-        fixed_queue<u8, ResponseFIFOSize> m_interrupt_fifo;
+        fixed_queue<u8, InterruptFIFOSize> m_interrupt_fifo;
         u8 m_interrupt_enable;
     };
 }

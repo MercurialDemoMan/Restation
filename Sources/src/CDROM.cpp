@@ -128,6 +128,7 @@ namespace PSX
         
         if(m_status.index == 1 || m_status.index == 3)
         {
+            //note: top 3 bits' function are unknown but they are always set to 1
             if(!m_interrupt_fifo.empty())
             {
                 return 0b1110'0000 | (m_interrupt_fifo.top().value() & 0b0111);
@@ -137,191 +138,347 @@ namespace PSX
         }
     }
 
+    /**
+     * @brief push byte into response fifo
+     */
+    void CDROM::push_to_response_fifo(u8 value)
+    {
+        if(!m_response_fifo.push(value))
+            LOG_DEBUG(6, fmt::format("trying to push response {} into a full response queue", value));
+
+        m_status.response_fifo_empty = 1;
+    }
+
+    /**
+     * @brief push byte into interrupt fifo
+     */
+    void CDROM::push_to_interrupt_fifo(u8 value)
+    {
+        if(value > 0b111)
+            ABORT_WITH_MESSAGE(fmt::format("trying to push invalid interrupt {}", value));
+        
+        if(!m_interrupt_fifo.push(value))
+            LOG_DEBUG(6, fmt::format("trying to push interrupt {} into a full interrupt queue", value));
+    }
+
+    /**
+     * @brief pop byte from parameter fifo
+     */
+    u8 CDROM::pop_from_parameter_fifo()
+    {
+        auto parameter_or_error = m_parameter_fifo.pop();
+
+        if(!parameter_or_error)
+            ABORT_WITH_MESSAGE(fmt::format("trying to pop parameter from empty parameter queue"));
+
+        m_status.parameter_fifo_empty = m_parameter_fifo.empty();
+        m_status.parameter_fifo_full  = 1;
+
+        return parameter_or_error.value();
+    }
+
+    /**
+     * @brief Unknown Command
+     */
     void CDROM::UNK()
     {
-        TODO();
+        push_to_interrupt_fifo(5);
+        push_to_response_fifo(0x11);
+        push_to_response_fifo(0x40);
     }        
     
+    /**
+     * 
+     */
     void CDROM::GETSTAT()
     {
-        TODO();
+        push_to_interrupt_fifo(3);
+        push_to_response_fifo(m_status.raw);
     }    
     
+    /**
+     * 
+     */
     void CDROM::SETLOC()
     {
         TODO();
     }     
     
+    /**
+     * 
+     */
     void CDROM::PLAY()
     {
         TODO();
     }       
     
+    /**
+     * 
+     */
     void CDROM::FORWARD()
     {
         TODO();
     }    
     
+    /**
+     * 
+     */
     void CDROM::BACKWARD()
     {
         TODO();
     }   
     
+    /**
+     * 
+     */
     void CDROM::READN()
     {
         TODO();
     }      
     
+    /**
+     * 
+     */
     void CDROM::MOTORON()
     {
         TODO();
     }    
     
+    /**
+     * 
+     */
     void CDROM::STOP()
     {
         TODO();
     }       
     
+    /**
+     * 
+     */
     void CDROM::PAUSE()
     {
         TODO();
     }      
     
+    /**
+     * 
+     */
     void CDROM::INIT()
     {
         TODO();
     }       
     
+    /**
+     * 
+     */
     void CDROM::MUTE()
     {
         TODO();
     }       
     
+    /**
+     * 
+     */
     void CDROM::DEMUTE()
     {
         TODO();
     }     
     
+    /**
+     * 
+     */
     void CDROM::SETFILTER()
     {
         TODO();
     }  
     
+    /**
+     * 
+     */
     void CDROM::SETMODE()
     {
         TODO();
     }    
     
+    /**
+     * 
+     */
     void CDROM::GETPARAM()
     {
         TODO();
     }   
     
+    /**
+     * 
+     */
     void CDROM::GETLOCL()
     {
         TODO();
     }    
     
+    /**
+     * 
+     */
     void CDROM::GETLOCP()
     {
         TODO();
     }    
     
+    /**
+     * 
+     */
     void CDROM::SETSESSION()
     {
         TODO();
     } 
     
+    /**
+     * 
+     */
     void CDROM::GETTN()
     {
         TODO();
     }      
     
+    /**
+     * 
+     */
     void CDROM::GETTD()
     {
         TODO();
     }      
     
+    /**
+     * 
+     */
     void CDROM::SEEKL()
     {
         TODO();
     }      
     
+    /**
+     * 
+     */
     void CDROM::SEEKP()
     {
         TODO();
     }      
     
+    /**
+     * 
+     */
     void CDROM::TEST()
     {
         TODO();
     }       
     
+    /**
+     * 
+     */
     void CDROM::GETID()
     {
         TODO();
     }      
     
+    /**
+     * 
+     */
     void CDROM::READS()
     {
         TODO();
     }      
     
+    /**
+     * 
+     */
     void CDROM::RESET()
     {
         TODO();
     }      
     
+    /**
+     * 
+     */
     void CDROM::GETQ()
     {
         TODO();
     }       
     
+    /**
+     * 
+     */
     void CDROM::READTOC()
     {
         TODO();
     }    
     
+    /**
+     * 
+     */
     void CDROM::VIDEOCD()
     {
         TODO();
     }    
     
+    /**
+     * 
+     */
     void CDROM::SECRET1()
     {
         TODO();
     }    
     
+    /**
+     * 
+     */
     void CDROM::SECRET2()
     {
         TODO();
     }    
     
+    /**
+     * 
+     */
     void CDROM::SECRET3()
     {
         TODO();
     }    
     
+    /**
+     * 
+     */
     void CDROM::SECRET4()
     {
         TODO();
     }    
     
+    /**
+     * 
+     */
     void CDROM::SECRET5()
     {
         TODO();
     }    
     
+    /**
+     * 
+     */
     void CDROM::SECRET6()
     {
         TODO();
     }    
     
+    /**
+     * 
+     */
     void CDROM::SECRET7()
     {
         TODO();
     }    
     
+    /**
+     * 
+     */
     void CDROM::SECRETLOCK()
     {
         TODO();

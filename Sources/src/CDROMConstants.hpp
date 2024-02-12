@@ -39,6 +39,8 @@
 namespace PSX
 {
     constexpr const u32 ResponseFIFOSize = 16;
+    constexpr const u32 ParameterFIFOSize = 16;
+    constexpr const u32 InterruptFIFOSize = 16;
 }
 
 #endif // CDROMCONSTANTS_HPP
