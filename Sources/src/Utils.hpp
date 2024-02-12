@@ -38,6 +38,7 @@
 #include <string>
 #include <cstring>
 #include <climits>
+#include <optional>
 #include <type_traits>
 #include "Types.hpp"
 #include "Constants.hpp"
@@ -152,6 +153,55 @@ namespace PSX
 
         return value.bits = x;
     }
+
+    template<typename T, u32 Capacity>
+    class fixed_queue
+    {
+    public:
+
+        fixed_queue():
+            m_start(0),
+            m_end(0)
+        {
+            
+        }
+
+        bool push(const T& value)
+        {
+            if((m_end + 1) % Capacity == m_start)
+                return false;
+            
+            m_data[m_end] = value;
+            m_end = (m_end + 1) % Capacity;
+
+            return true;
+        }
+
+        std::optional<T> top()
+        {
+            if(m_start == m_end)
+                return {};
+            
+            return m_data[m_start];
+        }
+
+        std::optional<T> pop()
+        {
+            if(m_start == m_end)
+                return {};
+
+            T result = m_data[m_start];
+            m_start = (m_start + 1) % Capacity;
+
+            return result;
+        }
+
+    private:
+
+        std::array<T, Capacity> m_data;
+        u32 m_start;
+        u32 m_end;
+    };
 
     /**
      * @brief helper for managing fixed point arithmetic 
