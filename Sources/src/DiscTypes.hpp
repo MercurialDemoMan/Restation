@@ -34,11 +34,54 @@
 #ifndef DISCTYPES_HPP
 #define DISCTYPES_HPP
 
+#include <vector>
 #include "Types.hpp"
 
 namespace PSX
 {
-    
+    /**
+     * @brief manage position on a disc 
+     */
+    struct Position
+    {
+        u32 minutes;
+        u32 seconds;
+        u32 fractions;
+
+        u32 linear_block_address() const
+        {
+            return (minutes * 60 * 75) + (seconds * 75) + fractions;
+        }
+    };
+
+    /**
+     * @brief description of a singular track on a disc
+     */
+    struct Track
+    {
+        enum class Type
+        {
+            Data    = 0,
+            Audio   = 1,
+            Invalid = 2
+        };
+
+        u32      id_number;
+        Type     type;
+        Position data_position;
+        u32      offset;
+        u32      frames;
+    };
+
+    /**
+     * @brief portion of a disc track
+     */
+    struct Sector
+    {
+        static constexpr u32 Size = 2352;
+
+        std::vector<u8> data;
+    };
 }
 
 #endif
