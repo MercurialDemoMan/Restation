@@ -48,7 +48,7 @@ namespace PSX
 
         if(meta_file_path.ends_with(".bin"))
         {
-            disc->initialize_from_bin(meta_file_path);
+            disc->meta_initialize_from_bin(meta_file_path);
         }
         else
         {
@@ -61,7 +61,7 @@ namespace PSX
     /**
      * @brief load 'bin' disc dump and initialize the disc 
      */
-    void Disc::initialize_from_bin(const std::string& meta_file_path)
+    void Disc::meta_initialize_from_bin(const std::string& meta_file_path)
     {
         auto file_size = std::filesystem::file_size(meta_file_path);
 

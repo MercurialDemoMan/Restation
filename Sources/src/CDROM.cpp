@@ -44,8 +44,27 @@ namespace PSX
 
     u32 CDROM::read(u32 address)
     {
-        MARK_UNUSED(address);
-        TODO();
+        switch(address)
+        {
+            case 0:
+            {
+                return m_status.raw;
+            }
+            case 1:
+            {
+                return read_response();
+            }
+            case 2:
+            {
+                return read_data();
+            }
+            case 3:
+            {
+                return read_interrupt();
+            }
+        }
+
+        UNREACHABLE();
     }
 
     void CDROM::write(u32 address, u32 value)
@@ -58,6 +77,64 @@ namespace PSX
     void CDROM::reset()
     {
         TODO();
+    }
+
+    /**
+     * @brief load disc from the host filesystem 
+     */
+    void CDROM::meta_load_disc(const std::string& meta_file_path)
+    {
+        m_disc = Disc::create(meta_file_path);
+        TODO();
+    }
+
+    /**
+     * @brief extract response byte from response fifo 
+     */
+    u8 CDROM::read_response()
+    {
+        auto response_or_error = m_response_fifo.pop();
+
+        if(response_or_error)
+        {
+            auto response = response_or_error.value();
+
+            if(m_response_fifo.empty())
+                m_status.response_fifo_empty = 0;
+
+            return response;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    /**
+     * @brief extract data byte from data fifo 
+     */
+    u8 CDROM::read_data()
+    {
+        TODO();
+    }
+
+    /**
+     * @brief extract interrupt byte from interrupt fifo 
+     */
+    u8 CDROM::read_interrupt()
+    {
+        if(m_status.index == 0 || m_status.index == 2)
+            return m_interrupt_enable;
+        
+        if(m_status.index == 1 || m_status.index == 3)
+        {
+            if(!m_interrupt_fifo.empty())
+            {
+                return 0b1110'0000 | (m_interrupt_fifo.top().value() & 0b0111);
+            }
+
+            return 0b1110'0000;
+        }
     }
 
     void CDROM::UNK()

@@ -65,7 +65,7 @@ namespace PSX
         /**
          * @brief load 'bin' disc dump and initialize the disc 
          */
-        void initialize_from_bin(const std::string& meta_file_path);
+        void meta_initialize_from_bin(const std::string& meta_file_path);
 
         /**
          * @brief get track index based on an absolute position 

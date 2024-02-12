@@ -154,6 +154,9 @@ namespace PSX
         return value.bits = x;
     }
 
+    /**
+     * @brief circular fixed sized queue 
+     */
     template<typename T, u32 Capacity>
     class fixed_queue
     {
@@ -194,6 +197,11 @@ namespace PSX
             m_start = (m_start + 1) % Capacity;
 
             return result;
+        }
+
+        bool empty()
+        {
+            return m_start == m_end;
         }
 
     private:

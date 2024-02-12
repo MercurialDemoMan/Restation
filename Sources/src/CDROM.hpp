@@ -38,6 +38,8 @@
 #include "Component.hpp"
 #include "Forward.hpp"
 #include "Disc.hpp"
+#include "CDROMConstants.hpp"
+#include "Utils.hpp"
 
 namespace PSX
 {
@@ -60,6 +62,11 @@ namespace PSX
         virtual u32  read(u32 address) override;
         virtual void write(u32 address, u32 value) override;
         virtual void reset() override;
+
+        /**
+         * @brief load disc from the host filesystem 
+         */
+        void meta_load_disc(const std::string& meta_file_path);
 
     private:
 
@@ -129,10 +136,8 @@ namespace PSX
             &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,        &CDROM::UNK,     &CDROM::UNK,     &CDROM::UNK,       &CDROM::UNK,     &CDROM::UNK
         };
 
-        std::shared_ptr<Bus> m_bus;
-
         /**
-         * @brief 0x1F801800 - Index/Status Register 
+         * @brief 0x1F801800 - Index/Status Register (R only)
          */
         union Status
         {
@@ -150,8 +155,30 @@ namespace PSX
             u8 raw;
         };
 
-        Status m_status;
+        /**
+         * @brief extract response byte from response fifo 
+         */
+        u8 read_response();
+
+        /**
+         * @brief extract data byte from data fifo 
+         */
+        u8 read_data();
+
+        /**
+         * @brief extract interrupt byte from interrupt fifo 
+         */
+        u8 read_interrupt();
+
+        std::shared_ptr<Bus> m_bus;
         std::shared_ptr<Disc> m_disc;
+
+        Status m_status;
+
+
+        fixed_queue<u8, ResponseFIFOSize> m_response_fifo;
+        fixed_queue<u8, ResponseFIFOSize> m_interrupt_fifo;
+        u8 m_interrupt_enable;
     };
 }
 
