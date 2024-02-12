@@ -212,7 +212,7 @@ namespace PSX
     }    
     
     /**
-     * Set Seek Target
+     * @brief Set Seek Target
      */
     void CDROM::SETLOC()
     {
@@ -286,7 +286,7 @@ namespace PSX
     }       
     
     /**
-     * Abort Reading And Playing
+     * @brief Abort Reading And Playing
      */
     void CDROM::PAUSE()
     {
@@ -444,11 +444,14 @@ namespace PSX
     }       
     
     /**
-     * 
+     * @brief Reread Table Of Contents Of Current Session
      */
     void CDROM::READTOC()
     {
-        TODO();
+        push_to_interrupt_fifo(3);
+        push_to_response_fifo(m_status.raw);
+        push_to_interrupt_fifo(2);
+        push_to_response_fifo(m_status.raw);
     }    
     
     /**
