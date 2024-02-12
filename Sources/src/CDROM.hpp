@@ -139,7 +139,7 @@ namespace PSX
         /**
          * @brief 0x1F801800 - Index/Status Register (R only)
          */
-        union Status
+        union Index
         {
             struct
             {
@@ -150,6 +150,26 @@ namespace PSX
                 u8 response_fifo_empty:  1;
                 u8 data_fifo_empty:      1;
                 u8 transmission_busy:    1;
+            };
+
+            u8 raw;
+        };
+
+        /**
+         * @brief  
+         */
+        union Status
+        {
+            struct
+            {
+                u8 error:         1;
+                u8 spindle_motor: 1;
+                u8 seek_error:    1;
+                u8 id_error:      1;
+                u8 shell_open:    1;
+                u8 read:          1;
+                u8 seek:          1;
+                u8 play:          1;
             };
 
             u8 raw;
@@ -188,6 +208,7 @@ namespace PSX
         std::shared_ptr<Bus> m_bus;
         std::shared_ptr<Disc> m_disc;
 
+        Index m_index;
         Status m_status;
         fixed_queue<u8, ParameterFIFOSize> m_parameter_fifo;
         fixed_queue<u8, ResponseFIFOSize> m_response_fifo;

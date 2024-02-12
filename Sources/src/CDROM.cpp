@@ -48,7 +48,7 @@ namespace PSX
         {
             case 0:
             {
-                return m_status.raw;
+                return m_index.raw;
             }
             case 1:
             {
@@ -100,7 +100,7 @@ namespace PSX
             auto response = response_or_error.value();
 
             if(m_response_fifo.empty())
-                m_status.response_fifo_empty = 0;
+                m_index.response_fifo_empty = 0;
 
             return response;
         }
@@ -123,10 +123,10 @@ namespace PSX
      */
     u8 CDROM::read_interrupt()
     {
-        if(m_status.index == 0 || m_status.index == 2)
+        if(m_index.index == 0 || m_index.index == 2)
             return m_interrupt_enable;
         
-        if(m_status.index == 1 || m_status.index == 3)
+        if(m_index.index == 1 || m_index.index == 3)
         {
             //note: top 3 bits' function are unknown but they are always set to 1
             if(!m_interrupt_fifo.empty())
@@ -146,7 +146,7 @@ namespace PSX
         if(!m_response_fifo.push(value))
             LOG_DEBUG(6, fmt::format("trying to push response {} into a full response queue", value));
 
-        m_status.response_fifo_empty = 1;
+        m_index.response_fifo_empty = 1;
     }
 
     /**
@@ -171,8 +171,8 @@ namespace PSX
         if(!parameter_or_error)
             ABORT_WITH_MESSAGE(fmt::format("trying to pop parameter from empty parameter queue"));
 
-        m_status.parameter_fifo_empty = m_parameter_fifo.empty();
-        m_status.parameter_fifo_full  = 1;
+        m_index.parameter_fifo_empty = m_parameter_fifo.empty();
+        m_index.parameter_fifo_full  = 1;
 
         return parameter_or_error.value();
     }
@@ -188,7 +188,7 @@ namespace PSX
     }        
     
     /**
-     * 
+     * @brief Get Status Register
      */
     void CDROM::GETSTAT()
     {
@@ -197,11 +197,18 @@ namespace PSX
     }    
     
     /**
-     * 
+     * Set Seek Target
      */
     void CDROM::SETLOC()
     {
+        u8 minutes = bcd_to_binary(pop_from_parameter_fifo());
+        u8 seconds = bcd_to_binary(pop_from_parameter_fifo());
+        u8 sector  = bcd_to_binary(pop_from_parameter_fifo());
+
         TODO();
+
+        push_to_interrupt_fifo(3);
+        push_to_response_fifo(m_status.raw);
     }     
     
     /**
@@ -241,7 +248,12 @@ namespace PSX
      */
     void CDROM::MOTORON()
     {
-        TODO();
+        m_status.spindle_motor = 1;
+
+        push_to_interrupt_fifo(3);
+        push_to_response_fifo(m_status.raw);
+        push_to_interrupt_fifo(2);
+        push_to_response_fifo(m_status.raw);
     }    
     
     /**
