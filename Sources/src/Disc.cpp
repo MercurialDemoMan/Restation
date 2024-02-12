@@ -98,6 +98,7 @@ namespace PSX
         {
             index += m_tracks[i].num_sectors;
 
+            // note: for some reason, first track containing data starts at 2 second offset
             if(i == 0 && m_tracks[i].type == Track::Type::Data)
             {
                 index += FractionsPerSecond * 2;
@@ -132,9 +133,41 @@ namespace PSX
      */
     Sector Disc::read_sector(const Position& pos)
     {
-        auto index = get_track_index(pos);
+        auto index_or_error = get_track_index(pos);
 
-        TODO();
+        if(index_or_error)
+        {
+            auto index    = index_or_error.value();
+            auto track    = m_tracks[index];
+            auto disc_pos = pos;
+
+            // note: for some reason, first track containing data starts at 2 second offset, 
+            //       which is relevant in subchannelQ handling, so in order to correctly 
+            //       read from the file, we need to set it back 2 seconds
+            if(index == 0 && track.type == Track::Type::Data)
+            {
+                disc_pos = Position::create(pos.linear_block_address() - 2 * FractionsPerSecond);
+            }
+
+            // TODO: if audio present, we need to manipulate the disc_pos
+
+            std::vector<u8> sector_buffer(Sector::Size);
+            track.meta_file->seekg(track.offset + disc_pos.linear_block_address() * Sector::Size);
+            track.meta_file->read(reinterpret_cast<char*>(sector_buffer.data()), Sector::Size);
+            if(track.meta_file->eof())
+            {
+                ABORT_WITH_MESSAGE(fmt::format("trying to read outside of the disc file at {}", pos.linear_block_address()));
+            }
+
+            return Sector
+            {
+                .data = std::move(sector_buffer)
+            };
+        }
+        else
+        {
+            ABORT_WITH_MESSAGE(fmt::format("trying to read from invalid position {}", pos.linear_block_address()));
+        }
     }
 
     Disc::~Disc()
