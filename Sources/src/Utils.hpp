@@ -185,7 +185,7 @@ namespace PSX
             return true;
         }
 
-        std::optional<T> top()
+        std::optional<T> top() const
         {
             if(m_start == m_end)
                 return {};
@@ -204,9 +204,14 @@ namespace PSX
             return result;
         }
 
-        bool empty()
+        bool empty() const
         {
             return m_start == m_end;
+        }
+
+        void clear()
+        {
+            m_start = m_end = 0;
         }
 
     private:
