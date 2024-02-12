@@ -59,4 +59,195 @@ namespace PSX
     {
         TODO();
     }
+
+    void CDROM::UNK()
+    {
+        TODO();
+    }        
+    
+    void CDROM::GETSTAT()
+    {
+        TODO();
+    }    
+    
+    void CDROM::SETLOC()
+    {
+        TODO();
+    }     
+    
+    void CDROM::PLAY()
+    {
+        TODO();
+    }       
+    
+    void CDROM::FORWARD()
+    {
+        TODO();
+    }    
+    
+    void CDROM::BACKWARD()
+    {
+        TODO();
+    }   
+    
+    void CDROM::READN()
+    {
+        TODO();
+    }      
+    
+    void CDROM::MOTORON()
+    {
+        TODO();
+    }    
+    
+    void CDROM::STOP()
+    {
+        TODO();
+    }       
+    
+    void CDROM::PAUSE()
+    {
+        TODO();
+    }      
+    
+    void CDROM::INIT()
+    {
+        TODO();
+    }       
+    
+    void CDROM::MUTE()
+    {
+        TODO();
+    }       
+    
+    void CDROM::DEMUTE()
+    {
+        TODO();
+    }     
+    
+    void CDROM::SETFILTER()
+    {
+        TODO();
+    }  
+    
+    void CDROM::SETMODE()
+    {
+        TODO();
+    }    
+    
+    void CDROM::GETPARAM()
+    {
+        TODO();
+    }   
+    
+    void CDROM::GETLOCL()
+    {
+        TODO();
+    }    
+    
+    void CDROM::GETLOCP()
+    {
+        TODO();
+    }    
+    
+    void CDROM::SETSESSION()
+    {
+        TODO();
+    } 
+    
+    void CDROM::GETTN()
+    {
+        TODO();
+    }      
+    
+    void CDROM::GETTD()
+    {
+        TODO();
+    }      
+    
+    void CDROM::SEEKL()
+    {
+        TODO();
+    }      
+    
+    void CDROM::SEEKP()
+    {
+        TODO();
+    }      
+    
+    void CDROM::TEST()
+    {
+        TODO();
+    }       
+    
+    void CDROM::GETID()
+    {
+        TODO();
+    }      
+    
+    void CDROM::READS()
+    {
+        TODO();
+    }      
+    
+    void CDROM::RESET()
+    {
+        TODO();
+    }      
+    
+    void CDROM::GETQ()
+    {
+        TODO();
+    }       
+    
+    void CDROM::READTOC()
+    {
+        TODO();
+    }    
+    
+    void CDROM::VIDEOCD()
+    {
+        TODO();
+    }    
+    
+    void CDROM::SECRET1()
+    {
+        TODO();
+    }    
+    
+    void CDROM::SECRET2()
+    {
+        TODO();
+    }    
+    
+    void CDROM::SECRET3()
+    {
+        TODO();
+    }    
+    
+    void CDROM::SECRET4()
+    {
+        TODO();
+    }    
+    
+    void CDROM::SECRET5()
+    {
+        TODO();
+    }    
+    
+    void CDROM::SECRET6()
+    {
+        TODO();
+    }    
+    
+    void CDROM::SECRET7()
+    {
+        TODO();
+    }    
+    
+    void CDROM::SECRETLOCK()
+    {
+        TODO();
+    } 
+    
 }

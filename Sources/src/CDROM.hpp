@@ -37,6 +37,7 @@
 #include <memory>
 #include "Component.hpp"
 #include "Forward.hpp"
+#include "Disc.hpp"
 
 namespace PSX
 {
@@ -130,6 +131,27 @@ namespace PSX
 
         std::shared_ptr<Bus> m_bus;
 
+        /**
+         * @brief 0x1F801800 - Index/Status Register 
+         */
+        union Status
+        {
+            struct
+            {
+                u8 index:                2;
+                u8 xa_adpcm_fifo_empty:  1;
+                u8 parameter_fifo_empty: 1;
+                u8 parameter_fifo_full:  1;
+                u8 response_fifo_empty:  1;
+                u8 data_fifo_empty:      1;
+                u8 transmission_busy:    1;
+            };
+
+            u8 raw;
+        };
+
+        Status m_status;
+        std::shared_ptr<Disc> m_disc;
     };
 }
 

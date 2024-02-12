@@ -45,11 +45,21 @@ namespace PSX
     {
     public:
 
+        /**
+         * @brief create and initialize disc from disc dump 
+         */
         static std::shared_ptr<Disc> create(const std::string& meta_file_path);
 
-        void initialize_from_bin(const std::string& meta_file_path);
+        ~Disc();
 
     private:
+
+        Disc() {}
+
+        /**
+         * @brief load 'bin' disc dump and initialize the disc 
+         */
+        void initialize_from_bin(const std::string& meta_file_path);
 
         std::vector<Track> m_tracks;
     };

@@ -35,6 +35,7 @@
 #define DISCTYPES_HPP
 
 #include <vector>
+#include <fstream>
 #include "Types.hpp"
 
 namespace PSX
@@ -70,7 +71,8 @@ namespace PSX
         Type     type;
         Position data_position;
         u32      offset;
-        u32      frames;
+        u32      num_sectors;
+        std::shared_ptr<std::ifstream> meta_file;
     };
 
     /**
@@ -84,4 +86,4 @@ namespace PSX
     };
 }
 
-#endif
+#endif // DISCTYPES_HPP
