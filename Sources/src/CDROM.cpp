@@ -178,6 +178,21 @@ namespace PSX
     }
 
     /**
+     * @brief update status register with new mode
+     */
+    void CDROM::set_status_mode(Status::Mode mode)
+    {
+        m_status.error         = 0;
+        m_status.spindle_motor = 1;
+        m_status.seek_error    = 0;
+        m_status.id_error      = 0;
+        m_status.shell_open    = 0;
+        m_status.read          = mode == Status::Mode::Read;
+        m_status.seek          = mode == Status::Mode::Seek;
+        m_status.play          = mode == Status::Mode::Play;
+    }
+
+    /**
      * @brief Unknown Command
      */
     void CDROM::UNK()
@@ -244,7 +259,7 @@ namespace PSX
     }      
     
     /**
-     * 
+     * @brief Activate Drive Motor
      */
     void CDROM::MOTORON()
     {
@@ -257,11 +272,17 @@ namespace PSX
     }    
     
     /**
-     * 
+     * @brief Stop Motor With Magnetic Brakes
      */
     void CDROM::STOP()
     {
-        TODO();
+        set_status_mode(Status::Mode::None);
+        m_status.spindle_motor = 0;
+
+        push_to_interrupt_fifo(3);
+        push_to_response_fifo(m_status.raw);
+        push_to_interrupt_fifo(2);
+        push_to_response_fifo(m_status.raw);
     }       
     
     /**

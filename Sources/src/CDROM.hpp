@@ -160,6 +160,14 @@ namespace PSX
          */
         union Status
         {
+            enum class Mode
+            {
+                None = 0,
+                Read = 1,
+                Seek = 2,
+                Play = 3
+            };
+
             struct
             {
                 u8 error:         1;
@@ -204,6 +212,11 @@ namespace PSX
          * @brief pop byte from parameter fifo
          */
         u8 pop_from_parameter_fifo();
+
+        /**
+         * @brief update status register with new mode
+         */
+        void set_status_mode(Status::Mode);
 
         std::shared_ptr<Bus> m_bus;
         std::shared_ptr<Disc> m_disc;
