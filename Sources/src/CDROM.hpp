@@ -51,10 +51,11 @@ namespace PSX
     {
     public:
 
-        CDROM(const std::shared_ptr<Bus>& bus) :
-            m_bus(bus)
+        CDROM(const std::shared_ptr<Bus>& bus, const std::shared_ptr<InterruptController>& interrupt_controller) :
+            m_bus(bus),
+            m_interrupt_controller(interrupt_controller)
         {
-            
+            reset();
         }
         
         virtual ~CDROM() override = default;
@@ -255,11 +256,15 @@ namespace PSX
         void execute(const CDROMInstruction&);
 
         std::shared_ptr<Bus> m_bus;
+        std::shared_ptr<InterruptController> m_interrupt_controller;
         std::shared_ptr<Disc> m_disc;
 
+        u32    m_cycles;
         Index  m_index;
         Status m_status;
         Mode   m_mode;
+        Sector m_current_sector;
+        u32    m_sector_head;
         fixed_queue<u8, ParameterFIFOSize> m_parameter_fifo;
         fixed_queue<u8, ResponseFIFOSize>  m_response_fifo;
         fixed_queue<u8, InterruptFIFOSize> m_interrupt_fifo;

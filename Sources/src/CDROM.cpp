@@ -33,13 +33,43 @@
 
 #include "CDROM.hpp"
 #include "Bus.hpp"
+#include "InterruptController.hpp"
 
 namespace PSX
 {
     void CDROM::execute(u32 num_steps)
     {
-        MARK_UNUSED(num_steps);
-        TODO();
+        for(u32 _ = 0; _ < num_steps; _++)
+        {
+            if(!m_interrupt_fifo.empty())
+            {
+                if((m_interrupt_enable & 0b0111) &
+                (m_interrupt_fifo.top().value() & 0b0111))
+                {
+                    m_interrupt_controller->trigger_interrupt(Interrupt::CDROM);
+                }
+            }
+
+            if((m_status.read | m_status.play) && (m_cycles++ % (Sector::Size >> m_mode.speed) == 0))
+            {
+                m_current_sector = m_disc->read_sector
+                (
+                    Position::create(m_sector_head++)
+                );
+
+                if(m_current_sector.type == Track::Type::Data && m_status.read)
+                {
+                    push_to_interrupt_fifo(1);
+                    push_to_response_fifo(m_status.raw);
+
+                    TODO();
+                }
+                else if(m_current_sector.type == Track::Type::Audio && m_status.play)
+                {
+                    TODO();
+                }
+            }
+        }
     }
 
     /**
@@ -50,7 +80,7 @@ namespace PSX
         m_response_fifo.clear();
         m_interrupt_fifo.clear();
 
-        TODO();
+        // TODO();
 
         (this->*m_handlers[ins.raw])();
 
@@ -119,7 +149,22 @@ namespace PSX
 
     void CDROM::reset()
     {
-        TODO();
+        m_cycles = 0;
+
+        m_index.raw = 0;
+        m_index.parameter_fifo_empty = 1;
+        m_index.parameter_fifo_full = 1;
+
+        m_status.raw = 0;
+        m_status.shell_open = 1;
+
+        m_mode.raw = 0;
+
+        m_current_sector.type = Track::Type::Invalid;
+        m_sector_head = 0;
+
+        m_interrupt_enable = 0;
+        m_mute = 0;
     }
 
     /**
@@ -202,7 +247,7 @@ namespace PSX
             } break;
             case 1:
             {
-                TODO();
+                m_interrupt_enable = value;
             } break;
             case 2:
             {
@@ -221,8 +266,40 @@ namespace PSX
      */
     void CDROM::write_request(u32 value)
     {
-        MARK_UNUSED(value);
-        TODO();
+        switch(m_index.index)
+        {
+            case 0:
+            {
+                TODO();
+            } break;
+            case 1:
+            {
+                //  clear parameter fifo after INT5 and the interrupt itself
+                if(value & 0b0100'0000)
+                {
+                    m_parameter_fifo.clear();
+                    m_index.parameter_fifo_empty = 1;
+                    m_index.parameter_fifo_full  = 1;
+                }
+
+                if(!m_interrupt_fifo.empty())
+                {
+                    MARK_UNUSED(m_interrupt_fifo.pop());
+                }
+            } break;
+            case 2:
+            {
+                TODO();
+            } break;
+            case 3:
+            {
+                TODO();
+            }
+            default:
+            {
+                UNREACHABLE();
+            } break;
+        }
     }
 
     /**
@@ -241,7 +318,7 @@ namespace PSX
      */
     void CDROM::push_to_interrupt_fifo(u8 value)
     {
-        if(value > 0b111)
+        if(value > 0b0111)
             ABORT_WITH_MESSAGE(fmt::format("trying to push invalid interrupt {}", value));
         
         if(!m_interrupt_fifo.push(value))
@@ -514,7 +591,23 @@ namespace PSX
      */
     void CDROM::TEST()
     {
-        TODO();
+        u8 test_function = pop_from_parameter_fifo();
+
+        switch(test_function)
+        {
+            case 32: // date and version of CDROM BIOS [PU-7, 19 Sep 1994, version vC0 (a)]
+            {
+                push_to_interrupt_fifo(3);
+                push_to_response_fifo(0x94);
+                push_to_response_fifo(0x09);
+                push_to_response_fifo(0x19);
+                push_to_response_fifo(0xC0);
+            } break;
+            default:
+            {
+                ABORT_WITH_MESSAGE(fmt::format("unknown TEST command function {}", test_function));
+            } break;
+        }
     }       
     
     /**

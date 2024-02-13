@@ -161,7 +161,8 @@ namespace PSX
 
             return Sector
             {
-                .data = std::move(sector_buffer)
+                .data = std::move(sector_buffer),
+                .type = track.type
             };
         }
         else

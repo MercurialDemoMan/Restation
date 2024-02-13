@@ -94,6 +94,7 @@ namespace PSX
         static constexpr u32 Size = 2352;
 
         std::vector<u8> data;
+        Track::Type     type;
     };
 }
 
