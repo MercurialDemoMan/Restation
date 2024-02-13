@@ -41,15 +41,16 @@ namespace PSX
     {
         for(u32 _ = 0; _ < num_steps; _++)
         {
+            // trigger queued interrupt
             if(!m_interrupt_fifo.empty())
             {
-                if((m_interrupt_enable & 0b0111) &
-                (m_interrupt_fifo.top().value() & 0b0111))
+                if((m_interrupt_enable & 0b0111) & (m_interrupt_fifo.top().value() & 0b0111))
                 {
                     m_interrupt_controller->trigger_interrupt(Interrupt::CDROM);
                 }
             }
 
+            // only progress reading status if we are reading data or playing audio
             if(m_status.read || m_status.play)
             {
                 if(m_cycles++ % (Sector::Size >> m_mode.speed) == 0)
@@ -59,6 +60,7 @@ namespace PSX
                         Position::create(m_sector_head++)
                     );
 
+                    // reading data
                     if(m_current_sector.type == Track::Type::Data && m_status.read)
                     {
                         push_to_interrupt_fifo(1);
@@ -66,6 +68,7 @@ namespace PSX
 
                         TODO();
                     }
+                    // playing audio
                     else if(m_current_sector.type == Track::Type::Audio && m_status.play)
                     {
                         TODO();
@@ -73,24 +76,6 @@ namespace PSX
                 }
             }
         }
-    }
-
-    /**
-     * @brief execute instruction 
-     */
-    void CDROM::execute(const CDROMInstruction& ins)
-    {
-        m_response_fifo.clear();
-        m_interrupt_fifo.clear();
-
-        (this->*m_handlers[ins.raw])();
-
-        m_parameter_fifo.clear();
-
-        m_index.parameter_fifo_empty = 1;
-        m_index.parameter_fifo_full  = 1;
-        m_index.transmission_busy    = 1;
-        m_index.xa_adpcm_fifo_empty  = 0;
     }
 
     u32 CDROM::read(u32 address)
@@ -167,6 +152,27 @@ namespace PSX
 
         m_interrupt_enable = 0;
         m_mute = 0;
+    }
+
+    /**
+     * @brief execute instruction 
+     */
+    void CDROM::execute(const CDROMInstruction& ins)
+    {
+        // clear command result
+        m_response_fifo.clear();
+        m_interrupt_fifo.clear();
+
+        // execute command
+        (this->*m_handlers[ins.raw])();
+
+        // clear command arguments
+        m_parameter_fifo.clear();
+
+        m_index.parameter_fifo_empty = 1;
+        m_index.parameter_fifo_full  = 1;
+        m_index.transmission_busy    = 1;
+        m_index.xa_adpcm_fifo_empty  = 0;
     }
 
     /**
