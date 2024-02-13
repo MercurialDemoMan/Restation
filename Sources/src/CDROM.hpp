@@ -259,18 +259,18 @@ namespace PSX
         std::shared_ptr<InterruptController> m_interrupt_controller;
         std::shared_ptr<Disc> m_disc;
 
-        u32    m_cycles;
-        Index  m_index;
-        Status m_status;
-        Mode   m_mode;
-        Sector m_current_sector;
-        u32    m_sector_head;
-        u32    m_sector_seek_target;
-        fixed_queue<u8, ParameterFIFOSize> m_parameter_fifo;
-        fixed_queue<u8, ResponseFIFOSize>  m_response_fifo;
-        fixed_queue<u8, InterruptFIFOSize> m_interrupt_fifo;
-        u8 m_interrupt_enable;
-        u8 m_mute;
+        u32    m_cycles;             /// total read bytes from a sector
+        Index  m_index;              /// Index/Status register
+        Status m_status;             /// Status register
+        Mode   m_mode;               /// Mode register
+        Sector m_current_sector;     /// currently loaded disc sector
+        u32    m_sector_head;        /// reading head
+        u32    m_sector_seek_target; /// disc seeking offset
+        fixed_queue<u8, ParameterFIFOSize> m_parameter_fifo; /// queue for command arguments
+        fixed_queue<u8, ResponseFIFOSize>  m_response_fifo;  /// queue for command results
+        fixed_queue<u8, InterruptFIFOSize> m_interrupt_fifo; /// queue for signaling finished command
+        u8 m_interrupt_enable; /// can we send interrupts?
+        u8 m_mute;             /// turn on/off audio streaming
     };
 }
 
