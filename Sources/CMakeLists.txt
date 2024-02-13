@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 
 project(PSXEmulator)
 
-# set c++ 17 standard 
-set(CMAKE_CXX_STANDARD 17)
+# set c++ 20 standard 
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED On)
 
 # set optimization level
@@ -35,6 +35,7 @@ add_executable(emu
     src/SPU.cpp
 	src/main.cpp
     src/MDEC.cpp
+    src/Disc.cpp
     src/Utils.cpp
     src/CDROM.cpp
     src/Timer.cpp
