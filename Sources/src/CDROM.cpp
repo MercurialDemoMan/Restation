@@ -383,27 +383,40 @@ namespace PSX
     }      
     
     /**
-     * 
+     * @brief Initialize CD-ROM
      */
     void CDROM::INIT()
     {
-        TODO();
+        push_to_interrupt_fifo(3);
+        push_to_response_fifo(m_status.raw);
+
+        m_status.spindle_motor = 1;
+        set_status_mode(Status::Mode::None);
+
+        push_to_interrupt_fifo(2);
+        push_to_response_fifo(m_status.raw);
     }       
     
     /**
-     * 
+     * @brief Turn Off Audio Streaming To SPU
      */
     void CDROM::MUTE()
     {
-        TODO();
+        m_mute = true;
+
+        push_to_interrupt_fifo(3);
+        push_to_response_fifo(m_status.raw);
     }       
     
     /**
-     * 
+     * @brief Turn On Audio Streaming To SPU
      */
     void CDROM::DEMUTE()
     {
-        TODO();
+        m_mute = false;
+
+        push_to_interrupt_fifo(3);
+        push_to_response_fifo(m_status.raw);
     }     
     
     /**

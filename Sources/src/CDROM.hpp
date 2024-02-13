@@ -264,6 +264,7 @@ namespace PSX
         fixed_queue<u8, ResponseFIFOSize>  m_response_fifo;
         fixed_queue<u8, InterruptFIFOSize> m_interrupt_fifo;
         u8 m_interrupt_enable;
+        u8 m_mute;
     };
 }
 
