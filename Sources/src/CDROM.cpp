@@ -415,11 +415,14 @@ namespace PSX
     }  
     
     /**
-     * 
+     * @brief Set Mode Register
      */
     void CDROM::SETMODE()
     {
-        TODO();
+        m_mode.raw = pop_from_parameter_fifo();
+
+        push_to_interrupt_fifo(3);
+        push_to_response_fifo(m_status.raw);
     }    
     
     /**

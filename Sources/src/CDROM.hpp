@@ -157,7 +157,7 @@ namespace PSX
         };
 
         /**
-         * @brief  
+         * @brief CDROM Status Register
          */
         union Status
         {
@@ -179,6 +179,26 @@ namespace PSX
                 u8 read:          1;
                 u8 seek:          1;
                 u8 play:          1;
+            };
+
+            u8 raw;
+        };
+
+        /**
+         * @brief 0x0E SETMODE command mode 
+         */
+        union Mode
+        {
+            struct
+            {
+                u8 cdda:        1;
+                u8 auto_pause:  1;
+                u8 report:      1;
+                u8 xa_filter:   1;
+                u8 ignore_bit:  1;
+                u8 sector_size: 1;
+                u8 xa_adpcm:    1;
+                u8 speed:       1;
             };
 
             u8 raw;
@@ -237,8 +257,9 @@ namespace PSX
         std::shared_ptr<Bus> m_bus;
         std::shared_ptr<Disc> m_disc;
 
-        Index m_index;
+        Index  m_index;
         Status m_status;
+        Mode   m_mode;
         fixed_queue<u8, ParameterFIFOSize> m_parameter_fifo;
         fixed_queue<u8, ResponseFIFOSize>  m_response_fifo;
         fixed_queue<u8, InterruptFIFOSize> m_interrupt_fifo;
