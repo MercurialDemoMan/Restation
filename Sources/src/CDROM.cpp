@@ -50,23 +50,26 @@ namespace PSX
                 }
             }
 
-            if((m_status.read | m_status.play) && (m_cycles++ % (Sector::Size >> m_mode.speed) == 0))
+            if(m_status.read || m_status.play)
             {
-                m_current_sector = m_disc->read_sector
-                (
-                    Position::create(m_sector_head++)
-                );
-
-                if(m_current_sector.type == Track::Type::Data && m_status.read)
+                if(m_cycles++ % (Sector::Size >> m_mode.speed) == 0)
                 {
-                    push_to_interrupt_fifo(1);
-                    push_to_response_fifo(m_status.raw);
+                    m_current_sector = m_disc->read_sector
+                    (
+                        Position::create(m_sector_head++)
+                    );
 
-                    TODO();
-                }
-                else if(m_current_sector.type == Track::Type::Audio && m_status.play)
-                {
-                    TODO();
+                    if(m_current_sector.type == Track::Type::Data && m_status.read)
+                    {
+                        push_to_interrupt_fifo(1);
+                        push_to_response_fifo(m_status.raw);
+
+                        TODO();
+                    }
+                    else if(m_current_sector.type == Track::Type::Audio && m_status.play)
+                    {
+                        TODO();
+                    }
                 }
             }
         }
@@ -79,8 +82,6 @@ namespace PSX
     {
         m_response_fifo.clear();
         m_interrupt_fifo.clear();
-
-        // TODO();
 
         (this->*m_handlers[ins.raw])();
 
@@ -174,7 +175,8 @@ namespace PSX
     void CDROM::meta_load_disc(const std::string& meta_file_path)
     {
         m_disc = Disc::create(meta_file_path);
-        TODO();
+        m_status.shell_open = 0;
+        set_status_mode(Status::Mode::None);
     }
 
     /**
@@ -608,7 +610,7 @@ namespace PSX
     }      
     
     /**
-     * 
+     * @brief Test Of Hardware
      */
     void CDROM::TEST()
     {
