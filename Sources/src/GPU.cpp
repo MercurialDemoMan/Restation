@@ -981,9 +981,9 @@ namespace PSX
 
         if(args.is_gouraud_shaded)
         {
-            s32 attr_color_r[3] = { args.vertex_a.color.r, args.vertex_b.color.r, args.vertex_c.color.r };
-            s32 attr_color_g[3] = { args.vertex_a.color.g, args.vertex_b.color.g, args.vertex_c.color.g };
-            s32 attr_color_b[3] = { args.vertex_a.color.b, args.vertex_b.color.b, args.vertex_c.color.b };
+            s32 attr_color_r[3] = { s32(args.vertex_a.color.r), s32(args.vertex_b.color.r), s32(args.vertex_c.color.r) };
+            s32 attr_color_g[3] = { s32(args.vertex_a.color.g), s32(args.vertex_b.color.g), s32(args.vertex_c.color.g) };
+            s32 attr_color_b[3] = { s32(args.vertex_a.color.b), s32(args.vertex_b.color.b), s32(args.vertex_c.color.b) };
 
             frag_attrs_init.r = fragment_attribute(area, vertices, biases, attr_color_r);
             frag_attrs_init.g = fragment_attribute(area, vertices, biases, attr_color_g);

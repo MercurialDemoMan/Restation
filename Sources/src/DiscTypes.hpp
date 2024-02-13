@@ -50,7 +50,7 @@ namespace PSX
         {
             return Position
             {
-                .minutes   = (linear_block_address / (SecondsPerMinute / FractionsPerSecond)),
+                .minutes   = (linear_block_address /  SecondsPerMinute / FractionsPerSecond),
                 .seconds   = (linear_block_address % (SecondsPerMinute * FractionsPerSecond)) / FractionsPerSecond,
                 .fractions = (linear_block_address % FractionsPerSecond)
             };

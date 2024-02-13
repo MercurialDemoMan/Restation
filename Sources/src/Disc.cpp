@@ -78,9 +78,9 @@ namespace PSX
         {
             .id_number     = 1,
             .type          = Track::Type::Data,
-            .data_position = Position { 0 },
+            .data_position = Position { .minutes = 0, .seconds = 0, .fractions = 0 },
             .offset        = 0,
-            .num_sectors   = std::ceil(float(file_size) / Sector::Size),
+            .num_sectors   = u32(std::ceil(float(file_size) / float(Sector::Size))),
             .meta_file     = meta_file
         };
 
@@ -92,20 +92,20 @@ namespace PSX
      */
     Position Disc::get_track_offset(u32 index)
     {
-        u32 index = 0;
+        u32 result = 0;
 
-        for(u32 i = 0; i < index; i++)
+        for(s32 i = 0; i < s32(index) - 1; i++)
         {
-            index += m_tracks[i].num_sectors;
+            result += m_tracks[i].num_sectors;
 
             // note: for some reason, first track containing data starts at 2 second offset
             if(i == 0 && m_tracks[i].type == Track::Type::Data)
             {
-                index += FractionsPerSecond * 2;
+                result += FractionsPerSecond * 2;
             }
         }
 
-        return Position::create(index);
+        return Position::create(result);
     }
 
     /**

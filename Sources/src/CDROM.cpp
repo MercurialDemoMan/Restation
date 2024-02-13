@@ -179,6 +179,9 @@ namespace PSX
 
             return 0b1110'0000;
         }
+
+        UNREACHABLE();
+        return 0;
     }
 
     /**
@@ -216,8 +219,9 @@ namespace PSX
     /**
      * @brief write into the request register
      */
-    void write_request(u32 value)
+    void CDROM::write_request(u32 value)
     {
+        MARK_UNUSED(value);
         TODO();
     }
 
@@ -303,6 +307,9 @@ namespace PSX
         u8 seconds = bcd_to_binary(pop_from_parameter_fifo());
         u8 sector  = bcd_to_binary(pop_from_parameter_fifo());
 
+        MARK_UNUSED(minutes);
+        MARK_UNUSED(seconds);
+        MARK_UNUSED(sector);
         TODO();
 
         push_to_interrupt_fifo(3);
