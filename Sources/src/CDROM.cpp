@@ -42,6 +42,26 @@ namespace PSX
         TODO();
     }
 
+    /**
+     * @brief execute instruction 
+     */
+    void CDROM::execute(const CDROMInstruction& ins)
+    {
+        m_response_fifo.clear();
+        m_interrupt_fifo.clear();
+
+        TODO();
+
+        (this->*m_handlers[ins.raw])();
+
+        m_parameter_fifo.clear();
+
+        m_index.parameter_fifo_empty = 1;
+        m_index.parameter_fifo_full  = 1;
+        m_index.transmission_busy    = 1;
+        m_index.xa_adpcm_fifo_empty  = 0;
+    }
+
     u32 CDROM::read(u32 address)
     {
         switch(address)
@@ -69,9 +89,32 @@ namespace PSX
 
     void CDROM::write(u32 address, u32 value)
     {
-        MARK_UNUSED(address);
-        MARK_UNUSED(value);
-        TODO();
+        switch(address)
+        {
+            case 0:
+            {
+                m_index.index = value & 0b0011; return;
+            }
+            case 1:
+            {
+                switch(m_index.index)
+                {
+                    case 0:  { execute(CDROMInstruction(value)); return; }
+                    case 3:  { TODO(); }
+                    default: { UNREACHABLE(); }
+                }
+            }
+            case 2:
+            {
+                write_parameter(value); return;
+            }
+            case 3:
+            {
+                write_request(value); return;
+            }
+        }
+
+        UNREACHABLE();
     }
 
     void CDROM::reset()
@@ -136,6 +179,46 @@ namespace PSX
 
             return 0b1110'0000;
         }
+    }
+
+    /**
+     * @brief write into the parameter fifo
+     */
+    void CDROM::write_parameter(u32 value)
+    {
+        switch(m_index.index)
+        {
+            case 0:
+            {
+                if(!m_parameter_fifo.push(value))
+                {
+                    UNREACHABLE();
+                }
+                m_index.parameter_fifo_empty = 0;
+                m_index.parameter_fifo_full  = !m_parameter_fifo.full();
+            } break;
+            case 1:
+            {
+                TODO();
+            } break;
+            case 2:
+            {
+                TODO();
+            } break;
+            case 3:
+            {
+                TODO();
+            }
+            default: { UNREACHABLE(); }
+        }
+    }
+
+    /**
+     * @brief write into the request register
+     */
+    void write_request(u32 value)
+    {
+        TODO();
     }
 
     /**

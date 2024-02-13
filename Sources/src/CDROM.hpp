@@ -39,6 +39,7 @@
 #include "Forward.hpp"
 #include "Disc.hpp"
 #include "CDROMConstants.hpp"
+#include "CDROMInstruction.hpp"
 #include "Utils.hpp"
 
 namespace PSX
@@ -199,6 +200,16 @@ namespace PSX
         u8 read_interrupt();
 
         /**
+         * @brief write into the parameter fifo
+         */
+        void write_parameter(u32);
+
+        /**
+         * @brief write into the request register
+         */
+        void write_request(u32);
+
+        /**
          * @brief push byte into response fifo
          */
         void push_to_response_fifo(u8);
@@ -218,13 +229,18 @@ namespace PSX
          */
         void set_status_mode(Status::Mode);
 
+        /**
+         * @brief execute instruction 
+         */
+        void execute(const CDROMInstruction&);
+
         std::shared_ptr<Bus> m_bus;
         std::shared_ptr<Disc> m_disc;
 
         Index m_index;
         Status m_status;
         fixed_queue<u8, ParameterFIFOSize> m_parameter_fifo;
-        fixed_queue<u8, ResponseFIFOSize> m_response_fifo;
+        fixed_queue<u8, ResponseFIFOSize>  m_response_fifo;
         fixed_queue<u8, InterruptFIFOSize> m_interrupt_fifo;
         u8 m_interrupt_enable;
     };
