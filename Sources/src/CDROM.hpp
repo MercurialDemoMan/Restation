@@ -265,6 +265,7 @@ namespace PSX
         Mode   m_mode;
         Sector m_current_sector;
         u32    m_sector_head;
+        u32    m_sector_seek_target;
         fixed_queue<u8, ParameterFIFOSize> m_parameter_fifo;
         fixed_queue<u8, ResponseFIFOSize>  m_response_fifo;
         fixed_queue<u8, InterruptFIFOSize> m_interrupt_fifo;

@@ -162,6 +162,7 @@ namespace PSX
 
         m_current_sector.type = Track::Type::Invalid;
         m_sector_head = 0;
+        m_sector_seek_target = 0;
 
         m_interrupt_enable = 0;
         m_mute = 0;
@@ -384,10 +385,7 @@ namespace PSX
         u8 seconds = bcd_to_binary(pop_from_parameter_fifo());
         u8 sector  = bcd_to_binary(pop_from_parameter_fifo());
 
-        MARK_UNUSED(minutes);
-        MARK_UNUSED(seconds);
-        MARK_UNUSED(sector);
-        TODO();
+        m_sector_seek_target = (minutes * SecondsPerMinute * FractionsPerSecond) + (seconds * FractionsPerSecond) + sector;
 
         push_to_interrupt_fifo(3);
         push_to_response_fifo(m_status.raw);
@@ -418,11 +416,16 @@ namespace PSX
     }   
     
     /**
-     * 
+     * @brief Read With Retry
      */
     void CDROM::READN()
     {
-        TODO();
+        m_sector_head = m_sector_seek_target;
+
+        set_status_mode(Status::Mode::Read);
+
+        push_to_interrupt_fifo(3);
+        push_to_response_fifo(m_status.raw);
     }      
     
     /**
