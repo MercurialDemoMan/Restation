@@ -161,8 +161,7 @@ namespace PSX
                     m_bus->dispatch_write<u32>(start_address, read_from_component());
                     start_address += step_direction;
                 }
-                break;
-            }
+            } break;
 
             // from RAM
             case 1:
@@ -172,8 +171,7 @@ namespace PSX
                     write_to_component(m_bus->dispatch_read<u32>(start_address));
                     start_address += step_direction;
                 }
-                break;
-            }
+            } break;
         }
 
         m_channel_control.enabled = 0;
@@ -208,8 +206,7 @@ namespace PSX
                         m_bus->dispatch_write<u32>(start_address, read_from_component());
                         start_address += step_direction;
                     }
-                    break;
-                }
+                } break;
 
                 // from RAM
                 case 1:
@@ -219,8 +216,7 @@ namespace PSX
                         write_to_component(m_bus->dispatch_read<u32>(start_address));
                         start_address += step_direction;
                     }
-                    break;
-                }
+                } break;
             }
 
             // update address
