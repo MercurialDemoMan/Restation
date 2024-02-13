@@ -77,7 +77,6 @@ namespace PSX
         m_cpu                  = std::make_shared<CPU>(shared_from_this());
         m_spu                  = std::make_shared<SPU>(shared_from_this());
         m_mdec                 = std::make_shared<MDEC>(shared_from_this());
-        m_cdrom                = std::make_shared<CDROM>(shared_from_this());
         m_io_ports             = std::make_shared<IOPorts>();
         m_serial_port          = std::make_shared<SerialPort>();
         m_peripherals          = std::make_shared<Peripherals>(shared_from_this());
@@ -85,6 +84,7 @@ namespace PSX
         m_mem_controller       = std::make_shared<MemController>();
         m_cache_controller     = std::make_shared<CacheController>();
         m_interrupt_controller = std::make_shared<InterruptController>(m_cpu->exception_controller());
+        m_cdrom                = std::make_shared<CDROM>(shared_from_this(), m_interrupt_controller);
         m_gpu                  = std::make_shared<GPU>(shared_from_this(), m_interrupt_controller);
         m_dma_controller       = std::make_shared<DMAController>(shared_from_this(), m_mdec, m_gpu, m_spu, m_cdrom, m_interrupt_controller);
         m_timer_dotclock       = std::make_shared<Timer<ClockSource::DotClock>>(m_interrupt_controller);   
@@ -328,9 +328,10 @@ namespace PSX
     {
         m_cpu->execute(num_steps);
         m_dma_controller->execute(num_steps);
-        m_timer_dotclock->execute(num_steps);    // TODO: figure out better timing setup
-        m_timer_hblank->execute(num_steps);      // TODO: figure out better timing setup
-        m_timer_systemclock->execute(num_steps); // TODO: figure out better timing setup
+        m_timer_dotclock->execute(num_steps);    
+        m_timer_hblank->execute(num_steps);      
+        m_timer_systemclock->execute(num_steps); 
+        m_cdrom->execute(num_steps);
         m_gpu->execute(num_steps * (11.0/7.0));
     }
 

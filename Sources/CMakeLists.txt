@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 
 project(PSXEmulator)
 
-# set c++ 17 standard 
-set(CMAKE_CXX_STANDARD 17)
+# set c++ 20 standard 
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED On)
 
 # set optimization level
@@ -29,11 +29,14 @@ include_directories(${CMAKE_SOURCE_DIR}/deps/stb)
 
 # include sources
 add_executable(emu 
-	src/main.cpp
+    src/Bus.cpp
     src/CPU.cpp
     src/GPU.cpp
     src/SPU.cpp
+	src/main.cpp
     src/MDEC.cpp
+    src/Disc.cpp
+    src/Utils.cpp
     src/CDROM.cpp
     src/Timer.cpp
     src/IOPorts.cpp
@@ -54,7 +57,6 @@ add_executable(emu
     src/DMAChannelMDECOUT.cpp
     src/ExceptionController.cpp
     src/InterruptController.cpp
-    src/Bus.cpp
     deps/stb/stb_image_write.c)
 
 # link libraries with the project

@@ -79,15 +79,13 @@ namespace PSX
                 case 0:
                 {
                     m_is_line_odd = m_meta_lines & 1;
-                    break;
-                }
+                } break;
 
                 // 480 lines
                 case 1:
                 {
                     m_is_line_odd = m_meta_frames & 1;
-                    break;
-                }
+                } break;
             }
         }
     }
@@ -214,10 +212,22 @@ namespace PSX
 
         switch(m_dma_direction)
         {
-            case 0: { data_request = 0; break; }
-            case 1: { data_request = m_command_fifo.size() != GPUFIFOMaxSize; break; }
-            case 2: { data_request = m_ready_to_receive_dma_block; break; }
-            case 3: { data_request = m_read_mode == 1; break; }
+            case 0: 
+            { 
+                data_request = 0;
+            } break;
+            case 1: 
+            { 
+                data_request = m_command_fifo.size() != GPUFIFOMaxSize; 
+            } break; 
+            case 2: 
+            { 
+                data_request = m_ready_to_receive_dma_block; 
+            } break; 
+            case 3: 
+            { 
+                data_request = m_read_mode == 1; 
+            } break; 
         }
 
         u32 result  = m_draw_mode.raw & 0x7FF;
@@ -296,124 +306,107 @@ namespace PSX
                 case GPUGP0Instruction::Nop:
                 {
                     m_command_num_arguments = 1;
-                    break;
-                }
+                } break;
 
                 case GPUGP0Instruction::InvalidateClutCache:
                 {
                     m_clut_cache_x = {};
                     m_clut_cache_y = {};
                     m_command_num_arguments = 1;
-                    break;
-                }
+                } break;
 
                 case GPUGP0Instruction::FillVRam:
                 {
                     m_current_command       = GPUCommand::VRamFill;
                     m_command_num_arguments = 3;
-                    break;
-                }
+                } break;
 
                 case GPUGP0Instruction::InterruptRequest:
                 {
                     m_interrupt_request = true;
                     m_interrupt_controller->trigger_interrupt(Interrupt::GPU);
                     m_command_num_arguments = 1;
-                    break;
-                }
+                } break;
 
                 case GPUGP0Instruction::PolygonRenderStart ... GPUGP0Instruction::PolygonRenderEnd:
                 {
                     m_current_command = GPUCommand::PolygonRender;
                     m_command_num_arguments = PolygonRenderCommand(instruction_raw).num_arguments();
-                    break;
-                }
+                } break;
 
                 case GPUGP0Instruction::LineRenderStart ... GPUGP0Instruction::LineRenderEnd:
                 {
                     m_current_command = GPUCommand::LineRender;
                     m_command_num_arguments = LineRenderCommand(instruction_raw).num_arguments();
-                    break;
-                }
+                } break;
 
                 case GPUGP0Instruction::RectangleRenderStart ... GPUGP0Instruction::RectangleRenderEnd:
                 {
                     m_current_command = GPUCommand::RectangleRender;
                     m_command_num_arguments = RectangleRenderCommand(instruction_raw).num_arguments();
-                    break;
-                }
+                } break;
 
                 case GPUGP0Instruction::VRamToVRamStart ... GPUGP0Instruction::VRamToVRamEnd:
                 {
                     m_current_command = GPUCommand::CopyVRamToVRam;
                     m_command_num_arguments = 4;
-                    break;
-                }
+                } break;
 
                 case GPUGP0Instruction::CPUToVRamStart ... GPUGP0Instruction::CPUToVRamEnd:
                 {
                     m_current_command = GPUCommand::CopyCPUToVRamParsingPhase;
                     m_command_num_arguments = 3;
-                    break;
-                }
+                } break;
 
                 case GPUGP0Instruction::VRamToCPUStart ... GPUGP0Instruction::VRamToCPUEnd:
                 {
                     m_current_command = GPUCommand::CopyVRamToCPU;
                     m_command_num_arguments = 3;
-                    break;
-                }
+                } break;
 
                 case GPUGP0Instruction::DrawModeSetting:
                 {
                     m_draw_mode.raw = value;
                     m_command_num_arguments = 1;
-                    break;
-                }
+                } break;
 
                 case GPUGP0Instruction::TextureWindowSetting:
                 {
                     m_texture_window_setting.raw = value;
                     m_command_num_arguments = 1;
-                    break;
-                }
+                } break;
 
                 case GPUGP0Instruction::SetDrawingAreaTopLeft:
                 {
                     m_drawing_area_top  = (value >> 10) & 0b11'1111'1111;
                     m_drawing_area_left = (value >> 0)  & 0b11'1111'1111;
                     m_command_num_arguments = 1;
-                    break;
-                }
+                } break;
 
                 case GPUGP0Instruction::SetDrawingAreaBottomRight:
                 {
                     m_drawing_area_bottom = (value >> 10) & 0b11'1111'1111;
                     m_drawing_area_right  = (value >> 0)  & 0b11'1111'1111;
                     m_command_num_arguments = 1;
-                    break;
-                }
+                } break;
 
                 case GPUGP0Instruction::SetDrawingOffset:
                 {
                     m_drawing_offset_x = extend_sign<s16, 11>(static_cast<s16>((value >>  0) & 0b111'1111'1111));
                     m_drawing_offset_y = extend_sign<s16, 11>(static_cast<s16>((value >> 11) & 0b111'1111'1111));
                     m_command_num_arguments = 1;
-                    break;
-                }
+                } break;
 
                 case GPUGP0Instruction::MaskBitSetting:
                 {
                     m_mask_bit_setting.raw = value;
                     m_command_num_arguments = 1;
-                    break;
-                }
+                } break;
 
                 default:
                 {
                     UNREACHABLE();
-                    break;
-                }
+                } break;
             }
         }
         // process command arguments
@@ -460,65 +453,55 @@ namespace PSX
             case GPUGP1Instruction::ResetGPU:
             {
                 soft_reset();
-                break;
-            }
+            } break;
 
             case GPUGP1Instruction::ResetCommand:
             {
                 m_current_command = GPUCommand::Nop;
-                break;
-            }
+            } break;
 
             case GPUGP1Instruction::AcknowledgeInterrupt:
             {
                 m_interrupt_request = false;
-                break;
-            }
+            } break;
 
             case GPUGP1Instruction::DisplayEnable:
             {
                 m_display_disable = argument & 1;
-                break;
-            }
+            } break;
 
             case GPUGP1Instruction::DMADirection:
             {
                 m_dma_direction = argument & 0b11;
-                break;
-            }
+            } break;
 
             case GPUGP1Instruction::StartOfDisplayArea:
             {
                 m_display_area_start_x = (argument >>  0) & 0b11'1111'1111;
                 m_display_area_start_y = (argument >> 10) &  0b1'1111'1111;
-                break;
-            }
+            } break;
 
             case GPUGP1Instruction::HorizontalDisplayRange:
             {
                 m_display_range_x_1 = (argument >>  0) & 0b1111'1111'1111;
                 m_display_range_x_2 = (argument >> 12) & 0b1111'1111'1111;
-                break;
-            }
+            } break;
 
             case GPUGP1Instruction::VerticalDisplayRange:
             {
                 m_display_range_y_1 = (argument >>  0) & 0b11'1111'1111;
                 m_display_range_y_2 = (argument >> 10) & 0b11'1111'1111;
-                break;
-            }
+            } break;
 
             case GPUGP1Instruction::DisplayMode:
             {
                 m_display_mode.raw = argument;
-                break;
-            }
+            } break;
 
             case GPUGP1Instruction::NewTextureDisable:
             {
                 m_new_texture_disable = argument & 1;
-                break;
-            }
+            } break;
 
             case GPUGP1Instruction::GetGPUInfoStart ... GPUGP1Instruction::GetGPUInfoEnd:
             {
@@ -527,63 +510,55 @@ namespace PSX
                     // NOP
                     case 0 ... 1:
                     {
-                        break;
-                    }
+                        
+                    } break;
 
                     // Read Texture Window setting
                     case 2:
                     {
                         m_read_register = m_texture_window_setting.raw;
-                        break;
-                    }
+                    } break;
 
                     // Read Draw area top left
                     case 3:
                     {
                         m_read_register = (m_drawing_area_top << 10) | (m_drawing_area_left);
-                        break;
-                    }
+                    } break;
 
                     // Read Draw area bottom right
                     case 4:
                     {
                         m_read_register = (m_drawing_area_bottom << 10) | (m_drawing_area_right);
-                        break;
-                    }
+                    } break;
 
                     // Read Draw offset
                     case 5:
                     {
                         m_read_register = ((m_drawing_offset_y & 0b111'1111'1111) << 11) |
                                           ( m_drawing_offset_x & 0b111'1111'1111);
-                        break;
-                    }
+                    } break;
 
                     // Read GPU Type (only available on the New 208pin GPU)
                     case 7:
                     {
                         m_read_register = 2;
-                        break;
-                    }
+                    } break;
 
                     // Return nothing
                     case 8:
                     {
                         m_read_register = 0;
-                        break;
-                    }
+                    } break;
                 }
 
                 // make result of this operation be available in the read register
                 m_read_mode = 0;
-                break;
-            }
+            } break;
 
             case GPUGP1Instruction::SpecialTextureDisable:
             {
                 LOG_WARNING("GPU GP1 SpecialTextureDisable encoutered");
-                break;
-            }
+            } break;
         }
     }
 
@@ -768,15 +743,13 @@ namespace PSX
                 case 0:
                 {
                     args.color_depth = 1;
-                    break;
-                }
+                } break;
 
                 // 8bit
                 case 1:
                 {
                     args.color_depth = 2;
-                    break;
-                }
+                } break;
 
                 // 15bit
                 case 2:
@@ -784,10 +757,12 @@ namespace PSX
                 case 3:
                 {
                     args.color_depth = 3;
-                    break;
-                }
+                } break;
 
-                default: { UNREACHABLE(); }
+                default: 
+                { 
+                    UNREACHABLE(); 
+                } break;
             }
 
             args.texpage_x   = ((texture_info.texpage_index & 0x000F'0000) >> 16) * 64;
@@ -1006,9 +981,9 @@ namespace PSX
 
         if(args.is_gouraud_shaded)
         {
-            s32 attr_color_r[3] = { args.vertex_a.color.r, args.vertex_b.color.r, args.vertex_c.color.r };
-            s32 attr_color_g[3] = { args.vertex_a.color.g, args.vertex_b.color.g, args.vertex_c.color.g };
-            s32 attr_color_b[3] = { args.vertex_a.color.b, args.vertex_b.color.b, args.vertex_c.color.b };
+            s32 attr_color_r[3] = { s32(args.vertex_a.color.r), s32(args.vertex_b.color.r), s32(args.vertex_c.color.r) };
+            s32 attr_color_g[3] = { s32(args.vertex_a.color.g), s32(args.vertex_b.color.g), s32(args.vertex_c.color.g) };
+            s32 attr_color_b[3] = { s32(args.vertex_a.color.b), s32(args.vertex_b.color.b), s32(args.vertex_c.color.b) };
 
             frag_attrs_init.r = fragment_attribute(area, vertices, biases, attr_color_r);
             frag_attrs_init.g = fragment_attribute(area, vertices, biases, attr_color_g);
@@ -1205,14 +1180,14 @@ namespace PSX
             switch(m_draw_mode.texture_page_colors)
             {
                 // 4bit depth
-                case 0: { color_bits = 1; break; }
+                case 0: { color_bits = 1; } break;
                 // 8bit depth
-                case 1: { color_bits = 2; break; }
+                case 1: { color_bits = 2; } break;
                 // 15bit depth
                 case 2:
                 // reserved = 15bit depth
-                case 3: { color_bits = 3; break; }
-                default: { UNREACHABLE(); break; }
+                case 3: { color_bits = 3; } break;
+                default: { UNREACHABLE(); } break;
             }
 
             u32 clut_value = m_command_fifo.at(2);
