@@ -574,19 +574,37 @@ namespace PSX
     }      
     
     /**
-     * 
+     * @brief Seek To SETLOC In Data Mode
      */
     void CDROM::SEEKL()
     {
-        TODO();
+        m_sector_head = m_sector_seek_target;
+
+        push_to_interrupt_fifo(3);
+        push_to_response_fifo(m_status.raw);
+
+        set_status_mode(Status::Mode::Seek);
+
+        push_to_interrupt_fifo(2);
+        push_to_response_fifo(m_status.raw);
     }      
     
     /**
-     * 
+     * @brief Seek To SETLOC In Audio Mode
      */
     void CDROM::SEEKP()
     {
-        TODO();
+        m_sector_head = m_sector_seek_target;
+
+        push_to_interrupt_fifo(3);
+        push_to_response_fifo(m_status.raw);
+
+        set_status_mode(Status::Mode::Seek);
+
+        push_to_interrupt_fifo(2);
+        push_to_response_fifo(m_status.raw);
+
+        set_status_mode(Status::Mode::None);
     }      
     
     /**
