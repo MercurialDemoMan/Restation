@@ -209,6 +209,11 @@ namespace PSX
             return m_start == m_end;
         }
 
+        bool full() const
+        {
+            return ((m_start + 1) % Capacity) == m_end;
+        }
+
         void clear()
         {
             m_start = m_end = 0;
