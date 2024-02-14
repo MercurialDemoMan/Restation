@@ -36,7 +36,7 @@
 #include "DMAChannel.hpp"
 #include "Bus.hpp"
 #include "Macros.hpp"
-#include <fmt/core.h>
+#include "Utils.hpp"
 
 namespace PSX
 {
@@ -62,20 +62,17 @@ namespace PSX
 
     u32 DMAChannel::read(u32 address)
     {
-        switch(address)
+        if(in_range(address, 0u, 3u))
         {
-            case 0 ... 3:
-            {
-                return m_base_address.bytes[address - 0];
-            }
-            case 4 ... 7:
-            {
-                return m_block_control.bytes[address - 4];
-            }
-            case 8 ... 11:
-            {
-                return m_channel_control.bytes[address - 8];
-            }
+            return m_base_address.bytes[address - 0];
+        }
+        if(in_range(address, 4u, 7u))
+        {
+            return m_block_control.bytes[address - 4];
+        }
+        if(in_range(address, 8u, 11u))
+        {
+            return m_channel_control.bytes[address - 8];
         }
 
         UNREACHABLE();
@@ -83,29 +80,26 @@ namespace PSX
 
     void DMAChannel::write(u32 address, u32 value)
     {
-        switch(address)
+        if(in_range(address, 0u, 3u))
         {
-            case 0 ... 3:
-            {
-                m_base_address.bytes[address - 0] = value; return;
-            }
-            case 4 ... 7:
-            {
-                m_block_control.bytes[address - 4] = value; return;
-            }
-            case 8 ... 11:
-            {
-                m_channel_control.bytes[address - 8] = value;
+            m_base_address.bytes[address - 0] = value; return;
+        }
+        if(in_range(address, 4u, 7u))
+        {
+            m_block_control.bytes[address - 4] = value; return;
+        }
+        if(in_range(address, 8u, 11u))
+        {
+            m_channel_control.bytes[address - 8] = value;
 
-                mask_channel_control_register();
+            mask_channel_control_register();
 
-                if(m_channel_control.enabled)
-                {
-                    execute(1);
-                }
-
-                return;
+            if(m_channel_control.enabled)
+            {
+                execute(1);
             }
+
+            return;
         }
 
         UNREACHABLE();
