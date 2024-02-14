@@ -37,7 +37,6 @@
 #include "InterruptController.hpp"
 #include "Utils.hpp"
 #include <algorithm>
-#include <fmt/core.h>
 #include <glm/glm.hpp>
 
 extern "C"

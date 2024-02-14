@@ -163,8 +163,7 @@ namespace PSX
      * @brief check if value is between min and max inclusively
      */
     template<typename T>
-    std::enable_if_t<std::is_integral<T>::value, 
-    T> in_range(T value, T min, T max)
+    bool in_range(T value, T min, T max)
     {
         return !(value < min) && !(value > max);
     }

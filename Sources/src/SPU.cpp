@@ -34,7 +34,6 @@
 #include "SPU.hpp"
 #include "Bus.hpp"
 #include "Macros.hpp"
-#include <fmt/core.h>
 
 namespace PSX
 {

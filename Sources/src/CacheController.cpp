@@ -33,8 +33,6 @@
 
 #include "CacheController.hpp"
 
-#include <fmt/core.h>
-
 namespace PSX
 {
     u32 CacheController::read(u32 address)

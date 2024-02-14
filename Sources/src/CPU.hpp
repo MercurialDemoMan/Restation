@@ -40,7 +40,6 @@
 #include "Forward.hpp"
 #include "CPUInstruction.hpp"
 #include "ExceptionController.hpp"
-#include <fmt/core.h>
 
 namespace PSX
 {

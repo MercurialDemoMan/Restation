@@ -53,8 +53,6 @@
 #include <iterator>
 #include <cstring>
 
-#include <fmt/core.h>
-
 namespace PSX
 {
     /**

@@ -35,7 +35,7 @@
 #include "InterruptController.hpp"
 #include "GPUConstants.hpp"
 #include "Macros.hpp"
-#include <fmt/core.h>
+#include "Utils.hpp"
 #include <cmath>
 
 namespace PSX
@@ -154,29 +154,25 @@ namespace PSX
     template<ClockSource Source>
     u32 Timer<Source>::read(u32 address)
     {
-        switch(address)
+        if(in_range(address, 0u, 3u))
         {
-            case 0 ... 3:
+            return m_current_counter_value.read(address - 0);
+        }
+        if(in_range(address, 4u, 7u))
+        {
+            u32 current_mode = m_counter_mode.bytes[address - 4];
+            // bits 11,12 get reset after read
+            if(address == 5)
             {
-                return m_current_counter_value.read(address - 0);
+                m_counter_mode.reached_ffff_value   = false;
+                m_counter_mode.reached_target_value = false;
             }
+            return current_mode;
+        }
 
-            case 4 ... 7:
-            {
-                u32 current_mode = m_counter_mode.bytes[address - 4];
-                // bits 11,12 get reset after read
-                if(address == 5)
-                {
-                    m_counter_mode.reached_ffff_value   = false;
-                    m_counter_mode.reached_target_value = false;
-                }
-                return current_mode;
-            }
-
-            case 8 ... 11:
-            {
-                return m_counter_target_value.read(address - 8);
-            }
+        if(in_range(address, 8u, 11u))
+        {
+            return m_counter_target_value.read(address - 8);
         }
 
         UNREACHABLE();
@@ -185,78 +181,73 @@ namespace PSX
     template<ClockSource Source>
     void Timer<Source>::write(u32 address, u32 value)
     {
-        switch(address)
+        if(in_range(address, 0u, 3u))
         {
-            case 0 ... 3:
+            m_current_counter_value.write(address - 0, value); return;
+        }
+        if(in_range(address, 4u, 7u))
+        {
+            // reset counter state
+            m_meta_paused = false;
+            m_current_counter_value.raw() = 0;
+
+            m_counter_mode.bytes[address - 4] = value;
+
+            // update meta flags
+            if(address == 5)
             {
-                m_current_counter_value.write(address - 0, value); return;
-            }
+                m_meta_irq_occured = false;
+                m_counter_mode.interrupt_request = true;
 
-            case 4 ... 7:
-            {
-                // reset counter state
-                m_meta_paused = false;
-                m_current_counter_value.raw() = 0;
-
-                m_counter_mode.bytes[address - 4] = value;
-
-                // update meta flags
-                if(address == 5)
+                if(m_counter_mode.synchronization_enabled)
                 {
-                    m_meta_irq_occured = false;
-                    m_counter_mode.interrupt_request = true;
-
-                    if(m_counter_mode.synchronization_enabled)
+                    if constexpr (Source == ClockSource::DotClock)
                     {
-                        if constexpr (Source == ClockSource::DotClock)
+                        // pause until hblank and freerun
+                        if(m_counter_mode.synchronization_mode == 3)
                         {
-                            // pause until hblank and freerun
-                            if(m_counter_mode.synchronization_mode == 3)
-                            {
-                                m_meta_paused = true;
-                            }
-
-                            u32 mode = m_counter_mode.synchronization_enabled;
-
-                            LOG_DEBUG(4, fmt::format("timer0 set sync {}", mode));
+                            m_meta_paused = true;
                         }
 
-                        if constexpr (Source == ClockSource::HBlank)
+                        u32 mode = m_counter_mode.synchronization_enabled;
+
+                        LOG_DEBUG(4, fmt::format("timer0 set sync {}", mode));
+                    }
+
+                    if constexpr (Source == ClockSource::HBlank)
+                    {
+                        // pause until vblank and freerun
+                        if(m_counter_mode.synchronization_mode == 3)
                         {
-                            // pause until vblank and freerun
-                            if(m_counter_mode.synchronization_mode == 3)
-                            {
-                                m_meta_paused = true;
-                            }
-
-                            u32 mode = m_counter_mode.synchronization_enabled;
-
-                            LOG_DEBUG(4, fmt::format("timer1 set sync {}", mode));
+                            m_meta_paused = true;
                         }
 
-                        if constexpr (Source == ClockSource::SystemClock)
+                        u32 mode = m_counter_mode.synchronization_enabled;
+
+                        LOG_DEBUG(4, fmt::format("timer1 set sync {}", mode));
+                    }
+
+                    if constexpr (Source == ClockSource::SystemClock)
+                    {
+                        // stop counter
+                        if(m_counter_mode.synchronization_mode == 0 ||
+                            m_counter_mode.synchronization_mode == 3)
                         {
-                            // stop counter
-                            if(m_counter_mode.synchronization_mode == 0 ||
-                               m_counter_mode.synchronization_mode == 3)
-                            {
-                                m_meta_paused = true;
-                            }
-
-                            u32 mode = m_counter_mode.synchronization_enabled;
-
-                            LOG_DEBUG(4, fmt::format("timer2 set sync {}", mode));
+                            m_meta_paused = true;
                         }
+
+                        u32 mode = m_counter_mode.synchronization_enabled;
+
+                        LOG_DEBUG(4, fmt::format("timer2 set sync {}", mode));
                     }
                 }
-
-                return;
             }
 
-            case 8 ... 11:
-            {
-                m_counter_target_value.write(address - 8, value); return;
-            }
+            return;
+        }
+        if(in_range(address, 8u, 11u))
+        {
+            m_counter_target_value.write(address - 8, value); return;
         }
 
         UNREACHABLE();
