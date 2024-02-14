@@ -33,6 +33,7 @@ add_executable(emu
     src/CPU.cpp
     src/GPU.cpp
     src/SPU.cpp
+    src/GTE.cpp
 	src/main.cpp
     src/MDEC.cpp
     src/Disc.cpp
