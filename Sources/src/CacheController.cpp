@@ -39,12 +39,9 @@ namespace PSX
 {
     u32 CacheController::read(u32 address)
     {
-        switch(address)
+        if(in_range(address, 0u, 3u))
         {
-            case 0 ... 3:
-            {
-                return m_cache_config.read(address - 0);
-            }
+            return m_cache_config.read(address - 0);
         }
         
         UNREACHABLE();
@@ -52,12 +49,9 @@ namespace PSX
 
     void CacheController::write(u32 address, u32 value)
     {
-        switch(address)
+        if(in_range(address, 0u, 3u))
         {
-            case 0 ... 3:
-            {
-                m_cache_config.write(address - 0, value); return;
-            }
+            m_cache_config.write(address - 0, value); return;
         }
 
         UNREACHABLE();
