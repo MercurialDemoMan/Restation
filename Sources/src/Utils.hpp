@@ -144,7 +144,7 @@ namespace PSX
      */
     template<typename T, u32 Bits>
     std::enable_if_t<std::is_integral<T>::value && std::is_signed<T>::value,
-    T> extend_sign(const T& x)
+    T> extend_sign(T x)
     {
         struct
         {
@@ -158,6 +158,16 @@ namespace PSX
      * @brief convert binary-coded decimal to binary number
      */
     u8 bcd_to_binary(u8 bcd);
+
+    /**
+     * @brief check if value is between min and max inclusively
+     */
+    template<typename T>
+    std::enable_if_t<std::is_integral<T>::value, 
+    T> in_range(T value, T min, T max)
+    {
+        return !(value < min) && !(value > max);
+    }
 
     /**
      * @brief circular fixed sized queue 
