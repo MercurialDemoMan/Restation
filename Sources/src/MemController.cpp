@@ -37,35 +37,65 @@ namespace PSX
 {
     u32 MemController::read(u32 address)
     {
-        switch(address)
-        {
-            case  0 ...  3: return m_expansion1_base.read(address - 0);
-            case  4 ...  7: return m_expansion2_base.read(address - 4);
-            case  8 ... 11: return m_expansion1_size.read(address - 8);
-            case 12 ... 15: return m_expansion3_size.read(address - 12);
-            case 16 ... 19: return m_bios_size.read(address - 16);
-            case 20 ... 23: return m_spu_size.read(address - 20);
-            case 24 ... 27: return m_cdrom_size.read(address - 24);
-            case 28 ... 31: return m_expansion2_size.read(address - 28);
-            case 32 ... 35: return m_common_delay.read(address - 32);
-        }
+        if(in_range(address,  0u,  3u)) return m_expansion1_base.read(address - 0);
+        if(in_range(address,  4u,  7u)) return m_expansion2_base.read(address - 4);
+        if(in_range(address,  8u, 11u)) return m_expansion1_size.read(address - 8);
+        if(in_range(address, 12u, 15u)) return m_expansion3_size.read(address - 12);
+        if(in_range(address, 16u, 19u)) return m_bios_size.read(address - 16);
+        if(in_range(address, 20u, 23u)) return m_spu_size.read(address - 20);
+        if(in_range(address, 24u, 27u)) return m_cdrom_size.read(address - 24);
+        if(in_range(address, 28u, 31u)) return m_expansion2_size.read(address - 28);
+        if(in_range(address, 32u, 35u)) return m_common_delay.read(address - 32);
 
         UNREACHABLE();
     }
 
     void MemController::write(u32 address, u32 value)
     {
-        switch(address)
+        if(in_range(address,  0u,  3u))
         {
-            case  0 ...  3: m_expansion1_base.write(address - 0, static_cast<u8>(value)); return;
-            case  4 ...  7: m_expansion2_base.write(address - 4, static_cast<u8>(value)); return;
-            case  8 ... 11: m_expansion1_size.write(address - 8, static_cast<u8>(value)); return;
-            case 12 ... 15: m_expansion3_size.write(address - 12, static_cast<u8>(value)); return;
-            case 16 ... 19: m_bios_size.write(address - 16, static_cast<u8>(value)); return;
-            case 20 ... 23: m_spu_size.write(address - 20, static_cast<u8>(value)); return;
-            case 24 ... 27: m_cdrom_size.write(address - 24, static_cast<u8>(value)); return;
-            case 28 ... 31: m_expansion2_size.write(address - 28, static_cast<u8>(value)); return;
-            case 32 ... 35: m_common_delay.write(address - 32, static_cast<u8>(value)); return;
+            m_expansion1_base.write(address - 0, static_cast<u8>(value)); 
+            return;
+        }
+        if(in_range(address,  4u,  7u))
+        {
+            m_expansion2_base.write(address - 4, static_cast<u8>(value)); 
+            return;
+        }
+        if(in_range(address,  8u, 11u))
+        {
+            m_expansion1_size.write(address - 8, static_cast<u8>(value)); 
+            return;
+        }
+        if(in_range(address, 12u, 15u))
+        {
+            m_expansion3_size.write(address - 12, static_cast<u8>(value)); 
+            return;
+        }
+        if(in_range(address, 16u, 19u))
+        {
+            m_bios_size.write(address - 16, static_cast<u8>(value)); 
+            return;
+        }
+        if(in_range(address, 20u, 23u))
+        {
+            m_spu_size.write(address - 20, static_cast<u8>(value)); 
+            return;
+        }
+        if(in_range(address, 24u, 27u))
+        {
+            m_cdrom_size.write(address - 24, static_cast<u8>(value)); 
+            return;
+        }
+        if(in_range(address, 28u, 31u))
+        {
+            m_expansion2_size.write(address - 28, static_cast<u8>(value)); 
+            return;
+        }
+        if(in_range(address, 32u, 35u))
+        {
+            m_common_delay.write(address - 32, static_cast<u8>(value)); 
+            return;
         }
 
         UNREACHABLE();
