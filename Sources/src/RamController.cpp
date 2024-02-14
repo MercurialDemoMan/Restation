@@ -37,9 +37,9 @@ namespace PSX
 {
     u32 RamController::read(u32 address)
     {
-        switch(address)
+        if(in_range(address, 0u, 3u)) 
         {
-            case  0 ... 3: return m_ram_size.read(address);
+            return m_ram_size.read(address);
         }
 
         UNREACHABLE();
@@ -47,9 +47,9 @@ namespace PSX
 
     void RamController::write(u32 address, u32 value)
     {
-        switch(address)
+        if(in_range(address, 0u, 3u)) 
         {
-            case  0 ... 3: m_ram_size.write(address, static_cast<u8>(value)); return;
+            m_ram_size.write(address, static_cast<u8>(value)); return;
         }
 
         UNREACHABLE();
