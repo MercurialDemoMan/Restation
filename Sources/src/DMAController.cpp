@@ -43,7 +43,7 @@
 #include "DMAChannelPIO.hpp"
 #include "InterruptController.hpp"
 #include "Macros.hpp"
-#include <fmt/core.h>
+#include "Utils.hpp"
 #include <queue>
 
 namespace PSX
@@ -112,20 +112,18 @@ namespace PSX
     u32 DMAController::read(u32 address)
     {
         LOG_DEBUG(5, fmt::format("DMA read 0x{:08x}", address));
-        switch(address)
+
+        if(in_range(address, 0u, 111u))
         {
-            case 0 ... 111:
-            {
-                return m_channels[address / 16]->read(address & 0b1111);
-            }
-            case 112 ... 115:
-            {
-                return m_control.bytes[address - 112];
-            }
-            case 116 ... 119:
-            {
-                return m_interrupt.bytes[address - 116];
-            }
+            return m_channels[address / 16]->read(address & 0b1111);
+        }
+        if(in_range(address, 112u, 115u))
+        {
+            return m_control.bytes[address - 112];
+        }
+        if(in_range(address, 116u, 119u))
+        {
+            return m_interrupt.bytes[address - 116];
         }
 
         UNREACHABLE();
@@ -134,32 +132,30 @@ namespace PSX
     void DMAController::write(u32 address, u32 value)
     {
         LOG_DEBUG(5, fmt::format("DMA write 0x{:08x}, 0x{:08x}", address, value));
-        switch(address)
+
+        if(in_range(address, 0u, 111u))
         {
-            case 0 ... 111:
-            {
-                m_channels[address / 16]->write(address & 0b1111, value); return;
-            }
-            case 112 ... 115:
-            {
-                m_control.bytes[address - 112] = value; return;
-            }
-            case 116 ... 119:
-            {
-                u32 interrupt_address = address - 116;
+            m_channels[address / 16]->write(address & 0b1111, value); return;
+        }
+        if(in_range(address, 112u, 115u))
+        {
+            m_control.bytes[address - 112] = value; return;
+        }
+        if(in_range(address, 116u, 119u))
+        {
+            u32 interrupt_address = address - 116;
 
-                if(interrupt_address <= 2) 
-                    m_interrupt.bytes[interrupt_address] = value; 
-                
-                if(interrupt_address == 3)
-                    m_interrupt.bytes[interrupt_address] &= ~value;
+            if(interrupt_address <= 2) 
+                m_interrupt.bytes[interrupt_address] = value; 
+            
+            if(interrupt_address == 3)
+                m_interrupt.bytes[interrupt_address] &= ~value;
 
-                u32 dma_enabled   = (m_interrupt.raw & 0x007F'0000) >> 16;
-                u32 irq_requested = (m_interrupt.raw & 0x7F00'0000) >> 24;
-                m_interrupt.irq_master_enable = m_interrupt.force_irq || (m_interrupt.channel_master_enable && (dma_enabled & irq_requested));
-                
-                return;
-            }
+            u32 dma_enabled   = (m_interrupt.raw & 0x007F'0000) >> 16;
+            u32 irq_requested = (m_interrupt.raw & 0x7F00'0000) >> 24;
+            m_interrupt.irq_master_enable = m_interrupt.force_irq || (m_interrupt.channel_master_enable && (dma_enabled & irq_requested));
+            
+            return;
         }
 
         UNREACHABLE();
