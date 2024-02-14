@@ -33,22 +33,19 @@
 
 #include "InterruptController.hpp"
 #include "ExceptionController.hpp"
-#include <fmt/core.h>
+#include "Utils.hpp"
 
 namespace PSX
 {
     u32 InterruptController::read(u32 address)
     {
-        switch(address)
+        if(in_range(address, 0u, 3u))
         {
-            case 0 ... 3:
-            {
-                return m_status.read(address - 0);
-            }
-            case 4 ... 7:
-            {
-                return m_mask.read(address - 4);
-            }
+            return m_status.read(address - 0);
+        }
+        if(in_range(address, 4u, 7u))
+        {
+            return m_mask.read(address - 4);
         }
 
         UNREACHABLE();
@@ -56,33 +53,27 @@ namespace PSX
 
     void InterruptController::write(u32 address, u32 value)
     {
-        switch(address)
+        if(in_range(address, 0u, 1u))
         {
-            case 0 ... 1:
-            {
-                m_status.write(address - 0, m_status.read(address - 0) & value);
-                m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 4 : 0);
-                return;
-            }
-
-            case 2 ... 3:
-            {
-                m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 4 : 0);
-                return;
-            }
-
-            case 4 ... 5:
-            {
-                m_mask.write(address - 4, value);
-                m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 4 : 0);
-                return;
-            }
-
-            case 6 ... 7:
-            {
-                m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 4 : 0);
-                return;
-            }
+            m_status.write(address - 0, m_status.read(address - 0) & value);
+            m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 4 : 0);
+            return;
+        }
+        if(in_range(address, 2u, 3u))
+        {
+            m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 4 : 0);
+            return;
+        }
+        if(in_range(address, 4u, 5u))
+        {
+            m_mask.write(address - 4, value);
+            m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 4 : 0);
+            return;
+        }
+        if(in_range(address, 6u, 7u))
+        {
+            m_exception_controller->set_interrupt_pending(is_interrupt_pending() ? 4 : 0);
+            return;
         }
 
         UNREACHABLE();
