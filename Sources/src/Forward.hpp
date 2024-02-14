@@ -39,6 +39,7 @@ namespace PSX
     class CPU;
     class GPU;
     class SPU;
+    class GTE;
     class MDEC;
     class CDROM;
     template<ClockSource> class Timer;

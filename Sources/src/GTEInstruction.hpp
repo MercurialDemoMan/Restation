@@ -43,6 +43,8 @@ namespace PSX
      */
     union GTEInstruction
     {
+        static constexpr const u32 CommandSignature = 0b0100101;
+
         GTEInstruction() :
             raw(0)
         {
@@ -65,7 +67,8 @@ namespace PSX
             u32 mul_vector:     2; // 0 - V0, 1 - V1, 2 - V2, 3 - IR
             u32 mul_matrix:     2; // 0 - rotation, 1 - light, 2 - color, 3 - reserved
             u32 shift_fraction: 1; // shift fraction in IR registers
-            u32: 12;
+            u32 fake_opcode:    5;
+            u32 signature:      7;
         };
         
 

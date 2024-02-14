@@ -34,6 +34,7 @@
 #include "CPU.hpp"
 #include "Bus.hpp"
 #include "Utils.hpp"
+#include "GTEInstruction.hpp"
 #include "CPUDisassembler.hpp"
 
 #include <fmt/core.h>
@@ -129,6 +130,9 @@ namespace PSX
              ins = { 0, CPUInstruction(0x0000'0001) }; // invalid instruction
         
         m_meta_cycles = 0;
+
+        m_exception_controller->reset();
+        m_gte->reset();
     }
 
     /**
@@ -137,6 +141,7 @@ namespace PSX
     void CPU::initialize_coprocessors()
     {
         m_exception_controller = std::make_shared<ExceptionController>();
+        m_gte                  = std::make_shared<GTE>();
     }
 
     /**
@@ -587,8 +592,34 @@ namespace PSX
      */
     void CPU::COP2(const CPUInstruction& ins)
     {
-        MARK_UNUSED(ins);
-        TODO();
+        auto gte_instruction = GTEInstruction(ins.raw);
+
+        if(gte_instruction.signature == GTEInstruction::CommandSignature)
+        {
+            m_gte->execute(gte_instruction); return;
+        }
+
+        switch(ins.register_source)
+        {
+            case 0:
+            {
+                load_delay_slot(ins.register_target, m_gte->read(ins.register_destination)); return;
+            } break;
+            case 2:
+            {
+                load_delay_slot(ins.register_target, m_gte->read(ins.register_destination + 32)); return;
+            } break;
+            case 4:
+            {
+                m_gte->write(ins.register_destination, m_register_field[ins.register_target]); return;
+            } break;
+            case 6:
+            {
+                m_gte->write(ins.register_destination + 32, m_register_field[ins.register_target]); return;
+            } break;
+        }
+
+        UNREACHABLE();
     }
 
     /**

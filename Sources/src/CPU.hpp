@@ -40,6 +40,7 @@
 #include "Forward.hpp"
 #include "CPUInstruction.hpp"
 #include "ExceptionController.hpp"
+#include "GTE.hpp"
 
 namespace PSX
 {
@@ -314,6 +315,7 @@ namespace PSX
          */
         std::shared_ptr<Bus> m_bus;                                  /// connection to the bus
         std::shared_ptr<ExceptionController> m_exception_controller; /// Coprocessor0
+        std::shared_ptr<GTE> m_gte;                                  /// Coprocessor2
 
         /**
          * cpu state 

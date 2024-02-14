@@ -56,7 +56,7 @@ namespace PSX
 
     void GTE::reset()
     {
-        TODO();
+        
     }
 
     /**
