@@ -45,14 +45,15 @@ namespace PSX
     u32 Peripherals::read(u32 address)
     {
         MARK_UNUSED(address);
-        TODO();
+        LOG_WARNING(fmt::format("read from Peripherals detected 0x{:08x}", address));
+        return 0xFF;
     }
 
     void Peripherals::write(u32 address, u32 value)
     {
         MARK_UNUSED(address);
         MARK_UNUSED(value);
-        TODO();
+        LOG_WARNING(fmt::format("write to Peripherals detected 0x{:08x} = 0x{:08x}", address, value));
     }
 
     void Peripherals::reset()
