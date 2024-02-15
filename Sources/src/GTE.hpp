@@ -111,6 +111,39 @@ namespace PSX
         };
 
         /**
+         * @brief status register for indicating calculation errors 
+         */
+        union ErrorFlags
+        {
+            struct
+            {
+                u32:                      12;
+                u32 ir0_saturated:        1;
+                u32 sy2_saturated:        1;
+                u32 sx2_saturated:        1;
+                u32 mac0_overflow:        1;
+                u32 mac0_underflow:       1;
+                u32 divide_overflow:      1;
+                u32 sz3_or_otz_saturated: 1;
+                u32 color_b_saturated:    1;
+                u32 color_g_saturated:    1;
+                u32 color_r_saturated:    1;
+                u32 ir3_saturated:        1;
+                u32 ir2_saturated:        1;
+                u32 ir1_saturated:        1;
+                u32 mac3_overflow:        1;
+                u32 mac2_overflow:        1;
+                u32 mac1_overflow:        1;
+                u32 mac3_underflow:       1;
+                u32 mac2_underflow:       1;
+                u32 mac1_underflow:       1;
+                u32 error:                1;
+            };
+
+            u32 raw;
+        };
+
+        /**
          * data registers 
          */
         GTEVector<s16> m_vxyz0;   /// General Purpose Vector 0
@@ -144,7 +177,7 @@ namespace PSX
         Register<s16>  m_zsf3;                          /// v
                                                         /// Average Z Scale Factors
         Register<s16>  m_zsf4;                          /// ^
-        Register<u32>  m_flag;                          /// Calculation Error Container
+        ErrorFlags     m_error_flags;                   /// Calculation Error Container
     };
 }
 

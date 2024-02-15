@@ -32,6 +32,8 @@
  */
 
 #include "GTE.hpp"
+#include "Utils.hpp"
+#include <bit>
 
 namespace PSX
 {
@@ -192,13 +194,11 @@ namespace PSX
             {
                 TODO();
             }
-            case 29:
-            {
-                TODO();
-            }
+            case 29: {} break;
             case 30:
             {
-                TODO();
+                m_lzcs.raw() = value;
+                m_lzcr.raw() = std::countl_zero(value);
             }
             case 31: {} break;
             case 32: 
@@ -330,7 +330,7 @@ namespace PSX
         m_depth_queing_parameter_offset.raw() = 0;
         m_zsf3.raw() = 0;
         m_zsf4.raw() = 0;
-        m_flag.raw() = 0;
+        m_error_flags.raw = 0;
     }
 
     /**
@@ -338,6 +338,7 @@ namespace PSX
      */
     void GTE::execute(const GTEInstruction& ins)
     {
+        m_error_flags.raw = 0;
         TODO();
 
         (this->*m_handlers[ins.opcode])(ins);
@@ -360,11 +361,18 @@ namespace PSX
     } 
 
     /**
-     * @brief 
+     * @brief normal clipping
      */
     void GTE::NCLIP(const GTEInstruction&)
     {
-        TODO();
+        auto result = m_sxyz[0].x * m_sxyz[1].y + m_sxyz[1].x * m_sxyz[2].y +
+                      m_sxyz[2].x * m_sxyz[0].y - m_sxyz[0].x * m_sxyz[2].y -
+                      m_sxyz[1].x * m_sxyz[0].y - m_sxyz[2].x * m_sxyz[1].y;
+
+        m_error_flags.mac0_overflow = check_overflow_bits<32>(result);
+        m_error_flags.mac0_underflow = check_underflow_bits<32>(result);
+        
+        m_mac[0] = result;
     }
 
     /**

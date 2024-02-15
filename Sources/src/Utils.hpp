@@ -138,6 +138,30 @@ namespace PSX
     }
 
     /**
+     * @brief check whether a 64bit positive value fits within a certain amount of Bits
+     * 
+     * @returns true if value is too big for the Bits storage, false otherwise
+     */
+    template<u32 Bits>
+    std::enable_if_t<Bits <= 64,
+    bool> check_overflow_bits(s64 value)
+    {
+        return value >= (1ULL << (Bits - 1));
+    }
+
+    /**
+     * @brief check whether a 64bit negative value fits within a certain amount of Bits
+     * 
+     * @returns true if value is too big for the Bits storage, false otherwise
+     */
+    template<u32 Bits>
+    std::enable_if_t<Bits <= 64,
+    bool> check_underflow_bits(s64 value)
+    {
+        return value < -(1ULL << (Bits - 1));
+    }
+
+    /**
      * @brief extend sign of a arbitrary bit-length signed integer
      * 
      * http://www.graphics.stanford.edu/~seander/bithacks.html#FixedSignExtend
