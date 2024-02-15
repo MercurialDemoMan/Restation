@@ -38,7 +38,6 @@ namespace PSX
     void GTE::execute(u32 num_steps)
     {
         MARK_UNUSED(num_steps);
-        TODO();
     }
 
     u32 GTE::read(u32 address)
@@ -56,7 +55,40 @@ namespace PSX
 
     void GTE::reset()
     {
-        
+        m_vxyz0 = {0};
+        m_vxyz1 = {0};
+        m_vxyz2 = {0};
+        m_rgbc.raw() = 0;
+        m_otz.raw() = 0;
+        m_ir[0] = 0;
+        m_ir[1] = 0;
+        m_ir[2] = 0;
+        m_ir[3] = 0;
+        m_sxyz = {0};
+        m_crgb[0].raw() = 0;
+        m_crgb[1].raw() = 0;
+        m_crgb[2].raw() = 0;
+        m_res1.raw() = 0;
+        m_mac[0].raw() = 0;
+        m_mac[1].raw() = 0;
+        m_mac[2].raw() = 0;
+        m_iorgb.raw() = 0;
+        m_lzcs.raw() = 0;
+        m_lzcr.raw() = 0;
+
+        m_rotation_matrix = {0};
+        m_translation_vector = {0};
+        m_light_source_matrix = {0};
+        m_background_color = {0};
+        m_light_color_matrix = {0};
+        m_far_color = {0};
+        m_screen_offset.raw() = 0;
+        m_projection_plane_distance.raw() = 0;
+        m_depth_queing_parameter_coeff.raw() = 0;
+        m_depth_queing_parameter_offset.raw() = 0;
+        m_zsf3.raw() = 0;
+        m_zsf4.raw() = 0;
+        m_flag.raw() = 0;
     }
 
     /**

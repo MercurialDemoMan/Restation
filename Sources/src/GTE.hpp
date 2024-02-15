@@ -113,36 +113,38 @@ namespace PSX
         /**
          * data registers 
          */
-        GTEVector<s16> m_vxyz0;
-        GTEVector<s16> m_vxyz1;
-        GTEVector<s16> m_vxyz2;
-        Register<u32>  m_rgbc;
-        Register<u16>  m_otz;
-        Register<s16>  m_ir[4];
-        GTEVector<s16> m_sxyz; // TODO: z is unsigned
-        Register<u32>  m_crgb[3];
-        Register<u32>  m_res1;
-        Register<s32>  m_mac[4];
-        Register<u16>  m_iorgb;
-        Register<s32>  m_lzcs;
-        Register<s32>  m_lzcr;
+        GTEVector<s16> m_vxyz0;   /// General Purpose Vector 0
+        GTEVector<s16> m_vxyz1;   /// General Purpose Vector 1
+        GTEVector<s16> m_vxyz2;   /// General Purpose Vector 2
+        Register<u32>  m_rgbc;    /// Color/Code Value
+        Register<u16>  m_otz;     /// Average Z Value (For Ordering Table)
+        Register<s16>  m_ir[4];   /// 16bit Accumulator For Interpolation And Vector
+        GTEVector<s16> m_sxyz;    /// Screen XY-Coordinate 3-slot Queue TODO: z is unsigned
+        Register<u32>  m_crgb[3]; /// Color CRGM-Code/Color 3-slot Queue
+        Register<u32>  m_res1;    /// Prohibited???
+        Register<s32>  m_mac[4];  /// Math Accumulators
+        Register<u16>  m_iorgb;   /// Convert RGB Colors (48bit vs 15bit)
+        Register<s32>  m_lzcs;    ///  v
+                                  ///  Count Leading-Zeroes/Ones
+        Register<s32>  m_lzcr;    ///  ^
 
         /**
          * control registers 
          */
-        GTEMatrix<s16> m_rotation_matrix;
-        GTEVector<s32> m_translation_vector;
-        GTEMatrix<s16> m_light_source_matrix;
-        GTEVector<s32> m_background_color;
-        GTEMatrix<s16> m_light_color_matrix;
-        GTEVector<s32> m_far_color;
-        Register<s32>  m_screen_offset;
-        Register<u16>  m_projection_plane_distance;
-        Register<s16>  m_depth_queing_parameter_coeff;
-        Register<s32>  m_depth_queing_parameter_offset;
-        Register<s16>  m_zsf3;
-        Register<s16>  m_zsf4;
-        Register<u32>  m_flag;
+        GTEMatrix<s16> m_rotation_matrix;               /// Rotation Matrix     (3x3)
+        GTEVector<s32> m_translation_vector;            /// Translation Vector  (X,Y,Z)
+        GTEMatrix<s16> m_light_source_matrix;           /// Light Source Matrix (3x3)
+        GTEVector<s32> m_background_color;              /// Background Color    (R,G,B)
+        GTEMatrix<s16> m_light_color_matrix;            /// Light Color Matrix  (3x3)
+        GTEVector<s32> m_far_color;                     /// Far Color           (R,G,B)
+        Register<s32>  m_screen_offset;                 /// Screen Offset       (X,Y)
+        Register<u16>  m_projection_plane_distance;     /// Projection Plane Distance
+        Register<s16>  m_depth_queing_parameter_coeff;  /// Depth Queing Parameter Coefficient
+        Register<s32>  m_depth_queing_parameter_offset; /// Depth Queing Parameter offset
+        Register<s16>  m_zsf3;                          /// v
+                                                        /// Average Z Scale Factors
+        Register<s16>  m_zsf4;                          /// ^
+        Register<u32>  m_flag;                          /// Calculation Error Container
     };
 }
 
