@@ -34,6 +34,7 @@
 #include "GTE.hpp"
 #include "Utils.hpp"
 #include <bit>
+#include <algorithm>
 
 namespace PSX
 {
@@ -339,9 +340,201 @@ namespace PSX
     void GTE::execute(const GTEInstruction& ins)
     {
         m_error_flags.raw = 0;
-        TODO();
+        m_current_instruction = ins;
 
         (this->*m_handlers[ins.opcode])(ins);
+    }
+
+    /**
+     * @brief multiply 3d vector a by 3d vector b
+     */
+    void GTE::multiply(const GTEVector<s16>& a, const GTEVector<s16>& b)
+    {
+        check_and_assign_result(a.x * b.x, 1, !m_current_instruction.lm);
+        check_and_assign_result(a.y * b.y, 2, !m_current_instruction.lm);
+        check_and_assign_result(a.z * b.z, 3, !m_current_instruction.lm);
+    }
+
+    /**
+     * @brief multiply 3x3 matrix a by 3d vector b
+     */
+    void GTE::multiply(const GTEMatrix<s16>& a, const GTEVector<s16>& b)
+    {
+        GTEVector<s64> result = GTEVector<s64> { 0 };
+
+        result.x = 
+        check_and_extend_from_mac
+        (
+            check_and_extend_from_mac
+            (
+                check_and_extend_from_mac
+                (
+                    a.at(0, 0) * b.x, 1
+                ) + 
+                a.at(1, 0) * b.y, 1
+            ) + 
+            a.at(2, 0) * b.z, 1
+        );
+
+        result.y =
+        check_and_extend_from_mac
+        (
+            check_and_extend_from_mac
+            (
+                check_and_extend_from_mac
+                (
+                    a.at(0, 1) * b.x, 2
+                ) + 
+                a.at(1, 1) * b.y, 2
+            ) + 
+            a.at(2, 1) * b.z, 2
+        );
+
+        result.z =
+        check_and_extend_from_mac
+        (
+            check_and_extend_from_mac
+            (
+                check_and_extend_from_mac
+                (
+                    a.at(0, 2) * b.x, 3
+                ) + 
+                a.at(1, 2) * b.y, 3
+            ) + 
+            a.at(2, 2) * b.z, 3
+        );
+
+        check_and_assign_result(result.x, 1, !m_current_instruction.lm);
+        check_and_assign_result(result.y, 2, !m_current_instruction.lm);
+        check_and_assign_result(result.z, 3, !m_current_instruction.lm);
+    }
+
+    /**
+     * @brief check overflow/underflow of a value and assign it to mac and ir registers
+     */
+    void GTE::check_and_assign_result(s64 value, u32 accumulator_index, bool allow_negative)
+    {
+        check_and_assign_to_ir
+        (
+            check_and_assign_to_mac(value, accumulator_index), 
+            accumulator_index,
+            allow_negative
+        );
+    }
+
+    /**
+     * @brief check overflow/underflow of a value and assign it to mac register
+     */
+    s64 GTE::check_and_assign_to_mac(s64 value, u32 accumulator_index)
+    {
+        // check overflow/underflow
+        switch(accumulator_index)
+        {
+            case 0:
+            {
+                m_error_flags.mac0_overflow = check_overflow_bits<32>(value);
+                m_error_flags.mac0_underflow = check_underflow_bits<32>(value);
+            } break;
+            case 1:
+            {
+                m_error_flags.mac1_overflow = check_overflow_bits<44>(value);
+                m_error_flags.mac1_underflow = check_underflow_bits<44>(value);
+            } break;
+            case 2:
+            {
+                m_error_flags.mac2_overflow = check_overflow_bits<44>(value);
+                m_error_flags.mac2_underflow = check_underflow_bits<44>(value);
+            } break;
+            case 3:
+            {
+                m_error_flags.mac3_overflow = check_overflow_bits<44>(value);
+                m_error_flags.mac3_underflow = check_underflow_bits<44>(value);
+            } break;
+            default:
+            {
+                UNREACHABLE();
+            } break;
+        }
+
+        // get rid of 12bit fraction in mac1, mac2 and mac3
+        if(accumulator_index != 0 && m_current_instruction.shift_fraction)
+        {
+            value >>= 12;
+        }
+
+        // assign to mac
+        m_mac[accumulator_index] = value;
+        return value;
+    }
+
+    /**
+     * @brief check overflow/underflow of a value and assign it to mac register
+     */
+    s64 GTE::check_and_extend_from_mac(s64 value, u32 accumulator_index)
+    {
+        switch(accumulator_index)
+        {
+            case 0:
+            {
+                m_error_flags.mac0_overflow = check_overflow_bits<32>(value);
+                m_error_flags.mac0_underflow = check_underflow_bits<32>(value);
+                return extend_sign<s64, 32>(value);
+            } break;
+            case 1:
+            {
+                m_error_flags.mac1_overflow = check_overflow_bits<44>(value);
+                m_error_flags.mac1_underflow = check_underflow_bits<44>(value);
+                return extend_sign<s64, 44>(value);
+            } break;
+            case 2:
+            {
+                m_error_flags.mac2_overflow = check_overflow_bits<44>(value);
+                m_error_flags.mac2_underflow = check_underflow_bits<44>(value);
+                return extend_sign<s64, 44>(value);
+            } break;
+            case 3:
+            {
+                m_error_flags.mac3_overflow = check_overflow_bits<44>(value);
+                m_error_flags.mac3_underflow = check_underflow_bits<44>(value);
+                return extend_sign<s64, 44>(value);
+            } break;
+            default:
+            {
+                UNREACHABLE();
+            } break;
+        }
+
+        return 0;
+    }
+
+    /**
+     * @brief check overflow/underflow of a value and assign it to vector ir register
+     */
+    void GTE::check_and_assign_to_ir(s64 value, u32 accumulator_index, bool allow_negative)
+    {
+        s64 clamped_value = std::clamp(value, s64(allow_negative ? -0x8000 : 0), s64(0x7FFF));
+
+        switch(accumulator_index)
+        {
+            case 1:
+            {
+                m_error_flags.ir1_saturated = value != clamped_value;
+            } break;
+            case 2:
+            {
+                m_error_flags.ir2_saturated = value != clamped_value;
+            } break;
+            case 3:
+            {
+                m_error_flags.ir3_saturated = value != clamped_value;
+            } break;
+            default:
+            {
+                UNREACHABLE();
+            } break;
+        }
+
+        m_ir[accumulator_index] = clamped_value;
     }
 
     /**
@@ -369,10 +562,7 @@ namespace PSX
                       m_sxyz[2].x * m_sxyz[0].y - m_sxyz[0].x * m_sxyz[2].y -
                       m_sxyz[1].x * m_sxyz[0].y - m_sxyz[2].x * m_sxyz[1].y;
 
-        m_error_flags.mac0_overflow = check_overflow_bits<32>(result);
-        m_error_flags.mac0_underflow = check_underflow_bits<32>(result);
-        
-        m_mac[0] = result;
+        MARK_UNUSED(check_and_assign_to_mac(result, 0));
     }
 
     /**
@@ -380,7 +570,9 @@ namespace PSX
      */
     void GTE::OP(const GTEInstruction&)
     {
-        TODO();
+        check_and_assign_result(m_rotation_matrix.at(1, 1) * m_ir[3].raw() - m_rotation_matrix.at(2, 2) * m_ir[2].raw(), 1, !m_current_instruction.lm);
+        check_and_assign_result(m_rotation_matrix.at(1, 1) * m_ir[3].raw() - m_rotation_matrix.at(2, 2) * m_ir[2].raw(), 1, !m_current_instruction.lm);
+        check_and_assign_result(m_rotation_matrix.at(1, 1) * m_ir[3].raw() - m_rotation_matrix.at(2, 2) * m_ir[2].raw(), 1, !m_current_instruction.lm);
     }  
 
     /**

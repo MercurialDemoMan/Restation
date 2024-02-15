@@ -65,6 +65,11 @@ namespace PSX
             return data[y * 3 + x];
         }
 
+        const T& at(u32 x, u32 y) const
+        {
+            return data[y * 3 + x];
+        }
+
         void reset()
         {
             for(u32 i = 0; i < 3 * 3; i++)

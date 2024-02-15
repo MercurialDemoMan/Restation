@@ -68,6 +68,36 @@ namespace PSX
     private:
 
         /**
+         * @brief multiply 3d vector by 3d vector
+         */
+        void multiply(const GTEVector<s16>&, const GTEVector<s16>&);
+
+        /**
+         * @brief multiply 3x3 matrix by 3d vector
+         */
+        void multiply(const GTEMatrix<s16>&, const GTEVector<s16>&);
+
+        /**
+         * @brief check overflow/underflow of a value and assign it to mac and ir registers
+         */
+        void check_and_assign_result(s64 value, u32 accumulator_index, bool allow_negative);
+
+        /**
+         * @brief check overflow/underflow of a value and assign it to mac register
+         */
+        s64 check_and_assign_to_mac(s64 value, u32 accumulator_index);
+
+        /**
+         * @brief check overflow/underflow of a mac value and extend the sign to 64bit value
+         */
+        s64 check_and_extend_from_mac(s64 value, u32 accumulator_index);
+
+        /**
+         * @brief check overflow/underflow of a value and assign it to ir register
+         */
+        void check_and_assign_to_ir(s64 value, u32 accumulator_index, bool allow_negative);
+
+        /**
          * instructions 
          */
         void UNK(const GTEInstruction&);   /// unknown opcode
@@ -178,6 +208,11 @@ namespace PSX
                                                         /// Average Z Scale Factors
         Register<s16>  m_zsf4;                          /// ^
         ErrorFlags     m_error_flags;                   /// Calculation Error Container
+
+        /**
+         * meta state 
+         */
+        GTEInstruction m_current_instruction;
     };
 }
 
