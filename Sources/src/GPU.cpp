@@ -1401,7 +1401,7 @@ namespace PSX
      */
     s32 GPU::mask_texture_u(s32 u) const
     {
-        return ((u % 256) & ~(m_texture_window_setting.texture_window_mask_x * 8)) | 
+        return ((u % 256u) & ~(m_texture_window_setting.texture_window_mask_x * 8)) | 
                 ((m_texture_window_setting.texture_window_offset_x & 
                   m_texture_window_setting.texture_window_mask_x) * 8);
     }
@@ -1411,7 +1411,7 @@ namespace PSX
      */
     s32 GPU::mask_texture_v(s32 v) const
     {
-        return ((v % 256) & ~(m_texture_window_setting.texture_window_mask_y * 8)) | 
+        return ((v % 256u) & ~(m_texture_window_setting.texture_window_mask_y * 8)) | 
                ((m_texture_window_setting.texture_window_offset_y & 
                  m_texture_window_setting.texture_window_mask_y) * 8);
     }
@@ -1539,8 +1539,14 @@ namespace PSX
      */
     u16 GPU::vram_read(u32 x, u32 y) const
     {
-        if(x > VRamWidth - 1) UNREACHABLE();
-        if(y > VRamHeight - 1) UNREACHABLE();
+        if(x > VRamWidth - 1) 
+        {
+            UNREACHABLE();
+        }
+        if(y > VRamHeight - 1)
+        {
+            UNREACHABLE();
+        }
         return m_vram[y * VRamWidth + x];
     }
 
