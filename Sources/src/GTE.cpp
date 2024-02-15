@@ -538,6 +538,31 @@ namespace PSX
     }
 
     /**
+     * @brief push new color to the crgb queue 
+     */
+    void GTE::push_to_crgb_fifo(const GTEVector<u32>& color)
+    {
+        // move values in queue
+        m_crgb[0].raw() = m_crgb[1].raw();
+        m_crgb[1].raw() = m_crgb[2].raw();
+
+        u32 red   = std::clamp(color.r, 0x00u, 0xFFu);
+        u32 green = std::clamp(color.g, 0x00u, 0xFFu);
+        u32 blue  = std::clamp(color.b, 0x00u, 0xFFu);
+
+        // update error flags
+        m_error_flags.color_r_saturated = color.r != red;
+        m_error_flags.color_g_saturated = color.g != green;
+        m_error_flags.color_b_saturated = color.b != blue;
+
+        // update new value
+        m_crgb[2].write(0, red);
+        m_crgb[2].write(1, green);
+        m_crgb[2].write(2, blue);
+        m_crgb[2].write(3, m_rgbc.read(3));
+    }
+
+    /**
      * @brief 
      */
     void GTE::UNK(const GTEInstruction&)
@@ -710,11 +735,32 @@ namespace PSX
     }  
 
     /**
-     * @brief 
+     * @brief general purpose interpolation
      */
     void GTE::GPF(const GTEInstruction&)
     {
-        TODO();
+        multiply
+        (
+            GTEVector<s16>
+            {
+                .x = m_ir[0].raw(),
+                .y = m_ir[0].raw(),
+                .z = m_ir[0].raw()
+            },
+            GTEVector<s16>
+            {
+                .x = m_ir[1].raw(),
+                .y = m_ir[2].raw(),
+                .z = m_ir[3].raw()
+            }
+        );
+
+        push_to_crgb_fifo(GTEVector<u32>
+        {
+            .r = static_cast<u32>(m_mac[1].raw()) >> 4,
+            .g = static_cast<u32>(m_mac[2].raw()) >> 4,
+            .b = static_cast<u32>(m_mac[3].raw()) >> 4
+        });
     }   
 
     /**
