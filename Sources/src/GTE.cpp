@@ -566,13 +566,13 @@ namespace PSX
     }
 
     /**
-     * @brief 
+     * @brief outer product of 2 vectors
      */
     void GTE::OP(const GTEInstruction&)
     {
         check_and_assign_result(m_rotation_matrix.at(1, 1) * m_ir[3].raw() - m_rotation_matrix.at(2, 2) * m_ir[2].raw(), 1, !m_current_instruction.lm);
-        check_and_assign_result(m_rotation_matrix.at(1, 1) * m_ir[3].raw() - m_rotation_matrix.at(2, 2) * m_ir[2].raw(), 1, !m_current_instruction.lm);
-        check_and_assign_result(m_rotation_matrix.at(1, 1) * m_ir[3].raw() - m_rotation_matrix.at(2, 2) * m_ir[2].raw(), 1, !m_current_instruction.lm);
+        check_and_assign_result(m_rotation_matrix.at(2, 2) * m_ir[1].raw() - m_rotation_matrix.at(0, 0) * m_ir[3].raw(), 2, !m_current_instruction.lm);
+        check_and_assign_result(m_rotation_matrix.at(0, 0) * m_ir[2].raw() - m_rotation_matrix.at(1, 1) * m_ir[1].raw(), 3, !m_current_instruction.lm);
     }  
 
     /**
