@@ -656,11 +656,17 @@ namespace PSX
     }   
 
     /**
-     * @brief 
+     * @brief square of vector IR
      */
     void GTE::SQR(const GTEInstruction&)
     {
-        TODO();
+        auto ir_vector = GTEVector<s16>
+        {
+            .x = m_ir[1].raw(),
+            .y = m_ir[2].raw(),
+            .z = m_ir[3].raw()
+        };
+        multiply(ir_vector, ir_vector);
     }   
 
     /**
