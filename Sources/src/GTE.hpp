@@ -119,7 +119,7 @@ namespace PSX
         Register<u32>  m_rgbc;    /// Color/Code Value
         Register<u16>  m_otz;     /// Average Z Value (For Ordering Table)
         Register<s16>  m_ir[4];   /// 16bit Accumulator For Interpolation And Vector
-        GTEVector<s16> m_sxyz;    /// Screen XY-Coordinate 3-slot Queue TODO: z is unsigned
+        GTEVector<s16> m_sxyz[4]; /// Screen XY-Coordinate 3-slot Queue and Z-Coordinate 4-slot Queue TODO: z is unsigned
         Register<u32>  m_crgb[3]; /// Color CRGM-Code/Color 3-slot Queue
         Register<u32>  m_res1;    /// Prohibited???
         Register<s32>  m_mac[4];  /// Math Accumulators
@@ -137,7 +137,7 @@ namespace PSX
         GTEVector<s32> m_background_color;              /// Background Color    (R,G,B)
         GTEMatrix<s16> m_light_color_matrix;            /// Light Color Matrix  (3x3)
         GTEVector<s32> m_far_color;                     /// Far Color           (R,G,B)
-        Register<s32>  m_screen_offset;                 /// Screen Offset       (X,Y)
+        Register<s32>  m_screen_offset[2];              /// Screen Offset       (X,Y)
         Register<u16>  m_projection_plane_distance;     /// Projection Plane Distance
         Register<s16>  m_depth_queing_parameter_coeff;  /// Depth Queing Parameter Coefficient
         Register<s32>  m_depth_queing_parameter_offset; /// Depth Queing Parameter offset

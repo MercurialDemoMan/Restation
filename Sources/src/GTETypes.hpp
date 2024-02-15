@@ -45,6 +45,11 @@ namespace PSX
         union { T x, r; };
         union { T y, g; };
         union { T z, b; };
+
+        void reset()
+        {
+            x = y = z = 0;
+        }
     };
 
     /**
@@ -54,6 +59,17 @@ namespace PSX
     struct GTEMatrix
     {
         T data[3 * 3];
+
+        T& at(u32 x, u32 y)
+        {
+            return data[y * 3 + x];
+        }
+
+        void reset()
+        {
+            for(u32 i = 0; i < 3 * 3; i++)
+                data[i] = 0;
+        }
     };
 }
 
