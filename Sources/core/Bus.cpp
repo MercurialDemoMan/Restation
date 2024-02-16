@@ -89,6 +89,8 @@ namespace PSX
         m_timer_hblank         = std::make_shared<Timer<ClockSource::HBlank>>(m_interrupt_controller);     
         m_timer_systemclock    = std::make_shared<Timer<ClockSource::SystemClock>>(m_interrupt_controller);
         
+        m_meta_vblank_flag = false;
+
         LOG("initialized all hardware components");
     }
 
@@ -358,6 +360,32 @@ namespace PSX
         std::memcpy(m_bios.data(), bios_file_contents.data(), BiosSize);
 
         LOG_DEBUG(1, "bios loaded");
+    }
+
+    /**
+     * @brief obtain the state of vram from gpu
+     */
+    const std::array<u16, VRamWidth * VRamHeight>& Bus::meta_get_vram_buffer() const
+    {
+        return m_gpu->meta_get_vram_buffer();
+    }
+
+    /**
+     * @brief check whether GPU finished rendering a frame 
+     */
+    bool Bus::meta_vblank()
+    {
+        auto result = m_meta_vblank_flag;
+        m_meta_vblank_flag = false;
+        return result;
+    }
+
+    /**
+     * @brief set vblank flag 
+     */
+    void Bus::meta_set_vblank()
+    {
+        m_meta_vblank_flag = true;
     }
 
     /**

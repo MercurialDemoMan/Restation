@@ -34,6 +34,7 @@
 #ifndef BUS_HPP
 #define BUS_HPP
 
+#include <span>
 #include <array>
 #include <string>
 #include <memory>
@@ -45,6 +46,7 @@
 #include "MemoryRegion.hpp"
 #include "Forward.hpp"
 #include "TimerTypes.hpp"
+#include "GPUConstants.hpp"
 
 namespace PSX
 {
@@ -69,6 +71,22 @@ namespace PSX
          * @brief reads bios from host file and loads it into the bios memory
          */
         void meta_load_bios(const std::string& bios_path);
+
+        /**
+         * @brief obtain the state of vram from gpu
+         */
+        const std::array<u16, VRamWidth * VRamHeight>& meta_get_vram_buffer() const;
+
+        /**
+         * @brief check whether GPU finished rendering a frame by using a vblank flag
+         *        vblank flag will get reset after this call 
+         */
+        bool meta_vblank();
+
+        /**
+         * @brief set vblank flag 
+         */
+        void meta_set_vblank();
 
         /**
          * @brief execute all components for num_steps clock cycles
@@ -240,6 +258,8 @@ namespace PSX
         MemoryRegion<BiosSize>       m_bios;       /// BIOS memory
         MemoryRegion<ScratchpadSize> m_scratchpad; /// Scratchpad memory
         MemoryRegion<ExpansionSize>  m_expansion;  /// Expansion memory
+
+        bool m_meta_vblank_flag; /// meta state for checking finished frame render
     };
 }
 

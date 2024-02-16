@@ -68,8 +68,7 @@ namespace PSX
             m_meta_frames++;
             m_is_line_odd = false;
             m_interrupt_controller->trigger_interrupt(Interrupt::VBlank);
-            if(m_meta_frames % 50 == 0)
-                meta_dump_vram();
+            m_bus->meta_set_vblank();
         }
         // we are still rendering
         else
@@ -1592,5 +1591,13 @@ namespace PSX
         }
 
         stbi_write_png(fmt::format("vram/vram{}.png", m_meta_frames).c_str(), VRamWidth, VRamHeight, 4, vram.data(), VRamWidth * 4);
+    }
+
+    /**
+     * @brief obtain the state of vram from gpu
+     */
+    const std::array<u16, VRamWidth * VRamHeight>& GPU::meta_get_vram_buffer() const
+    {
+        return m_vram;
     }
 }
