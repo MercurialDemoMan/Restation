@@ -33,8 +33,10 @@ include_directories(${CMAKE_SOURCE_DIR}/deps/imgui-1.90.3/ ${CMAKE_SOURCE_DIR}/d
 # include sources
 add_executable(emu 
 
+    # compile stb_image_write
     deps/stb/stb_image_write.c
 
+    # compile imgui
     deps/imgui-1.90.3/imgui_demo.cpp
     deps/imgui-1.90.3/imgui_draw.cpp
     deps/imgui-1.90.3/imgui_tables.cpp
@@ -43,6 +45,7 @@ add_executable(emu
     deps/imgui-1.90.3/backends/imgui_impl_sdl2.cpp
     deps/imgui-1.90.3/backends/imgui_impl_sdlrenderer2.cpp
 
+    # compile core
     core/Bus.cpp
     core/CPU.cpp
     core/GPU.cpp
@@ -72,6 +75,7 @@ add_executable(emu
     core/ExceptionController.cpp
     core/InterruptController.cpp
     
+    # compile frontend app
     app/EmulatorApp.cpp
 	app/main.cpp)
 

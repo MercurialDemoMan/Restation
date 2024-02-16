@@ -84,6 +84,8 @@
 
 #ifndef LOG_DEBUG_LEVEL
 #define LOG_DEBUG(level, message)
+#define LOG_WARNING(message)
+#define LOG_ERROR(message)
 #else
 #define LOG_DEBUG(level, message) do \
 { \
@@ -92,8 +94,6 @@
         std::fprintf(stdout, "[\e[0;35mdebug\e[0m]: %s\n", std::string(message).c_str()); \
     } \
 } while(0)
-#endif
-
 #define LOG_WARNING(message) do \
 { \
     std::fprintf(stdout, "[\e[0;33mwarning\e[0m]: %s\n", std::string(message).c_str()); \
@@ -103,5 +103,6 @@
 { \
     std::fprintf(stderr, "[\e[1;31merror\e[0m]: %s\n", std::string(message).c_str()); \
 } while(0)
+#endif
 
 #endif // MACROS_HPP
