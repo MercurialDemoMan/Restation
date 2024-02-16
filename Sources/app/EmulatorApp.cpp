@@ -43,12 +43,10 @@ std::shared_ptr<EmulatorApp> EmulatorApp::m_singleton_instance = nullptr;
  */
 EmulatorApp::EmulatorApp(int argc, char* argv[])
 {
-    MARK_UNUSED(argc);
-    MARK_UNUSED(argv);
-
     init_frontend();
     init_backend();
 
+    //TODO: make argument handling better
     if(argc > 1) m_emulator_core->meta_load_bios(argv[1]);
 
     // keep main loop running
@@ -69,19 +67,59 @@ EmulatorApp::~EmulatorApp()
  */
 void EmulatorApp::init_frontend()
 {
-    SDL_Init(SDL_INIT_VIDEO);
+    if(SDL_Init(SDL_INIT_VIDEO) != 0)
+    {
+        ABORT_WITH_MESSAGE(fmt::format("couldn't initialize SDL2 video component: {}", SDL_GetError()));
+    }
+
     m_window = SDL_CreateWindow
     (
         "Emulator", 
         SDL_WINDOWPOS_CENTERED, 
         SDL_WINDOWPOS_CENTERED, 
-        1280, 
+        1024, 
         720, 
         SDL_WINDOW_SHOWN
     );
+    if(m_window == nullptr)
+    {
+        ABORT_WITH_MESSAGE(fmt::format("couldn't open window: {}", SDL_GetError()));
+    }
+
     m_surface = SDL_GetWindowSurface(m_window);
+    if(m_surface == nullptr)
+    {
+        ABORT_WITH_MESSAGE(fmt::format("couldn't retrieve window surface: {}", SDL_GetError()));
+    }
+
     m_renderer = SDL_CreateSoftwareRenderer(m_surface);
-    SDL_SetRenderDrawColor(m_renderer, 0xFF, 0x00, 0x00, 0xFF);
+    if(m_renderer == nullptr)
+    {
+        ABORT_WITH_MESSAGE(fmt::format("couldn't create software renderer: {}", SDL_GetError()));
+    }
+
+    if(SDL_RenderSetLogicalSize(m_renderer, PSX::VRamWidth, PSX::VRamHeight) != 0)
+    {
+        ABORT_WITH_MESSAGE(fmt::format("couldn't set logical size to renderer: {}", SDL_GetError()));
+    }
+    
+    if(SDL_SetRenderDrawColor(m_renderer, 0x00, 0x00, 0x00, 0xFF) != 0)
+    {
+        ABORT_WITH_MESSAGE(fmt::format("couldn't set background draw color: {}", SDL_GetError()));
+    }
+
+    m_framebuffer = SDL_CreateTexture
+    (
+        m_renderer, 
+        SDL_PIXELFORMAT_ABGR1555,
+        SDL_TEXTUREACCESS_STREAMING, 
+        PSX::VRamWidth, 
+        PSX::VRamHeight
+    );
+    if(m_framebuffer == nullptr)
+    {
+        ABORT_WITH_MESSAGE(fmt::format("couldn't create framebuffer texture: {}", SDL_GetError()));
+    }
 }
 
 /**
@@ -137,9 +175,33 @@ void EmulatorApp::run()
             }
         }
 
-        SDL_RenderClear(m_renderer);
+        // emulate system until gpu finishes rendering a frame
+        while(!m_emulator_core->meta_vblank())
+        {
+            m_emulator_core->execute(PSX::Bus::OptimalSimulationStep);
+        }
+        
+        // copy gpu vram content to SDL texture
+        {
+            const auto& vram_buffer = m_emulator_core->meta_get_vram_buffer();
 
-        //SDL_FillRect(m_surface, NULL, SDL_MapRGB(m_surface->format, 0xFF, 0x00, 0x00));
+            void* framebuffer_pixels = nullptr;
+            int   framebuffer_pitch = 0;
+            
+            if(SDL_LockTexture(m_framebuffer, NULL, &framebuffer_pixels, &framebuffer_pitch) != 0)
+            {
+                LOG(fmt::format("failed to lock framebuffer texture: {}", SDL_GetError()));
+            }
+            else
+            {
+                std::memcpy(framebuffer_pixels, vram_buffer.data(), framebuffer_pitch * PSX::VRamHeight);
+            }
+            SDL_UnlockTexture(m_framebuffer);
+        }
+        
+        // render vram
+        SDL_RenderClear(m_renderer);
+        SDL_RenderCopy(m_renderer, m_framebuffer, NULL, NULL);
         SDL_UpdateWindowSurface(m_window);
     }
 }
