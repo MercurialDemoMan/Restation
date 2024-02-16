@@ -33,6 +33,10 @@
 
 #include "EmulatorApp.hpp"
 
+#include <imgui.h>
+#include <backends/imgui_impl_sdl2.h>
+#include <backends/imgui_impl_sdlrenderer2.h>
+
 /**
  * @brief initialize static member 
  */
@@ -120,6 +124,11 @@ void EmulatorApp::init_frontend()
     {
         ABORT_WITH_MESSAGE(fmt::format("couldn't create framebuffer texture: {}", SDL_GetError()));
     }
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui_ImplSDL2_InitForSDLRenderer(m_window, m_renderer);
+    ImGui_ImplSDLRenderer2_Init(m_renderer);
 }
 
 /**
@@ -166,6 +175,8 @@ void EmulatorApp::run()
         SDL_Event event = {0};
         while(SDL_PollEvent(&event))
         {
+            ImGui_ImplSDL2_ProcessEvent(&event);
+
             switch(event.type)
             {
                 case SDL_QUIT:
@@ -199,9 +210,29 @@ void EmulatorApp::run()
             SDL_UnlockTexture(m_framebuffer);
         }
         
+        ImGui_ImplSDLRenderer2_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
+
         // render vram
         SDL_RenderClear(m_renderer);
         SDL_RenderCopy(m_renderer, m_framebuffer, NULL, NULL);
+
+        // render menu
+        ImGui::BeginMainMenuBar();
+        if(ImGui::BeginMenu("Test 1"))
+        {
+            if(ImGui::MenuItem("Test 2"))
+            {
+                LOG("Test 3");
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+
+        ImGui::Render();
+        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+
         SDL_UpdateWindowSurface(m_window);
     }
 }

@@ -27,10 +27,21 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/deps/SDL2-2.28.4)
 # add stb image write to the project
 include_directories(${CMAKE_SOURCE_DIR}/deps/stb)
 
+# add imgui to the project
+include_directories(${CMAKE_SOURCE_DIR}/deps/imgui-1.90.3/ ${CMAKE_SOURCE_DIR}/deps/imgui-1.90.3/backends)
+
 # include sources
 add_executable(emu 
 
     deps/stb/stb_image_write.c
+
+    deps/imgui-1.90.3/imgui_demo.cpp
+    deps/imgui-1.90.3/imgui_draw.cpp
+    deps/imgui-1.90.3/imgui_tables.cpp
+    deps/imgui-1.90.3/imgui_widgets.cpp
+    deps/imgui-1.90.3/imgui.cpp
+    deps/imgui-1.90.3/backends/imgui_impl_sdl2.cpp
+    deps/imgui-1.90.3/backends/imgui_impl_sdlrenderer2.cpp
 
     core/Bus.cpp
     core/CPU.cpp
