@@ -623,9 +623,9 @@ namespace PSX
     {
         // fill vram with a color value
         // final row and column is not filled
-        for(u32 y = 0; y < args.size_y; y++)
+        for(u32 y = args.start_y; y < args.start_y + args.size_y; y++)
         {
-            for(u32 x = 0; x < args.size_x; x++)
+            for(u32 x = args.start_x; x < args.start_x + args.size_x; x++)
             {
                 if(x > VRamWidth - 1) UNREACHABLE();
                 if(y > VRamHeight - 1) UNREACHABLE();
