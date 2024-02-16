@@ -27,14 +27,19 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/deps/SDL2-2.28.4)
 # add stb image write to the project
 include_directories(${CMAKE_SOURCE_DIR}/deps/stb)
 
+# add emulator core to the include path
+include_directories(${CMAKE_SOURCE_DIR}/core)
+
 # include sources
 add_executable(emu 
+
+    deps/stb/stb_image_write.c
+
     core/Bus.cpp
     core/CPU.cpp
     core/GPU.cpp
     core/SPU.cpp
     core/GTE.cpp
-	core/main.cpp
     core/MDEC.cpp
     core/Disc.cpp
     core/Utils.cpp
@@ -58,7 +63,8 @@ add_executable(emu
     core/DMAChannelMDECOUT.cpp
     core/ExceptionController.cpp
     core/InterruptController.cpp
-    deps/stb/stb_image_write.c)
+    
+	app/main.cpp)
 
 # link libraries with the project
 target_link_libraries(emu
