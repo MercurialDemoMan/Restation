@@ -19,7 +19,7 @@ add_compile_definitions(LOG_DEBUG_LEVEL=5)
 add_subdirectory(${CMAKE_SOURCE_DIR}/deps/fmt-10.1.1)
 
 # add glm to the project
-add_subdirectory(${CMAKE_SOURCE_DIR}/deps/glm)
+add_subdirectory(${CMAKE_SOURCE_DIR}/deps/glm-0.9.9.8)
 
 # add sdl2 to the project
 add_subdirectory(${CMAKE_SOURCE_DIR}/deps/SDL2-2.28.4)
