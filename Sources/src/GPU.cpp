@@ -1455,24 +1455,24 @@ namespace PSX
             // 4bit color depth
             case 1:
             {
-                u32 x = (texpage_x + uv_x / 4) % 1024;
-                u32 y = (texpage_y + uv_y) % 512;
+                u32 x = (texpage_x + uv_x / 4) % VRamWidth;
+                u32 y = (texpage_y + uv_y) % VRamHeight;
                 u16 clut_cache_index = vram_read(x, y);
                 return Color15Bit(m_clut_cache[(clut_cache_index >> ((uv_x & 3) * 4)) & 0x0F]);
             }
             // 8bit color depth
             case 2:
             {
-                u32 x = (texpage_x + uv_x / 2) % 1024;
-                u32 y = (texpage_y + uv_y) % 512;
+                u32 x = (texpage_x + uv_x / 2) % VRamWidth;
+                u32 y = (texpage_y + uv_y) % VRamHeight;
                 u16 clut_cache_index = vram_read(x, y);
                 return Color15Bit(m_clut_cache[(clut_cache_index >> ((uv_x & 1) * 8)) & 0xFF]);
             }
             // 16bit color depth
             case 3:
             {
-                u32 x = (texpage_x + uv_x) % 1024;
-                u32 y = (texpage_y + uv_y) % 512;
+                u32 x = (texpage_x + uv_x) % VRamWidth;
+                u32 y = (texpage_y + uv_y) % VRamHeight;
                 return Color15Bit(vram_read(x, y));
             }
         }
