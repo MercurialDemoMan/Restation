@@ -146,7 +146,7 @@ namespace PSX
     std::enable_if_t<Bits <= 64,
     bool> check_overflow_bits(s64 value)
     {
-        return value >= (1ULL << (Bits - 1));
+        return value >= (1LL << (Bits - 1));
     }
 
     /**
@@ -158,7 +158,7 @@ namespace PSX
     std::enable_if_t<Bits <= 64,
     bool> check_underflow_bits(s64 value)
     {
-        return value < -(1ULL << (Bits - 1));
+        return value < -(1LL << (Bits - 1));
     }
 
     /**
