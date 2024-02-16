@@ -83,28 +83,17 @@ void EmulatorApp::init_frontend()
         SDL_WINDOWPOS_CENTERED, 
         1024, 
         720, 
-        SDL_WINDOW_SHOWN
+        SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
     );
     if(m_window == nullptr)
     {
         ABORT_WITH_MESSAGE(fmt::format("couldn't open window: {}", SDL_GetError()));
     }
 
-    m_surface = SDL_GetWindowSurface(m_window);
-    if(m_surface == nullptr)
-    {
-        ABORT_WITH_MESSAGE(fmt::format("couldn't retrieve window surface: {}", SDL_GetError()));
-    }
-
-    m_renderer = SDL_CreateSoftwareRenderer(m_surface);
+    m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED);
     if(m_renderer == nullptr)
     {
         ABORT_WITH_MESSAGE(fmt::format("couldn't create software renderer: {}", SDL_GetError()));
-    }
-
-    if(SDL_RenderSetLogicalSize(m_renderer, PSX::VRamWidth, PSX::VRamHeight) != 0)
-    {
-        ABORT_WITH_MESSAGE(fmt::format("couldn't set logical size to renderer: {}", SDL_GetError()));
     }
     
     if(SDL_SetRenderDrawColor(m_renderer, 0x00, 0x00, 0x00, 0xFF) != 0)
@@ -172,17 +161,20 @@ void EmulatorApp::run()
 {
     while(m_run)
     {
-        SDL_Event event = {0};
-        while(SDL_PollEvent(&event))
+        // handle events
         {
-            ImGui_ImplSDL2_ProcessEvent(&event);
-
-            switch(event.type)
+            SDL_Event event = {0};
+            while(SDL_PollEvent(&event))
             {
-                case SDL_QUIT:
+                ImGui_ImplSDL2_ProcessEvent(&event);
+
+                switch(event.type)
                 {
-                    m_run = false;
-                } break;
+                    case SDL_QUIT:
+                    {
+                        m_run = false;
+                    } break;
+                }
             }
         }
 
@@ -210,29 +202,38 @@ void EmulatorApp::run()
             SDL_UnlockTexture(m_framebuffer);
         }
         
-        ImGui_ImplSDLRenderer2_NewFrame();
-        ImGui_ImplSDL2_NewFrame();
-        ImGui::NewFrame();
+        // clear imgui framebuffer
+        {
+            ImGui_ImplSDLRenderer2_NewFrame();
+            ImGui_ImplSDL2_NewFrame();
+            ImGui::NewFrame();
+        }
 
         // render vram
-        SDL_RenderClear(m_renderer);
-        SDL_RenderCopy(m_renderer, m_framebuffer, NULL, NULL);
+        {
+            SDL_RenderClear(m_renderer);
+            SDL_RenderCopy(m_renderer, m_framebuffer, NULL, NULL);
+        }
 
         // render menu
-        ImGui::BeginMainMenuBar();
-        if(ImGui::BeginMenu("Test 1"))
         {
-            if(ImGui::MenuItem("Test 2"))
+            ImGui::BeginMainMenuBar();
+            if(ImGui::BeginMenu("Test 1"))
             {
-                LOG("Test 3");
+                if(ImGui::MenuItem("Test 2"))
+                {
+                    LOG("Test 3");
+                }
+                ImGui::EndMenu();
             }
-            ImGui::EndMenu();
+            ImGui::EndMainMenuBar();
         }
-        ImGui::EndMainMenuBar();
 
-        ImGui::Render();
-        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
-
-        SDL_UpdateWindowSurface(m_window);
+        // send to screen
+        {
+            ImGui::Render();
+            ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+            SDL_RenderPresent(m_renderer);
+        }
     }
 }
