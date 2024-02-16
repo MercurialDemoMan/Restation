@@ -29,35 +29,35 @@ include_directories(${CMAKE_SOURCE_DIR}/deps/stb)
 
 # include sources
 add_executable(emu 
-    src/Bus.cpp
-    src/CPU.cpp
-    src/GPU.cpp
-    src/SPU.cpp
-    src/GTE.cpp
-	src/main.cpp
-    src/MDEC.cpp
-    src/Disc.cpp
-    src/Utils.cpp
-    src/CDROM.cpp
-    src/Timer.cpp
-    src/IOPorts.cpp
-    src/SerialPort.cpp
-    src/DMAChannel.cpp
-    src/Peripherals.cpp
-    src/DMAChannelSPU.cpp
-    src/DMAChannelPIO.cpp
-    src/DMAChannelOTC.cpp
-    src/DMAChannelGPU.cpp
-    src/RamController.cpp
-    src/MemController.cpp
-    src/DMAController.cpp
-    src/CacheController.cpp
-    src/CPUDisassembler.cpp
-    src/DMAChannelCDROM.cpp
-    src/DMAChannelMDECIN.cpp
-    src/DMAChannelMDECOUT.cpp
-    src/ExceptionController.cpp
-    src/InterruptController.cpp
+    core/Bus.cpp
+    core/CPU.cpp
+    core/GPU.cpp
+    core/SPU.cpp
+    core/GTE.cpp
+	core/main.cpp
+    core/MDEC.cpp
+    core/Disc.cpp
+    core/Utils.cpp
+    core/CDROM.cpp
+    core/Timer.cpp
+    core/IOPorts.cpp
+    core/SerialPort.cpp
+    core/DMAChannel.cpp
+    core/Peripherals.cpp
+    core/DMAChannelSPU.cpp
+    core/DMAChannelPIO.cpp
+    core/DMAChannelOTC.cpp
+    core/DMAChannelGPU.cpp
+    core/RamController.cpp
+    core/MemController.cpp
+    core/DMAController.cpp
+    core/CacheController.cpp
+    core/CPUDisassembler.cpp
+    core/DMAChannelCDROM.cpp
+    core/DMAChannelMDECIN.cpp
+    core/DMAChannelMDECOUT.cpp
+    core/ExceptionController.cpp
+    core/InterruptController.cpp
     deps/stb/stb_image_write.c)
 
 # link libraries with the project
