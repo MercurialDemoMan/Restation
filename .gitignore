@@ -3,8 +3,8 @@ Sources/build/*
 !Sources/build/empty.txt
 
 # Ignore prototypes
-Sources/src/*.cpp.bak
-Sources/src/*.hpp.bak
+Sources/core/*.cpp.bak
+Sources/core/*.hpp.bak
 
 # Ignore vscode config
 .vscode/*
