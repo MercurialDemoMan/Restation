@@ -56,6 +56,11 @@ namespace PSX
     public:
 
         /**
+         * @brief best simulation step quantum 
+         */
+        static constexpr const u32 OptimalSimulationStep = 301;
+
+        /**
          * @brief allocate bus and initialize all psx components
          */
         static std::shared_ptr<Bus> create();
