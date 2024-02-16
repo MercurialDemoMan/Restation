@@ -98,6 +98,11 @@ namespace PSX
         void check_and_assign_to_ir(s64 value, u32 accumulator_index, bool allow_negative);
 
         /**
+         * @brief push new color to the crgb queue 
+         */
+        void push_to_crgb_fifo(const GTEVector<u32>& color);
+
+        /**
          * instructions 
          */
         void UNK(const GTEInstruction&);   /// unknown opcode

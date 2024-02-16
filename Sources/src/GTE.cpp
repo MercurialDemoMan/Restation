@@ -360,7 +360,12 @@ namespace PSX
      */
     void GTE::multiply(const GTEMatrix<s16>& a, const GTEVector<s16>& b)
     {
-        GTEVector<s64> result = GTEVector<s64> { 0 };
+        GTEVector<s64> result = GTEVector<s64> 
+        { 
+            .x = 0,
+            .y = 0,
+            .z = 0
+        };
 
         result.x = 
         check_and_extend_from_mac
