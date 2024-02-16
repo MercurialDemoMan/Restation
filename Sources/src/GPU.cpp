@@ -1206,8 +1206,8 @@ namespace PSX
         s32 uv_x = args.uv_x + (min_x - args.start_x) + m_draw_mode.texture_rect_x_flip;
         s32 uv_y = args.uv_y + (min_y - args.start_y) + m_draw_mode.texture_rect_y_flip;
 
-        s32 dir_x = m_draw_mode.texture_rect_x_flip ? 1 : -1;
-        s32 dir_y = m_draw_mode.texture_rect_y_flip ? 1 : -1;
+        s32 dir_x = m_draw_mode.texture_rect_x_flip ? -1 : 1;
+        s32 dir_y = m_draw_mode.texture_rect_y_flip ? -1 : 1;
 
         Color15Bit color_15_bit = Color15Bit::create_from_24bit(args.color);
 
