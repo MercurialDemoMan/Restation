@@ -76,8 +76,8 @@ add_executable(emu
     core/InterruptController.cpp
     
     # compile frontend app
-    app/EmulatorApp.cpp
-	app/main.cpp)
+	app/main.cpp
+    app/App.cpp)
 
 # link libraries with the project
 target_link_libraries(emu

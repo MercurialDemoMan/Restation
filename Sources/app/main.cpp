@@ -1,10 +1,10 @@
 #include <iostream>
 
-#include "EmulatorApp.hpp"
+#include "App.hpp"
 
 int main(int argc, char* argv[])
 {
-    EmulatorApp::init(argc, argv);
-    EmulatorApp::the()->run();
+    App::init(argc, argv);
+    App::the()->run();
     return 0;
 }

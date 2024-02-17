@@ -98,7 +98,6 @@
 { \
     std::fprintf(stdout, "[\e[0;33mwarning\e[0m]: %s\n", std::string(message).c_str()); \
 } while(0)
-
 #define LOG_ERROR(message) do \
 { \
     std::fprintf(stderr, "[\e[1;31merror\e[0m]: %s\n", std::string(message).c_str()); \
