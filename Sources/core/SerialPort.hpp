@@ -49,7 +49,7 @@ namespace PSX
 
         SerialPort()
         {
-            
+            reset();
         }
         
         virtual ~SerialPort() override = default;

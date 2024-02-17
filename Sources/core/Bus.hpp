@@ -94,6 +94,11 @@ namespace PSX
         void execute(u32 num_steps);
 
         /**
+         * @brief reset the whole console 
+         */
+        void reset();
+
+        /**
          * @brief dispatch read to component or memory region according to memory map
          */
         template<typename T>

@@ -57,6 +57,6 @@ namespace PSX
 
     void MDEC::reset()
     {
-        TODO();
+        
     }
 }

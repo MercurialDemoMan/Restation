@@ -31,16 +31,17 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef EMULATORAPP_HPP
-#define EMULATORAPP_HPP
+#ifndef APP_HPP
+#define APP_HPP
 
-#include <memory>
-#include <mutex>
-#include <condition_variable>
-#include <thread>
 #include <SDL.h>
+#include <mutex>
+#include <memory>
+#include <thread>
+#include <condition_variable>
 #include "../core/Bus.hpp"
 #include "../core/Macros.hpp"
+#include "Menu.hpp"
 
 /**
  * @brief Frontend for the PSX Emulator
@@ -104,10 +105,12 @@ private:
     std::shared_ptr<PSX::Bus> m_emulator_core;                              /// Store Actual Emulator State
     std::array<PSX::u16, PSX::VRamWidth * PSX::VRamHeight> m_emulator_vram; /// Store Copy of Emulator VRAM
 
-    std::thread             m_emulator_thread; /// Manage Emulator Thread
-    std::mutex              m_vram_mutex;      /// v
-                                               /// Manage Copying of Emulator VRAM
-    std::condition_variable m_vblank_notifier; /// ^
+    std::thread             m_emulator_thread;      /// Manage Emulator Thread
+    std::mutex              m_vram_mutex;           /// v
+                                                    /// Manage Copying of Emulator VRAM
+    std::condition_variable m_vblank_notifier;      /// ^
+
+    Menu m_menu; /// Manage Menu/Emulator State
 };
 
-#endif // EMULATORAPP_HPP
+#endif // APP_HPP

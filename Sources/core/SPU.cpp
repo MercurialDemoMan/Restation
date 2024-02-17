@@ -59,6 +59,6 @@ namespace PSX
 
     void SPU::reset()
     {
-        TODO();
+        
     }
 }

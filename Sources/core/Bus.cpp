@@ -95,6 +95,29 @@ namespace PSX
     }
 
     /**
+     * @brief reset the whole console 
+     */
+    void Bus::reset()
+    {
+        m_cpu->reset();
+        m_spu->reset();
+        m_mdec->reset();
+        m_io_ports->reset();
+        m_serial_port->reset();
+        m_peripherals->reset();
+        m_ram_controller->reset();
+        m_mem_controller->reset();
+        m_cache_controller->reset();
+        m_interrupt_controller->reset();
+        m_cdrom->reset();
+        m_gpu->reset();
+        m_dma_controller->reset();
+        m_timer_dotclock->reset();
+        m_timer_hblank->reset();
+        m_timer_systemclock->reset();
+    }
+
+    /**
      * @brief dispatch read to component or memory region according to memory map
      */
     template<typename T>

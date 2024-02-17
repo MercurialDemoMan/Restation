@@ -58,6 +58,6 @@ namespace PSX
 
     void Peripherals::reset()
     {
-        TODO();
+        
     }
 }

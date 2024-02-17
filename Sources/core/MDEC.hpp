@@ -50,7 +50,7 @@ namespace PSX
         MDEC(const std::shared_ptr<Bus>& bus) :
             m_bus(bus)
         {
-            
+            reset();
         }
         
         virtual ~MDEC() override = default;

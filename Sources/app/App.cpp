@@ -132,6 +132,7 @@ void App::init_frontend()
 void App::init_backend()
 {
     m_emulator_core = PSX::Bus::create();
+    m_menu.reset();
 }
 
 /**
@@ -170,6 +171,12 @@ void App::run()
     {
         while(m_run)
         {
+            if(m_menu.emulator_reset())
+            {
+                m_emulator_core->reset();
+                m_menu.set_emulator_reset(false);
+            }
+
             // emulate system until gpu finishes rendering a frame
             while(!m_emulator_core->meta_vblank())
             {
@@ -211,7 +218,7 @@ void App::run()
         {
             std::unique_lock lock(m_vram_mutex);
             using namespace std::chrono_literals;
-            m_vblank_notifier.wait_for(lock, 17ms);
+            m_vblank_notifier.wait_for(lock, 20ms);
         }
         
         // copy gpu vram content to SDL texture
@@ -261,16 +268,7 @@ void App::run()
 
         // render menu
         {
-            ImGui::BeginMainMenuBar();
-            if(ImGui::BeginMenu("Test 1"))
-            {
-                if(ImGui::MenuItem("Test 2"))
-                {
-                    LOG("Test 3");
-                }
-                ImGui::EndMenu();
-            }
-            ImGui::EndMainMenuBar();
+            m_menu.render();
         }
 
         // send to screen

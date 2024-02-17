@@ -56,6 +56,6 @@ namespace PSX
 
     void SerialPort::reset()
     {
-        TODO();
+        
     }
 }
