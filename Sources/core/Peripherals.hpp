@@ -64,9 +64,64 @@ namespace PSX
 
     private:
 
+        /**
+         * @brief 0x1F80'1044 JOY_STAT Register 
+         */
+        union JoyStat
+        {
+            struct
+            {
+                u32 tx_ready_flag_1:   1;
+                u32 rx_fifo_not_empty: 1;
+                u32 tx_ready_flag_2:   1;
+                u32 rx_parity_error:   1;
+                u32: 3;
+                u32 ack_input_level:   1;
+                u32: 1;
+                u32 interrupt_request: 1;
+                u32: 1;
+                u32 baudrate_timer:   21;
+            };
+
+            u32 raw;
+            u8  bytes[sizeof(u32)];
+        };
+
+        /**
+         * @brief 0x1F80'104A JOY_CTRL Register 
+         */
+        union JoyCtrl
+        {
+            struct
+            {
+                u16 tx_enable:   1;
+                u16 joyn_output: 1;
+                u16 rx_enable:   1;
+                u16: 1;
+                u16 acknowledge: 1;
+                u16: 1;
+                u16 reset:       1;
+                u16: 1;
+                u16 rx_interrupt_mode:    2;
+                u16 tx_interrupt_enable:  1;
+                u16 rx_interrupt_enable:  1;
+                u16 ack_interrupt_enable: 1;
+                u16 desired_slot_number:  1;
+                u16: 2;
+            };
+
+            u16 raw;
+            u8  bytes[sizeof(u16)];
+        };
+
         std::shared_ptr<Bus> m_bus;
         std::shared_ptr<PeripheralsInput> m_input;
 
+        Register<u32> m_joy_rx_data; 
+        JoyStat       m_joy_stat;
+        Register<u16> m_joy_mode;
+        JoyCtrl       m_joy_control;
+        Register<u16> m_joy_baud;
     };
 }
 
