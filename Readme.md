@@ -25,6 +25,11 @@ make
 
 ## Usage instruction
 
+```bash
+./emu [bios.bin] [game.bin]
+```
+
+TODO: images
 
 ## Author information
 
