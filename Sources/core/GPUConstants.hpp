@@ -62,6 +62,10 @@ namespace PSX
     constexpr const u32 DotClockStep368 = 7;
     constexpr const u32 DotClockStep512 = 5;
     constexpr const u32 DotClockStep640 = 4;
+    constexpr const float NTSCWithInterlaceRefreshRate    = 59.940f;
+    constexpr const float NTSCWithoutInterlaceRefreshRate = 59.926f;
+    constexpr const float PALWithInterlaceRefreshRate     = 50.000f;
+    constexpr const float PALWithoutInterlaceRefreshRate  = 49.761f;
 }
 
 #endif // GPUTIMINGS_HPP

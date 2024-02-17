@@ -73,6 +73,11 @@ namespace PSX
         void meta_dump_vram() const;
 
         /**
+         * @brief calculate current refresh rate 
+         */
+        float meta_refresh_rate() const;
+
+        /**
          * @brief obtain the state of vram from gpu
          */
         const std::array<u16, VRamWidth * VRamHeight>& meta_get_vram_buffer() const;

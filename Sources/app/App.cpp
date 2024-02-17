@@ -34,6 +34,7 @@
 #include "App.hpp"
 
 #include <chrono>
+#include <thread>
 #include <imgui.h>
 #include <backends/imgui_impl_sdl2.h>
 #include <backends/imgui_impl_sdlrenderer2.h>
@@ -177,12 +178,26 @@ void App::run()
                 m_menu.set_emulator_reset(false);
             }
 
+            // start timing frame
+            auto start_timestamp = std::chrono::high_resolution_clock::now();
+
             // emulate system until gpu finishes rendering a frame
             while(!m_emulator_core->meta_vblank())
             {
                 m_emulator_core->execute(PSX::Bus::OptimalSimulationStep);
             }
-            
+
+            // end timing frame
+            auto end_timestamp  = std::chrono::high_resolution_clock::now();
+            PSX::s64 frame_time = std::chrono::duration_cast<std::chrono::microseconds>(end_timestamp - start_timestamp).count();
+            PSX::s64 desired_frame_time = 1'000'000.0f / m_emulator_core->meta_refresh_rate(); 
+
+            // limit frame time based on the gpu mode
+            if(frame_time < desired_frame_time)
+            {
+                std::this_thread::sleep_for(std::chrono::microseconds(desired_frame_time - frame_time));
+            }
+               
             // copy vram to rendering thread
             {
                 std::lock_guard lock(m_vram_mutex);

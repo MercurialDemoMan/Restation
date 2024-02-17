@@ -412,6 +412,14 @@ namespace PSX
     }
 
     /**
+     * @brief calculate current refresh rate 
+     */
+    float Bus::meta_refresh_rate() const
+    {
+        return m_gpu->meta_refresh_rate();
+    }
+
+    /**
      * instantiate templated arguments 
      */
     template u8 Bus::dispatch_read<u8>(u32 address);

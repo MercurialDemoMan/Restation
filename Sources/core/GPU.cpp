@@ -1600,4 +1600,33 @@ namespace PSX
     {
         return m_vram;
     }
+
+    /**
+     * @brief calculate current refresh rate 
+     */
+    float GPU::meta_refresh_rate() const
+    {
+        switch(m_display_mode.video_mode)
+        {
+            case 0: // NTSC
+            {
+                switch(m_display_mode.vertical_interlace_enabled)
+                {
+                    case 0: return NTSCWithoutInterlaceRefreshRate;
+                    case 1: return NTSCWithInterlaceRefreshRate;
+                }
+            } break;
+            case 1: // PAL
+            {
+                switch(m_display_mode.vertical_interlace_enabled)
+                {
+                    case 0: return PALWithoutInterlaceRefreshRate;
+                    case 1: return PALWithInterlaceRefreshRate;
+                }
+            } break;
+        }
+
+        UNREACHABLE();
+        return 0;
+    }
 }

@@ -89,6 +89,11 @@ namespace PSX
         void meta_set_vblank();
 
         /**
+         * @brief calculate current refresh rate 
+         */
+        float meta_refresh_rate() const;
+
+        /**
          * @brief execute all components for num_steps clock cycles
          */
         void execute(u32 num_steps);
