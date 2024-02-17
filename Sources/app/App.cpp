@@ -132,7 +132,7 @@ void App::init_frontend()
  */
 void App::init_backend()
 {
-    m_emulator_core = PSX::Bus::create();
+    m_emulator_core = PSX::Bus::create(m_input);
     m_menu.reset();
 }
 

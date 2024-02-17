@@ -1,14 +1,14 @@
 /**
- * @file      TODO: replace with actual file name
+ * @file      Input.cpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     TODO: replace with actual description of the file
+ * @brief     Implementation for sending input to the host emulator
  *
  * @version   0.1
  *
- * @date      TODO: replace with actual date
+ * @date      17. 2. 2024 (created)
  *
  * @section   TODO: replace with actual documentation
  * TODO: documentation text
@@ -30,3 +30,18 @@
  * You should have received a copy of the GNU General Public License along with
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
+
+#include "Input.hpp"
+
+/**
+ * @brief allocate input manager
+ */
+std::shared_ptr<Input> Input::create()
+{
+    return std::shared_ptr<Input>(new Input());
+}
+
+bool Input::is_digital_button_down(PSX::PeripheralsInput::DigitalButton)
+{
+    return false;
+}

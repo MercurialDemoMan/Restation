@@ -37,6 +37,7 @@
 #include <memory>
 #include "Component.hpp"
 #include "Forward.hpp"
+#include "PeripheralsInput.hpp"
 
 namespace PSX
 {
@@ -47,8 +48,9 @@ namespace PSX
     {
     public:
 
-        Peripherals(const std::shared_ptr<Bus>& bus) :
-            m_bus(bus)
+        Peripherals(const std::shared_ptr<Bus>& bus, const std::shared_ptr<PeripheralsInput>& input) :
+            m_bus(bus),
+            m_input(input)
         {
             reset();
         }
@@ -63,6 +65,7 @@ namespace PSX
     private:
 
         std::shared_ptr<Bus> m_bus;
+        std::shared_ptr<PeripheralsInput> m_input;
 
     };
 }

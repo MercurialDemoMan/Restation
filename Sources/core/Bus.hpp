@@ -65,7 +65,7 @@ namespace PSX
         /**
          * @brief allocate bus and initialize all psx components
          */
-        static std::shared_ptr<Bus> create();
+        static std::shared_ptr<Bus> create(const std::shared_ptr<PeripheralsInput>& input);
 
         /**
          * @brief reads bios from host file and loads it into the bios memory
@@ -131,7 +131,7 @@ namespace PSX
         /**
          * @brief allocate all components and connect them together 
          */
-        void initialize_components();
+        void initialize_components(const std::shared_ptr<PeripheralsInput>& input);
 
         /**
          * @brief convert virtual address to physical 

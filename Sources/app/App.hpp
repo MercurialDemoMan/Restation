@@ -42,6 +42,7 @@
 #include "../core/Bus.hpp"
 #include "../core/Macros.hpp"
 #include "Menu.hpp"
+#include "Input.hpp"
 
 /**
  * @brief Frontend for the PSX Emulator
@@ -102,6 +103,7 @@ private:
     SDL_Texture*  m_framebuffer; /// Manage Window Framebuffer
     bool          m_run;         /// Manage Main App Loop
 
+    std::shared_ptr<Input>    m_input;                                      /// SDL2 Input Manager
     std::shared_ptr<PSX::Bus> m_emulator_core;                              /// Store Actual Emulator State
     std::array<PSX::u16, PSX::VRamWidth * PSX::VRamHeight> m_emulator_vram; /// Store Copy of Emulator VRAM
 

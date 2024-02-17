@@ -78,7 +78,8 @@ add_executable(emu
     # compile frontend app
     app/App.cpp
 	app/main.cpp
-    app/Menu.cpp)
+    app/Menu.cpp
+    app/Input.cpp)
 
 # link libraries with the project
 target_link_libraries(emu

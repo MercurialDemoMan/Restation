@@ -46,6 +46,7 @@
 #include "DMAController.hpp"
 #include "CacheController.hpp"
 #include "InterruptController.hpp"
+#include "PeripheralsInput.hpp"
 #include "Macros.hpp"
 
 #include <vector>
@@ -58,17 +59,17 @@ namespace PSX
     /**
      * @brief The core of the PSX. Its' main purpose is dispatching reads and writes.
      */
-    std::shared_ptr<Bus> Bus::create()
+    std::shared_ptr<Bus> Bus::create(const std::shared_ptr<PeripheralsInput>& input)
     {
         auto bus = std::shared_ptr<Bus>(new Bus());
-        bus->initialize_components();
+        bus->initialize_components(input);
         return bus;
     }
 
     /**
      * @brief allocate all components and connect them together 
      */
-    void Bus::initialize_components()
+    void Bus::initialize_components(const std::shared_ptr<PeripheralsInput>& input)
     {
         LOG("initializing all hardware components");
 
@@ -77,7 +78,7 @@ namespace PSX
         m_mdec                 = std::make_shared<MDEC>(shared_from_this());
         m_io_ports             = std::make_shared<IOPorts>();
         m_serial_port          = std::make_shared<SerialPort>();
-        m_peripherals          = std::make_shared<Peripherals>(shared_from_this());
+        m_peripherals          = std::make_shared<Peripherals>(shared_from_this(), input);
         m_ram_controller       = std::make_shared<RamController>();
         m_mem_controller       = std::make_shared<MemController>();
         m_cache_controller     = std::make_shared<CacheController>();

@@ -56,6 +56,7 @@ namespace PSX
     class DMAController;
     class CacheController;
     class DMAChannelCDROM;
+    class PeripheralsInput;
     class DMAChannelMDECIN;
     class DMAChannelMDECOUT;
     class ExceptionController;
