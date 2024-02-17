@@ -35,12 +35,18 @@
 #include "../core/Macros.hpp"
 #include <imgui.h>
 
+/**
+ * @brief reset the configuration 
+ */
 void Menu::reset()
 {
     std::scoped_lock lock(m_menu_state_mutex);
     m_emulator_reset = false;
 }
 
+/**
+ * @brief draw the menu and manage the logic 
+ */
 void Menu::render()
 {
     ImGui::BeginMainMenuBar();
@@ -75,12 +81,18 @@ void Menu::render()
     ImGui::EndMainMenuBar();
 }
 
+/**
+ * @brief check if user wants to reset the emulator
+ */
 bool Menu::emulator_reset()
 {
     std::scoped_lock lock(m_menu_state_mutex);
     return m_emulator_reset;
 }
 
+/**
+ * @brief set emulator reset status 
+ */
 void Menu::set_emulator_reset(bool value)
 {
     std::scoped_lock lock(m_menu_state_mutex);

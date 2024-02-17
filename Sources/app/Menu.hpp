@@ -40,11 +40,24 @@ class Menu
 {
 public:
 
+    /**
+     * @brief reset the configuration 
+     */
     void reset();
 
+    /**
+     * @brief draw the menu and manage the logic 
+     */
     void render();
 
+    /**
+     * @brief check if user wants to reset the emulator
+     */
     bool emulator_reset();
+
+    /**
+     * @brief set emulator reset status 
+     */
     void set_emulator_reset(bool);
 
 private:
