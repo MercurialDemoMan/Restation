@@ -38,6 +38,7 @@
 #include "Component.hpp"
 #include "Forward.hpp"
 #include "PeripheralsInput.hpp"
+#include "PeripheralsController.hpp"
 
 namespace PSX
 {
@@ -63,6 +64,11 @@ namespace PSX
         virtual void reset() override;
 
     private:
+
+        /**
+         * @brief communicate with peripherals
+         */
+        void send_byte_to_controller_or_memory_card(u8);
 
         /**
          * @brief 0x1F80'1044 JOY_STAT Register 
@@ -114,6 +120,16 @@ namespace PSX
             u8  bytes[sizeof(u16)];
         };
 
+        /**
+         * @brief keep track of who are we currently communicating with 
+         */
+        enum class CurrentlyCommunicatingWith
+        {
+            None,
+            Controller,
+            MemoryCard
+        };
+
         std::shared_ptr<Bus> m_bus;
         std::shared_ptr<PeripheralsInput> m_input;
 
@@ -122,6 +138,10 @@ namespace PSX
         Register<u16> m_joy_mode;
         JoyCtrl       m_joy_control;
         Register<u16> m_joy_baud;
+
+        CurrentlyCommunicatingWith m_meta_currently_communicating_with;
+        std::array<std::shared_ptr<PeripheralsController>, 2> m_controllers;
+        std::array<std::shared_ptr<PeripheralsController>, 2> m_memory_cards;
     };
 }
 

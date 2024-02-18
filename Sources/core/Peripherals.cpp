@@ -50,7 +50,7 @@ namespace PSX
             {
                 u8 result = m_joy_rx_data.read(0);
                 m_joy_rx_data.write(0, 0xFF);
-                m_joy_stat.rx_fifo_not_empty = false;
+                m_joy_stat.rx_fifo_not_empty = 0;
                 return result;
             } break;
             case 4:
@@ -59,7 +59,7 @@ namespace PSX
             case 7:
             {
                 u8 result = m_joy_stat.bytes[address - 4];
-                m_joy_stat.ack_input_level = 0;
+                m_joy_control.acknowledge = 0;
                 return result;
             } break;
             case 8:
@@ -88,7 +88,7 @@ namespace PSX
         {
             case 0:
             {
-                TODO();
+                send_byte_to_controller_or_memory_card(value);
             } break;
             case 8:
             case 9:
@@ -132,5 +132,54 @@ namespace PSX
         m_joy_mode.raw() = 0;
         m_joy_control.raw = 0;
         m_joy_baud.raw() = 0;
+    }
+
+    /**
+     * @brief communicate with peripherals
+     */
+    void Peripherals::send_byte_to_controller_or_memory_card(u8 value)
+    {
+        m_joy_stat.rx_fifo_not_empty = 1;
+        //m_joy_control.desired_slot_number
+        
+        // After sending a byte, the Kernel waits 100 cycles or so, 
+        // and does THEN acknowledge any old IRQ7, and does then wait 
+        // for the new IRQ7. Due to that bizarre coding, emulators 
+        // can't trigger IRQ7 immediately within 0 cycles after 
+        // sending the byte.
+
+        // initiate communication
+        if(m_meta_currently_communicating_with == CurrentlyCommunicatingWith::None)
+        {
+            if(value == 0b0000'0001)
+                m_meta_currently_communicating_with = CurrentlyCommunicatingWith::Controller;
+            
+            if(value == 0b1000'0001)
+                m_meta_currently_communicating_with = CurrentlyCommunicatingWith::MemoryCard;
+        }
+
+        if(m_meta_currently_communicating_with == CurrentlyCommunicatingWith::Controller)
+        {
+            auto new_data = m_controllers[m_joy_control.desired_slot_number]->send_byte(value);
+            auto ack_flag = m_controllers[m_joy_control.desired_slot_number]->ack();
+
+            m_joy_rx_data.write(0, new_data);
+            m_joy_control.acknowledge = ack_flag;
+
+            if(m_controllers[m_joy_control.desired_slot_number]->communication_ended())
+                m_meta_currently_communicating_with = CurrentlyCommunicatingWith::None;
+        }
+
+        if(m_meta_currently_communicating_with == CurrentlyCommunicatingWith::MemoryCard)
+        {
+            auto new_data = m_memory_cards[m_joy_control.desired_slot_number]->send_byte(value);
+            auto ack_flag = m_memory_cards[m_joy_control.desired_slot_number]->ack();
+
+            m_joy_rx_data.write(0, new_data);
+            m_joy_control.acknowledge = ack_flag;
+
+            if(m_memory_cards[m_joy_control.desired_slot_number]->communication_ended())
+                m_meta_currently_communicating_with = CurrentlyCommunicatingWith::None; 
+        }
     }
 }
