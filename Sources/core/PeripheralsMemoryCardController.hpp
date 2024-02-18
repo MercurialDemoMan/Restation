@@ -1,10 +1,10 @@
 /**
- * @file      PeripheralsController.hpp
+ * @file      PeripheralsMemoryCardController.hpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Interface class for representing a controller peripheral
+ * @brief     Header for a Memory Card peripheral
  *
  * @version   0.1
  *
@@ -31,35 +31,38 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef PERIPHERALSCONTROLLER_HPP
-#define PERIPHERALSCONTROLLER_HPP
+#ifndef PERIPHERALSMEMORYCARDCONTROLLER_HPP
+#define PERIPHERALSMEMORYCARDCONTROLLER_HPP
 
-#include <memory>
-#include "Types.hpp"
-#include "PeripheralsInput.hpp"
+#include "PeripheralsController.hpp"
 
 namespace PSX
 {
-    class PeripheralsController
+    /**
+     * @brief Implementation for the Digital Controller Peripheral
+     */
+    class PeripheralsMemoryCardController final : public PeripheralsController
     {
     public:
 
         /**
          * @brief transfer and handle 1 byte in communication sequence
          */
-        virtual u8 send_byte(u8);
+        virtual u8 send_byte(u8) override;
 
         /**
          * @brief check if controller ended communication sequence 
          */
-        virtual bool communication_ended() const;
+        virtual bool communication_ended() const override;
 
         /**
          * @brief send acknowledge flag back
          */
-        virtual bool ack() const;
+        virtual bool ack() const override;
+
+    private:
 
     };
 }
 
-#endif // PERIPHERALSCONTROLLER_HPP
+#endif // PERIPHERALSMEMORYCARDCONTROLLER_HPP

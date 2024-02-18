@@ -1,10 +1,10 @@
 /**
- * @file      PeripheralsController.hpp
+ * @file      PeripheralsDigitalController.hpp
  *
  * @author    Filip Stupka \n
  *            xstupk05@fit.vutbr.cz
  *
- * @brief     Interface class for representing a controller peripheral
+ * @brief     Header for a digital controller peripheral
  *
  * @version   0.1
  *
@@ -31,35 +31,46 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef PERIPHERALSCONTROLLER_HPP
-#define PERIPHERALSCONTROLLER_HPP
+#ifndef PERIPHERALSDIGITALCONTROLLER_HPP
+#define PERIPHERALSDIGITALCONTROLLER_HPP
 
-#include <memory>
-#include "Types.hpp"
-#include "PeripheralsInput.hpp"
+#include "PeripheralsController.hpp"
 
 namespace PSX
 {
-    class PeripheralsController
+    /**
+     * @brief Implementation for the Digital Controller Peripheral
+     */
+    class PeripheralsDigitalController final : public PeripheralsController
     {
     public:
+
+        PeripheralsDigitalController(const std::shared_ptr<PeripheralsInput>& input) :
+            m_input(input)
+        {
+
+        }
 
         /**
          * @brief transfer and handle 1 byte in communication sequence
          */
-        virtual u8 send_byte(u8);
+        virtual u8 send_byte(u8) override;
 
         /**
          * @brief check if controller ended communication sequence 
          */
-        virtual bool communication_ended() const;
+        virtual bool communication_ended() const override;
 
         /**
          * @brief send acknowledge flag back
          */
-        virtual bool ack() const;
+        virtual bool ack() const override;
+
+    private:
+
+        std::shared_ptr<PeripheralsInput> m_input;
 
     };
 }
 
-#endif // PERIPHERALSCONTROLLER_HPP
+#endif // PERIPHERALSDIGITALCONTROLLER_HPP

@@ -33,6 +33,9 @@
 
 #include "Peripherals.hpp"
 #include "Bus.hpp"
+#include "PeripheralsController.hpp"
+#include "PeripheralsDigitalController.hpp"
+#include "PeripheralsMemoryCardController.hpp"
 
 namespace PSX
 {
@@ -132,6 +135,11 @@ namespace PSX
         m_joy_mode.raw() = 0;
         m_joy_control.raw = 0;
         m_joy_baud.raw() = 0;
+
+        m_controllers[0] = std::make_shared<PeripheralsDigitalController>(m_input);
+        m_controllers[1] = std::make_shared<PeripheralsDigitalController>(m_input);
+        m_memory_cards[0] = std::make_shared<PeripheralsMemoryCardController>();
+        m_memory_cards[1] = std::make_shared<PeripheralsMemoryCardController>();
     }
 
     /**
@@ -140,7 +148,6 @@ namespace PSX
     void Peripherals::send_byte_to_controller_or_memory_card(u8 value)
     {
         m_joy_stat.rx_fifo_not_empty = 1;
-        //m_joy_control.desired_slot_number
         
         // After sending a byte, the Kernel waits 100 cycles or so, 
         // and does THEN acknowledge any old IRQ7, and does then wait 
@@ -181,5 +188,7 @@ namespace PSX
             if(m_memory_cards[m_joy_control.desired_slot_number]->communication_ended())
                 m_meta_currently_communicating_with = CurrentlyCommunicatingWith::None; 
         }
+
+        // TODO: delay interrupt
     }
 }
