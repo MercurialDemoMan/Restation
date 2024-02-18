@@ -36,15 +36,19 @@
 
 #include <memory>
 #include <unordered_map>
+#include <SDL.h>
 #include "../core/PeripheralsInput.hpp"
 #include "../core/Types.hpp"
 
+/**
+ * @brief Emulator input manager for the SDL2 library 
+ */
 class Input final : public PSX::PeripheralsInput
 {
 public:
 
     /**
-     * @brief allocate input manager
+     * @brief Allocate input manager and set default button mapping
      */
     static std::shared_ptr<Input> create();
 
@@ -53,12 +57,22 @@ public:
      */
     virtual bool is_digital_button_down(PSX::PeripheralsInput::DigitalButton) override;
 
+    /**
+     * @brief Setup button mapping between emulator input and host input
+     */
+    void button_mapping(SDL_Keycode, PSX::PeripheralsInput::DigitalButton);
+
+    /**
+     * @brief Set pressed/unpressed state of a host key
+     */
+    void update_key_state(SDL_Keycode, PSX::u32 state);
+
 private:
 
     explicit Input() {}
 
-    std::unordered_map<PSX::u32, PSX::PeripheralsInput::DigitalButton> m_button_mapping;
-
+    std::unordered_map<SDL_Keycode, PSX::PeripheralsInput::DigitalButton> m_button_mapping;
+    std::unordered_map<PSX::PeripheralsInput::DigitalButton, PSX::u32> m_button_state;
 };
 
 #endif // INPUT_HPP

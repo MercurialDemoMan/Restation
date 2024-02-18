@@ -34,14 +34,63 @@
 #include "Input.hpp"
 
 /**
- * @brief allocate input manager
+ * @brief allocate input manager and set default button mapping
  */
 std::shared_ptr<Input> Input::create()
 {
-    return std::shared_ptr<Input>(new Input());
+    auto result = std::shared_ptr<Input>(new Input());
+    result->button_mapping(SDLK_l,     PSX::PeripheralsInput::DigitalButton::Select);
+    result->button_mapping(SDLK_k,     PSX::PeripheralsInput::DigitalButton::Start);
+    result->button_mapping(SDLK_w,     PSX::PeripheralsInput::DigitalButton::Up);
+    result->button_mapping(SDLK_d,     PSX::PeripheralsInput::DigitalButton::Right);
+    result->button_mapping(SDLK_s,     PSX::PeripheralsInput::DigitalButton::Down);
+    result->button_mapping(SDLK_a,     PSX::PeripheralsInput::DigitalButton::Left);
+    result->button_mapping(SDLK_n,     PSX::PeripheralsInput::DigitalButton::L2);
+    result->button_mapping(SDLK_m,     PSX::PeripheralsInput::DigitalButton::R2);
+    result->button_mapping(SDLK_q,     PSX::PeripheralsInput::DigitalButton::L1);
+    result->button_mapping(SDLK_e,     PSX::PeripheralsInput::DigitalButton::R1);
+    result->button_mapping(SDLK_UP,    PSX::PeripheralsInput::DigitalButton::Triangle);
+    result->button_mapping(SDLK_RIGHT, PSX::PeripheralsInput::DigitalButton::Circle);
+    result->button_mapping(SDLK_DOWN,  PSX::PeripheralsInput::DigitalButton::Cross);
+    result->button_mapping(SDLK_LEFT,  PSX::PeripheralsInput::DigitalButton::Square);
+    return result;
 }
 
-bool Input::is_digital_button_down(PSX::PeripheralsInput::DigitalButton)
+/**
+ * @brief Interface used by peripherals component to receive input from host system
+ */
+bool Input::is_digital_button_down(PSX::PeripheralsInput::DigitalButton emulator_key)
 {
-    return false;
+    auto it = m_button_state.find(emulator_key);
+    if(it == m_button_state.end())
+    {
+        return false;
+    }
+
+    return it->second;
+}
+
+/**
+ * @brief Setup button mapping between emulator input and host input
+ */
+void Input::button_mapping(SDL_Keycode host_key, PSX::PeripheralsInput::DigitalButton emulator_key)
+{
+    m_button_mapping[host_key]   = emulator_key;
+    m_button_state[emulator_key] = 0;
+}
+
+/**
+ * @brief Set pressed/unpressed state of a host key
+ */
+void Input::update_key_state(SDL_Keycode key, PSX::u32 state)
+{
+    auto map_it = m_button_mapping.find(key);
+    if(map_it == m_button_mapping.end())
+        return;
+    
+    auto state_it = m_button_state.find(map_it->second);
+    if(state_it == m_button_state.end())
+        return;
+
+    state_it->second = state;
 }

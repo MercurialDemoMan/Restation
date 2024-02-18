@@ -48,7 +48,7 @@ public:
     /**
      * @brief draw the menu and manage the logic 
      */
-    void render();
+    void render_and_update();
 
     /**
      * @brief check if user wants to reset the emulator

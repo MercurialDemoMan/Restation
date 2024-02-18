@@ -224,6 +224,18 @@ void App::run()
                     {
                         m_run = false;
                     } break;
+                    case SDL_KEYDOWN:
+                    {
+                        PSX::u32 scancode = event.key.keysym.scancode;
+                        PSX::u32 keycode  = event.key.keysym.sym;
+                        LOG(fmt::format("key pressed {} -> {}", scancode, keycode));
+                    } break;
+                    case SDL_KEYUP:
+                    {
+                        PSX::u32 scancode = event.key.keysym.scancode;
+                        PSX::u32 keycode  = event.key.keysym.sym;
+                        LOG(fmt::format("key unpressed {} -> {}", scancode, keycode));
+                    } break;
                 }
             }
         }
@@ -283,7 +295,7 @@ void App::run()
 
         // render menu
         {
-            m_menu.render();
+            m_menu.render_and_update();
         }
 
         // send to screen

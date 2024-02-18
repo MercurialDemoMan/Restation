@@ -47,7 +47,7 @@ void Menu::reset()
 /**
  * @brief draw the menu and manage the logic 
  */
-void Menu::render()
+void Menu::render_and_update()
 {
     ImGui::BeginMainMenuBar();
     if(ImGui::BeginMenu("File..."))
