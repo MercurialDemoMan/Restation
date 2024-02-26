@@ -35,6 +35,7 @@
 #define INPUT_HPP
 
 #include <memory>
+#include <vector>
 #include <unordered_map>
 #include <SDL.h>
 #include "../core/PeripheralsInput.hpp"
@@ -53,25 +54,53 @@ public:
     static std::shared_ptr<Input> create();
 
     /**
+     * @brief Close all open joystics 
+     */
+    ~Input();
+
+    /**
      * @brief Interface used by peripherals component to receive input from host system
      */
     virtual bool is_digital_button_down(PSX::PeripheralsInput::DigitalButton) override;
 
     /**
-     * @brief Setup button mapping between emulator input and host input
+     * @brief Setup button mapping between emulator keyboard input and host input
      */
-    void button_mapping(SDL_Keycode, PSX::PeripheralsInput::DigitalButton);
+    void keyboard_to_button_mapping(SDL_Keycode, PSX::PeripheralsInput::DigitalButton);
 
     /**
-     * @brief Set pressed/unpressed state of a host key
+     * @brief Setup button mapping between emulator joystick button input and host input
      */
-    void update_key_state(SDL_Keycode, PSX::u32 state);
+    void joystick_button_to_button_mapping(PSX::u8, PSX::PeripheralsInput::DigitalButton);
+
+    /**
+     * @brief Process event from SDL2 to update key state and to manage gamepads 
+     */
+    void process_event(SDL_Event*);
 
 private:
 
+    /**
+     * @brief Set pressed/unpressed state of a host keyboard key
+     */
+    void update_keyboard_key_state(SDL_Keycode, PSX::u32 state);
+
+    /**
+     * @brief Set pressed/unpressed state of a host joystick button 
+     */
+    void update_joystick_button_state(PSX::u8 button, PSX::u32 state);
+
+    /**
+     * @brief Close all existing joystics and check current status of joystics 
+     */
+    void force_recheck_joysticks();
+
     explicit Input() {}
 
-    std::unordered_map<SDL_Keycode, PSX::PeripheralsInput::DigitalButton> m_button_mapping;
+    std::vector<SDL_Joystick*> m_joysticks; /// Keep track of all connected joysticks/gamepads
+
+    std::unordered_map<PSX::u8, PSX::PeripheralsInput::DigitalButton>     m_joystick_button_mapping;
+    std::unordered_map<SDL_Keycode, PSX::PeripheralsInput::DigitalButton> m_keyboard_button_mapping;
     std::unordered_map<PSX::PeripheralsInput::DigitalButton, PSX::u32> m_button_state;
 };
 

@@ -73,7 +73,7 @@ App::~App()
  */
 void App::init_frontend()
 {
-    if(SDL_Init(SDL_INIT_VIDEO) != 0)
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0)
     {
         ABORT_WITH_MESSAGE(fmt::format("couldn't initialize SDL2 video component: {}", SDL_GetError()));
     }
@@ -128,6 +128,8 @@ void App::init_frontend()
 
     m_menu.reset();
     m_input = Input::create();
+
+    LOG(fmt::format("Number of joystics detected: {}", SDL_NumJoysticks()));
 }
 
 /**
@@ -181,26 +183,13 @@ void App::run()
             while(SDL_PollEvent(&event))
             {
                 ImGui_ImplSDL2_ProcessEvent(&event);
+                m_input->process_event(&event);
 
                 switch(event.type)
                 {
                     case SDL_QUIT:
                     {
                         m_run = false;
-                    } break;
-                    case SDL_KEYDOWN:
-                    {
-                        PSX::u32 scancode = event.key.keysym.scancode;
-                        PSX::u32 keycode  = event.key.keysym.sym;
-                        MARK_UNUSED(scancode);
-                        m_input->update_key_state(keycode, 1);
-                    } break;
-                    case SDL_KEYUP:
-                    {
-                        PSX::u32 scancode = event.key.keysym.scancode;
-                        PSX::u32 keycode  = event.key.keysym.sym;
-                        MARK_UNUSED(scancode);
-                        m_input->update_key_state(keycode, 0);
                     } break;
                 }
             }
