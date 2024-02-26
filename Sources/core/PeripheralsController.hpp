@@ -47,18 +47,22 @@ namespace PSX
         /**
          * @brief transfer and handle 1 byte in communication sequence
          */
-        virtual u8 send_byte(u8);
+        virtual u8 send_byte(u8) = 0;
 
         /**
          * @brief check if controller ended communication sequence 
          */
-        virtual bool communication_ended() const;
+        virtual bool communication_ended() const = 0;
 
         /**
          * @brief send acknowledge flag back
          */
-        virtual bool ack() const;
+        virtual bool ack() const = 0;
 
+        /**
+         * @brief reset any communication temporaries 
+         */
+        virtual void reset() = 0;
     };
 }
 

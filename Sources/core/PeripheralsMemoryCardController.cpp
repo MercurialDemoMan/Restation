@@ -58,4 +58,12 @@ namespace PSX
     {
         return false;
     }
+
+    /**
+     * @brief reset any communication temporaries 
+     */
+    void PeripheralsMemoryCardController::reset()
+    {
+        
+    }
 }

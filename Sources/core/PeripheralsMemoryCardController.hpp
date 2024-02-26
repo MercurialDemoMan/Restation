@@ -39,7 +39,7 @@
 namespace PSX
 {
     /**
-     * @brief Implementation for the Digital Controller Peripheral
+     * @brief Implementation for the Memory Card Peripheral
      */
     class PeripheralsMemoryCardController final : public PeripheralsController
     {
@@ -59,6 +59,11 @@ namespace PSX
          * @brief send acknowledge flag back
          */
         virtual bool ack() const override;
+
+        /**
+         * @brief reset any communication temporaries 
+         */
+        virtual void reset() override;
 
     private:
 
