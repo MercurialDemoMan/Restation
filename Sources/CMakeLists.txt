@@ -13,7 +13,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ggdb")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
 # set debug logging verbosity
-add_compile_definitions(LOG_DEBUG_LEVEL=5)
+# add_compile_definitions(LOG_DEBUG_LEVEL=5)
 
 # add fmt to the project
 add_subdirectory(${CMAKE_SOURCE_DIR}/deps/fmt-10.1.1)
@@ -74,6 +74,8 @@ add_executable(emu
     core/DMAChannelMDECOUT.cpp
     core/ExceptionController.cpp
     core/InterruptController.cpp
+    core/PeripheralsDigitalController.cpp
+    core/PeripheralsMemoryCardController.cpp
     
     # compile frontend app
     app/App.cpp
