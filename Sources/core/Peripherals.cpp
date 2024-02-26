@@ -33,6 +33,7 @@
 
 #include "Peripherals.hpp"
 #include "Bus.hpp"
+#include "InterruptController.hpp"
 #include "PeripheralsController.hpp"
 #include "PeripheralsDigitalController.hpp"
 #include "PeripheralsMemoryCardController.hpp"
@@ -41,8 +42,24 @@ namespace PSX
 {
     void Peripherals::execute(u32 num_steps)
     {
-        MARK_UNUSED(num_steps);
-        TODO();
+        // TODO: baud counter at 33MHz
+
+        for(u32 _ = 0; _ < num_steps; _++)
+        {
+            if(m_meta_interrupt_request_delay > 0)
+            {
+                if(--m_meta_interrupt_request_delay == 0)
+                {
+                    m_joy_stat.interrupt_request = 1;
+                    m_joy_control.acknowledge    = 0;
+                }
+            }
+            
+            if(m_joy_stat.interrupt_request)
+            {
+                m_interrupt_controller->trigger_interrupt(Interrupt::Peripheral);
+            }
+        }
     }
 
     u32 Peripherals::read(u32 address)
@@ -91,7 +108,7 @@ namespace PSX
         {
             case 0:
             {
-                send_byte_to_controller_or_memory_card(value);
+                send_byte_to_controller_or_memory_card(value); return;
             } break;
             case 8:
             case 9:
@@ -109,7 +126,16 @@ namespace PSX
             }
             case 11:
             {
-                m_joy_control.bytes[address - 11] = value; return;
+                m_joy_control.bytes[address - 11] = value; 
+                if(m_joy_control.reset)
+                {
+                    m_meta_currently_communicating_with = CurrentlyCommunicatingWith::None;
+                    m_controllers[0]->reset();
+                    m_controllers[1]->reset();
+                    m_memory_cards[0]->reset();
+                    m_memory_cards[1]->reset();
+                }
+                return;
             } break;
             case 14:
             case 15:
@@ -136,10 +162,13 @@ namespace PSX
         m_joy_control.raw = 0;
         m_joy_baud.raw() = 0;
 
-        m_controllers[0] = std::make_shared<PeripheralsDigitalController>(m_input);
-        m_controllers[1] = std::make_shared<PeripheralsDigitalController>(m_input);
-        m_memory_cards[0] = std::make_shared<PeripheralsMemoryCardController>();
-        m_memory_cards[1] = std::make_shared<PeripheralsMemoryCardController>();
+        m_meta_currently_communicating_with = CurrentlyCommunicatingWith::None;
+        m_meta_interrupt_request_delay = 0;
+
+        m_controllers[0] = std::make_unique<PeripheralsDigitalController>(m_input);
+        m_controllers[1] = std::make_unique<PeripheralsDigitalController>(m_input);
+        m_memory_cards[0] = std::make_unique<PeripheralsMemoryCardController>();
+        m_memory_cards[1] = std::make_unique<PeripheralsMemoryCardController>();
     }
 
     /**
@@ -173,6 +202,9 @@ namespace PSX
             m_joy_rx_data.write(0, new_data);
             m_joy_control.acknowledge = ack_flag;
 
+            if(ack_flag)
+                m_meta_interrupt_request_delay = ControllerInterruptRequestDelay;
+
             if(m_controllers[m_joy_control.desired_slot_number]->communication_ended())
                 m_meta_currently_communicating_with = CurrentlyCommunicatingWith::None;
         }
@@ -184,6 +216,9 @@ namespace PSX
 
             m_joy_rx_data.write(0, new_data);
             m_joy_control.acknowledge = ack_flag;
+
+            if(ack_flag)
+                m_meta_interrupt_request_delay = MemoryCardInterruptRequestDelay;
 
             if(m_memory_cards[m_joy_control.desired_slot_number]->communication_ended())
                 m_meta_currently_communicating_with = CurrentlyCommunicatingWith::None; 

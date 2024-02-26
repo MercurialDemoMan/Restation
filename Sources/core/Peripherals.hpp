@@ -35,6 +35,7 @@
 #define PERIPHERALS_HPP
 
 #include <memory>
+#include <array>
 #include "Component.hpp"
 #include "Forward.hpp"
 #include "PeripheralsInput.hpp"
@@ -49,9 +50,15 @@ namespace PSX
     {
     public:
 
-        Peripherals(const std::shared_ptr<Bus>& bus, const std::shared_ptr<PeripheralsInput>& input) :
+        static constexpr const u32 ControllerInterruptRequestDelay = 376; 
+        static constexpr const u32 MemoryCardInterruptRequestDelay = 541;
+
+        Peripherals(const std::shared_ptr<Bus>& bus, 
+                    const std::shared_ptr<PeripheralsInput>& input,
+                    const std::shared_ptr<InterruptController>& interrupt_controller) :
             m_bus(bus),
-            m_input(input)
+            m_input(input),
+            m_interrupt_controller(interrupt_controller)
         {
             reset();
         }
@@ -132,6 +139,7 @@ namespace PSX
 
         std::shared_ptr<Bus> m_bus;
         std::shared_ptr<PeripheralsInput> m_input;
+        std::shared_ptr<InterruptController> m_interrupt_controller;
 
         Register<u32> m_joy_rx_data; 
         JoyStat       m_joy_stat;
@@ -140,8 +148,9 @@ namespace PSX
         Register<u16> m_joy_baud;
 
         CurrentlyCommunicatingWith m_meta_currently_communicating_with;
-        std::array<std::shared_ptr<PeripheralsController>, 2> m_controllers;
-        std::array<std::shared_ptr<PeripheralsController>, 2> m_memory_cards;
+        u32 m_meta_interrupt_request_delay;
+        std::array<std::unique_ptr<PeripheralsController>, 2> m_controllers;
+        std::array<std::unique_ptr<PeripheralsController>, 2> m_memory_cards;
     };
 }
 
