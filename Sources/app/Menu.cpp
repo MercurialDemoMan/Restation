@@ -33,7 +33,9 @@
 
 #include "Menu.hpp"
 #include "../core/Macros.hpp"
+#include "../core/Types.hpp"
 #include <imgui.h>
+#include <misc/cpp/imgui_stdlib.h>
 
 /**
  * @brief reset the configuration 
@@ -42,6 +44,7 @@ void Menu::reset()
 {
     std::scoped_lock lock(m_menu_state_mutex);
     m_emulator_reset = false;
+    m_show_controls = false;
 }
 
 /**
@@ -50,18 +53,6 @@ void Menu::reset()
 void Menu::render_and_update()
 {
     ImGui::BeginMainMenuBar();
-    if(ImGui::BeginMenu("File..."))
-    {
-        if(ImGui::MenuItem("Load BIOS"))
-        {
-            LOG("TODO...");
-        }
-        if(ImGui::MenuItem("Load Game"))
-        {
-            LOG("TODO...");
-        }
-        ImGui::EndMenu();
-    }
     if(ImGui::BeginMenu("State..."))
     {
         if(ImGui::MenuItem("Reset"))
@@ -70,15 +61,46 @@ void Menu::render_and_update()
         }
         ImGui::EndMenu();
     }
-    if(ImGui::MenuItem("Controls"))
+    if(ImGui::MenuItem("Show/Hide Controls"))
     {
-        LOG("TODO...");
+        m_show_controls = !m_show_controls;
     }
     if(ImGui::MenuItem("Hide"))
     {
         LOG("TODO...");
     }
     ImGui::EndMainMenuBar();
+    
+    if(m_show_controls)
+    {
+        ImGui::Begin("Controls");
+        if(ImGui::CollapsingHeader("Buttons", NULL, ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            render_button_mapping(PSX::PeripheralsInput::DigitalButton::Triangle);
+            render_button_mapping(PSX::PeripheralsInput::DigitalButton::Square);
+            render_button_mapping(PSX::PeripheralsInput::DigitalButton::Cross);
+            render_button_mapping(PSX::PeripheralsInput::DigitalButton::Circle);
+            render_button_mapping(PSX::PeripheralsInput::DigitalButton::Start);
+            render_button_mapping(PSX::PeripheralsInput::DigitalButton::Select);
+        }
+        if(ImGui::CollapsingHeader("D-Pad", NULL, ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            render_button_mapping(PSX::PeripheralsInput::DigitalButton::Up);
+            render_button_mapping(PSX::PeripheralsInput::DigitalButton::Left);
+            render_button_mapping(PSX::PeripheralsInput::DigitalButton::Down);
+            render_button_mapping(PSX::PeripheralsInput::DigitalButton::Right);
+        }
+        if(ImGui::CollapsingHeader("Shoulder Buttons", NULL, ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            render_button_mapping(PSX::PeripheralsInput::DigitalButton::L1);
+            render_button_mapping(PSX::PeripheralsInput::DigitalButton::R1);
+            render_button_mapping(PSX::PeripheralsInput::DigitalButton::L2);
+            render_button_mapping(PSX::PeripheralsInput::DigitalButton::R2);
+            render_button_mapping(PSX::PeripheralsInput::DigitalButton::L3);
+            render_button_mapping(PSX::PeripheralsInput::DigitalButton::R3);
+        }
+        ImGui::End();
+    }
 }
 
 /**
@@ -97,4 +119,23 @@ void Menu::set_emulator_reset(bool value)
 {
     std::scoped_lock lock(m_menu_state_mutex);
     m_emulator_reset = value;
+}
+
+
+void Menu::render_button_mapping(PSX::PeripheralsInput::DigitalButton button)
+{
+    ImGui::NewLine();
+    ImGui::SameLine(0.0f);
+    ImGui::BeginDisabled();
+    ImGui::Button
+    (
+        fmt::format("{:>8}:", PSX::PeripheralsInput::DigitalButtonName[PSX::u32(button)]).c_str()
+    );
+    ImGui::EndDisabled();
+
+    ImGui::SameLine(0.0f);
+    if(ImGui::Button(fmt::format("TODO: show host mapping of {}", PSX::PeripheralsInput::DigitalButtonName[PSX::u32(button)]).c_str()))
+    {
+        LOG("TODO: remap buttons");
+    }
 }

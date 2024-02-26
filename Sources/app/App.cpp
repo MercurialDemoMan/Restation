@@ -210,8 +210,14 @@ void App::run()
         // and wait until the emulator thread sends the vram content into m_emulator_vram
         {
             std::unique_lock lock(m_vram_mutex);
-            using namespace std::chrono_literals;
-            m_vblank_notifier.wait_for(lock, 20ms);
+            static constexpr auto VBlankMaxWaitTime = std::chrono::duration_cast<std::chrono::milliseconds>
+            (
+                std::chrono::duration<float>
+                (
+                    (1.0f / PSX::PALWithoutInterlaceRefreshRate)
+                )
+            );
+            m_vblank_notifier.wait_for(lock, VBlankMaxWaitTime);
         }
         
         // copy gpu vram content to SDL texture

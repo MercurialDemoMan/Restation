@@ -35,6 +35,8 @@
 #define MENU_HPP
 
 #include <mutex>
+#include <string>
+#include "../core/PeripheralsInput.hpp"
 
 class Menu
 {
@@ -62,7 +64,11 @@ public:
 
 private:
 
+    void render_button_mapping(PSX::PeripheralsInput::DigitalButton);
+
     bool m_emulator_reset;
+    bool m_show_controls;
+    std::string m_test;
     
     std::mutex m_menu_state_mutex;
 };

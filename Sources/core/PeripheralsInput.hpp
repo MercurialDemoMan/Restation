@@ -66,6 +66,26 @@ namespace PSX
             Square   = 15
         };
 
+        static constexpr const char* DigitalButtonName[] =
+        {
+            "Select",
+            "L3",
+            "R3",
+            "Start",
+            "Up",
+            "Right",
+            "Down",
+            "Left",
+            "L2",
+            "R2",
+            "L1",
+            "R1",
+            "Triangle",
+            "Circle",
+            "Cross",
+            "Square",
+        };
+
         /**
          * @brief check if specific button is currently pressed 
          */
