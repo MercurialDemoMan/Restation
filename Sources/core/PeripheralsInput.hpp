@@ -49,6 +49,8 @@ namespace PSX
         enum class DigitalButton
         {
             Select   =  0,
+            L3       =  1,
+            R3       =  2,
             Start    =  3,
             Up       =  4,
             Right    =  5,
