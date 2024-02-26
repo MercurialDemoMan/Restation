@@ -96,12 +96,18 @@ private:
      */
     void init_backend();
 
+    /**
+     * @brief start emulator logic loop
+     *        needs to be called from separate thread
+     */
+    void emulator_thread();
+
     static std::shared_ptr<App> m_singleton_instance; /// Manage singleton instance
 
     SDL_Window*   m_window;      /// Manage Window
     SDL_Renderer* m_renderer;    /// Manage Window Surface Renderer
     SDL_Texture*  m_framebuffer; /// Manage Window Framebuffer
-    bool          m_run;         /// Manage Main App Loop
+    std::atomic<bool> m_run;     /// Manage Main App Emulator/Rendering Loop
 
     std::shared_ptr<Input>    m_input;                                      /// SDL2 Input Manager
     std::shared_ptr<PSX::Bus> m_emulator_core;                              /// Store Actual Emulator State

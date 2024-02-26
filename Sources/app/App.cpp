@@ -125,6 +125,9 @@ void App::init_frontend()
     ImGui::CreateContext();
     ImGui_ImplSDL2_InitForSDLRenderer(m_window, m_renderer);
     ImGui_ImplSDLRenderer2_Init(m_renderer);
+
+    m_menu.reset();
+    m_input = Input::create();
 }
 
 /**
@@ -133,7 +136,6 @@ void App::init_frontend()
 void App::init_backend()
 {
     m_emulator_core = PSX::Bus::create(m_input);
-    m_menu.reset();
 }
 
 /**
@@ -168,47 +170,9 @@ std::shared_ptr<App> App::the()
 void App::run()
 {
     // launch emulator thread
-    m_emulator_thread = std::thread([this]()
-    {
-        while(m_run)
-        {
-            if(m_menu.emulator_reset())
-            {
-                m_emulator_core->reset();
-                m_menu.set_emulator_reset(false);
-            }
+    m_emulator_thread = std::thread(&App::emulator_thread, this);
 
-            // start timing frame
-            auto start_timestamp = std::chrono::high_resolution_clock::now();
-
-            // emulate system until gpu finishes rendering a frame
-            while(!m_emulator_core->meta_vblank())
-            {
-                m_emulator_core->execute(PSX::Bus::OptimalSimulationStep);
-            }
-
-            // end timing frame
-            auto end_timestamp  = std::chrono::high_resolution_clock::now();
-            PSX::s64 frame_time = std::chrono::duration_cast<std::chrono::microseconds>(end_timestamp - start_timestamp).count();
-            PSX::s64 desired_frame_time = 1'000'000.0f / m_emulator_core->meta_refresh_rate(); 
-
-            // limit frame time based on the gpu mode
-            if(frame_time < desired_frame_time)
-            {
-                std::this_thread::sleep_for(std::chrono::microseconds(desired_frame_time - frame_time));
-            }
-               
-            // copy vram to rendering thread
-            {
-                std::lock_guard lock(m_vram_mutex);
-                m_emulator_vram = m_emulator_core->meta_get_vram_buffer();
-            }
-
-            // inform rendering thread about finished frame
-            m_vblank_notifier.notify_one();
-        }
-    });
-
+    // launch event/rendering loop
     while(m_run)
     {
         // handle events
@@ -228,13 +192,15 @@ void App::run()
                     {
                         PSX::u32 scancode = event.key.keysym.scancode;
                         PSX::u32 keycode  = event.key.keysym.sym;
-                        LOG(fmt::format("key pressed {} -> {}", scancode, keycode));
+                        MARK_UNUSED(scancode);
+                        m_input->update_key_state(keycode, 1);
                     } break;
                     case SDL_KEYUP:
                     {
                         PSX::u32 scancode = event.key.keysym.scancode;
                         PSX::u32 keycode  = event.key.keysym.sym;
-                        LOG(fmt::format("key unpressed {} -> {}", scancode, keycode));
+                        MARK_UNUSED(scancode);
+                        m_input->update_key_state(keycode, 0);
                     } break;
                 }
             }
@@ -307,4 +273,49 @@ void App::run()
     }
 
     m_emulator_thread.join();
+}
+
+/**
+ * @brief start emulator logic loop
+ *        needs to be called from separate thread
+ */
+void App::emulator_thread()
+{
+    while(m_run)
+    {
+        if(m_menu.emulator_reset())
+        {
+            m_emulator_core->reset();
+            m_menu.set_emulator_reset(false);
+        }
+
+        // start timing frame
+        auto start_timestamp = std::chrono::high_resolution_clock::now();
+
+        // emulate system until gpu finishes rendering a frame
+        while(!m_emulator_core->meta_vblank())
+        {
+            m_emulator_core->execute(PSX::Bus::OptimalSimulationStep);
+        }
+
+        // end timing frame
+        auto end_timestamp  = std::chrono::high_resolution_clock::now();
+        PSX::s64 frame_time = std::chrono::duration_cast<std::chrono::microseconds>(end_timestamp - start_timestamp).count();
+        PSX::s64 desired_frame_time = 1'000'000.0f / m_emulator_core->meta_refresh_rate(); 
+
+        // limit frame time based on the gpu mode
+        if(frame_time < desired_frame_time)
+        {
+            std::this_thread::sleep_for(std::chrono::microseconds(desired_frame_time - frame_time));
+        }
+            
+        // copy vram to rendering thread
+        {
+            std::lock_guard lock(m_vram_mutex);
+            m_emulator_vram = m_emulator_core->meta_get_vram_buffer();
+        }
+
+        // inform rendering thread about finished frame
+        m_vblank_notifier.notify_one();
+    }
 }
