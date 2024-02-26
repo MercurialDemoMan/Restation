@@ -45,11 +45,7 @@ namespace PSX
     {
     public:
 
-        PeripheralsDigitalController(const std::shared_ptr<PeripheralsInput>& input) :
-            m_input(input)
-        {
-
-        }
+        PeripheralsDigitalController(const std::shared_ptr<PeripheralsInput>& input);
 
         /**
          * @brief transfer and handle 1 byte in communication sequence
@@ -66,10 +62,46 @@ namespace PSX
          */
         virtual bool ack() const override;
 
+        /**
+         * @brief reset any communication temporaries 
+         */
+        virtual void reset() override;
+
     private:
+
+        /**
+         * @brief Internal bit layout to determine buttons states 
+         */
+        union ButtonsState
+        {
+            struct
+            {
+                u16 select:   1;
+                u16 l3:       1;
+                u16 r3:       1;
+                u16 start:    1;
+                u16 up:       1;
+                u16 right:    1;
+                u16 down:     1;
+                u16 left:     1;
+                u16 l2:       1;
+                u16 r2:       1;
+                u16 l1:       1;
+                u16 r1:       1;
+                u16 triangle: 1;
+                u16 circle:   1;
+                u16 cross:    1;
+                u16 square:   1;
+            };
+
+            u16 raw;
+            u8  bytes[sizeof(u16)];
+        };
 
         std::shared_ptr<PeripheralsInput> m_input;
 
+        ButtonsState m_buttons_state;
+        u32          m_communication_counter;
     };
 }
 
