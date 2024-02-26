@@ -78,11 +78,11 @@ namespace PSX
         m_mdec                 = std::make_shared<MDEC>(shared_from_this());
         m_io_ports             = std::make_shared<IOPorts>();
         m_serial_port          = std::make_shared<SerialPort>();
-        m_peripherals          = std::make_shared<Peripherals>(shared_from_this(), input);
         m_ram_controller       = std::make_shared<RamController>();
         m_mem_controller       = std::make_shared<MemController>();
         m_cache_controller     = std::make_shared<CacheController>();
         m_interrupt_controller = std::make_shared<InterruptController>(m_cpu->exception_controller());
+        m_peripherals          = std::make_shared<Peripherals>(shared_from_this(), input, m_interrupt_controller);
         m_cdrom                = std::make_shared<CDROM>(shared_from_this(), m_interrupt_controller);
         m_gpu                  = std::make_shared<GPU>(shared_from_this(), m_interrupt_controller);
         m_dma_controller       = std::make_shared<DMAController>(shared_from_this(), m_mdec, m_gpu, m_spu, m_cdrom, m_interrupt_controller);
@@ -344,6 +344,7 @@ namespace PSX
      */
     void Bus::execute(u32 num_steps)
     {
+        m_peripherals->execute(num_steps);
         m_cpu->execute(num_steps);
         m_dma_controller->execute(num_steps);
         m_timer_dotclock->execute(num_steps);    
