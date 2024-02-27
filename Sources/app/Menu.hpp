@@ -58,16 +58,25 @@ public:
     bool emulator_reset();
 
     /**
+     * @brief on/off switch between showing whole vram or just the correct portion
+     */
+    bool show_vram();
+
+    /**
      * @brief set emulator reset status 
      */
     void set_emulator_reset(bool);
 
 private:
 
+    /**
+     * @brief  
+     */
     void render_button_mapping(PSX::PeripheralsInput::DigitalButton);
 
     bool m_emulator_reset;
     bool m_show_controls;
+    bool m_show_vram;
     std::string m_test;
     
     std::mutex m_menu_state_mutex;

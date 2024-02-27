@@ -45,6 +45,7 @@ void Menu::reset()
     std::scoped_lock lock(m_menu_state_mutex);
     m_emulator_reset = false;
     m_show_controls = false;
+    m_show_vram = true;
 }
 
 /**
@@ -64,6 +65,10 @@ void Menu::render_and_update()
     if(ImGui::MenuItem("Show/Hide Controls"))
     {
         m_show_controls = !m_show_controls;
+    }
+    if(ImGui::MenuItem("Toggle VRAM"))
+    {
+        m_show_vram = !m_show_vram;
     }
     if(ImGui::MenuItem("Hide"))
     {
@@ -122,6 +127,17 @@ void Menu::set_emulator_reset(bool value)
 }
 
 
+/**
+ * @brief on/off switch between showing whole vram or just the correct portion
+ */
+bool Menu::show_vram()
+{
+    return m_show_vram;
+}
+
+/**
+ * @brief  
+ */
 void Menu::render_button_mapping(PSX::PeripheralsInput::DigitalButton button)
 {
     ImGui::NewLine();
