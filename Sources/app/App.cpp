@@ -80,7 +80,7 @@ void App::init_frontend()
 
     m_window = SDL_CreateWindow
     (
-        "Emulator", 
+        "Restation", 
         SDL_WINDOWPOS_CENTERED, 
         SDL_WINDOWPOS_CENTERED, 
         1024, 
@@ -127,9 +127,6 @@ void App::init_frontend()
     ImGui_ImplSDLRenderer2_Init(m_renderer);
 
     m_menu.reset();
-    m_input = Input::create();
-
-    LOG(fmt::format("Number of joystics detected: {}", SDL_NumJoysticks()));
 }
 
 /**
@@ -137,6 +134,7 @@ void App::init_frontend()
  */
 void App::init_backend()
 {
+    m_input = Input::create();
     m_emulator_core = PSX::Bus::create(m_input);
 }
 
@@ -237,6 +235,10 @@ void App::run()
                 }
                 std::lock_guard lock(m_vram_mutex);
                 std::memcpy(framebuffer_pixels, m_emulator_vram.data(), framebuffer_pitch * PSX::VRamHeight);
+                m_framebuffer_view.x = m_emulator_framebuffer_view.x;
+                m_framebuffer_view.y = m_emulator_framebuffer_view.y;
+                m_framebuffer_view.w = m_emulator_framebuffer_view.z;
+                m_framebuffer_view.h = m_emulator_framebuffer_view.w;
             }
             SDL_UnlockTexture(m_framebuffer);
         }
@@ -251,7 +253,14 @@ void App::run()
 
         // render vram
         {
-            SDL_RenderCopy(m_renderer, m_framebuffer, NULL, NULL);
+            if(m_menu.show_vram())
+            {
+                SDL_RenderCopy(m_renderer, m_framebuffer, NULL, NULL);
+            }
+            else
+            {
+                SDL_RenderCopy(m_renderer, m_framebuffer, &m_framebuffer_view, NULL);
+            }
         }
 
         // render menu
@@ -308,6 +317,7 @@ void App::emulator_thread()
         {
             std::lock_guard lock(m_vram_mutex);
             m_emulator_vram = m_emulator_core->meta_get_vram_buffer();
+            m_emulator_framebuffer_view = m_emulator_core->meta_get_framebuffer_view();
         }
 
         // inform rendering thread about finished frame

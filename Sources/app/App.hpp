@@ -104,14 +104,16 @@ private:
 
     static std::shared_ptr<App> m_singleton_instance; /// Manage singleton instance
 
-    SDL_Window*   m_window;      /// Manage Window
-    SDL_Renderer* m_renderer;    /// Manage Window Surface Renderer
-    SDL_Texture*  m_framebuffer; /// Manage Window Framebuffer
-    std::atomic<bool> m_run;     /// Manage Main App Emulator/Rendering Loop
+    SDL_Window*   m_window;        /// Manage Window
+    SDL_Renderer* m_renderer;      /// Manage Window Surface Renderer
+    SDL_Texture*  m_framebuffer;   /// Manage Window Framebuffer
+    std::atomic<bool> m_run;       /// Manage Main App Emulator/Rendering Loop
+    SDL_Rect      m_framebuffer_view; /// Cutout of VRAM
 
     std::shared_ptr<Input>    m_input;                                      /// SDL2 Input Manager
     std::shared_ptr<PSX::Bus> m_emulator_core;                              /// Store Actual Emulator State
     std::array<PSX::u16, PSX::VRamWidth * PSX::VRamHeight> m_emulator_vram; /// Store Copy of Emulator VRAM
+    glm::ivec4                m_emulator_framebuffer_view;                  /// Cutout of VRAM
 
     std::thread             m_emulator_thread;      /// Manage Emulator Thread
     std::mutex              m_vram_mutex;           /// v
