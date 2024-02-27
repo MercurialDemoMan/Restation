@@ -54,7 +54,7 @@ std::shared_ptr<Input> Input::create()
     result->keyboard_to_button_mapping(SDLK_RIGHT, PSX::PeripheralsInput::DigitalButton::Circle);
     result->keyboard_to_button_mapping(SDLK_DOWN,  PSX::PeripheralsInput::DigitalButton::Cross);
     result->keyboard_to_button_mapping(SDLK_LEFT,  PSX::PeripheralsInput::DigitalButton::Square);
-    
+
     result->joystick_button_to_button_mapping(0, PSX::PeripheralsInput::DigitalButton::Cross);
     result->joystick_button_to_button_mapping(1, PSX::PeripheralsInput::DigitalButton::Circle);
     result->joystick_button_to_button_mapping(2, PSX::PeripheralsInput::DigitalButton::Square);
@@ -96,7 +96,7 @@ void Input::process_event(SDL_Event* event)
         case SDL_JOYDEVICEADDED:
         {
             // TODO: potentially flawed logic, what if we have 3 controllers and the 1st one disconnects?
-            if(event->jdevice.which < m_joysticks.size())
+            if(event->jdevice.which < PSX::s32(m_joysticks.size()))
             {
                 force_recheck_joysticks();
             }
@@ -108,7 +108,7 @@ void Input::process_event(SDL_Event* event)
         } break;
         case SDL_JOYDEVICEREMOVED:
         {
-            if(event->jdevice.which >= 0 && event->jdevice.which < m_joysticks.size())
+            if(event->jdevice.which >= 0 && event->jdevice.which < PSX::s32(m_joysticks.size()))
             {
                 SDL_JoystickClose(m_joysticks[event->jdevice.which]);
                 m_joysticks.erase(m_joysticks.begin() + event->jdevice.which);
@@ -221,7 +221,7 @@ void Input::force_recheck_joysticks()
 
     m_joysticks.clear();
 
-    for(PSX::u32 i = 0; i < SDL_NumJoysticks(); i++)
+    for(PSX::s32 i = 0; i < SDL_NumJoysticks(); i++)
     {
         auto* joystick = SDL_JoystickOpen(i);
         if(joystick == nullptr)
