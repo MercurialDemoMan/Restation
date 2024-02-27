@@ -39,6 +39,7 @@
 #include <string>
 #include <memory>
 #include <iostream>
+#include <glm/glm.hpp>
 #include "Types.hpp"
 #include "Macros.hpp"
 #include "Constants.hpp"
@@ -92,6 +93,11 @@ namespace PSX
          * @brief calculate current refresh rate 
          */
         float meta_refresh_rate() const;
+
+        /**
+         * @brief get the current rendering cutout of the vram
+         */
+        glm::ivec4 meta_get_framebuffer_view() const;
 
         /**
          * @brief execute all components for num_steps clock cycles

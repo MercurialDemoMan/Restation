@@ -422,6 +422,14 @@ namespace PSX
     }
 
     /**
+     * @brief get the current rendering cutout of the vram
+     */
+    glm::ivec4 Bus::meta_get_framebuffer_view() const
+    {
+        return m_gpu->meta_get_framebuffer_view();
+    }
+
+    /**
      * instantiate templated arguments 
      */
     template u8 Bus::dispatch_read<u8>(u32 address);

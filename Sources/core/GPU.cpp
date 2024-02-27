@@ -1629,4 +1629,44 @@ namespace PSX
         UNREACHABLE();
         return 0;
     }
+
+    /**
+     * @brief get the current rendering cutout of the vram
+     *        TODO: this is wrong
+     */
+    glm::ivec4 GPU::meta_get_framebuffer_view() const
+    {
+        s32 width = 0, height = 0;
+
+        switch(m_display_mode.vertical_resolution)
+        {
+            case 0: { height = 240; } break;
+            case 1: { height = 480; } break;
+            default: { UNREACHABLE(); } break;
+        }
+
+        switch(m_display_mode.horizontal_resolution_2)
+        {
+            case 1: { width = 368; } break;
+            default:
+            {
+                switch(m_display_mode.horizontal_resolution_1)
+                {
+                    case 0: { width = 256; } break;
+                    case 1: { width = 320; } break;
+                    case 2: { width = 512; } break;
+                    case 3: { width = 640; } break;
+                    default: { UNREACHABLE(); } break;
+                }
+            }
+        }
+
+        return glm::ivec4
+        {
+            m_display_area_start_x,
+            m_display_area_start_y,
+            width,
+            height
+        };
+    }
 }
