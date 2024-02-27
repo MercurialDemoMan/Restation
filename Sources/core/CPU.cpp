@@ -247,6 +247,7 @@ namespace PSX
         };
 
         LOG_DEBUG(6, fmt::format("exception triggered: {}", exception_name[static_cast<u32>(exception_kind)]));
+        MARK_UNUSED(exception_name);
 
         if(exception_kind == Exception::BadAddressLoad ||
            exception_kind == Exception::BadAddressStore)

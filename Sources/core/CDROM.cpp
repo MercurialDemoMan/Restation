@@ -317,7 +317,9 @@ namespace PSX
     void CDROM::push_to_response_fifo(u8 value)
     {
         if(!m_response_fifo.push(value))
+        {
             LOG_DEBUG(6, fmt::format("trying to push response {} into a full response queue", value));
+        }
 
         m_index.response_fifo_empty = 1;
     }
@@ -328,10 +330,14 @@ namespace PSX
     void CDROM::push_to_interrupt_fifo(u8 value)
     {
         if(value > 0b0111)
+        {
             ABORT_WITH_MESSAGE(fmt::format("trying to push invalid interrupt {}", value));
+        }
         
         if(!m_interrupt_fifo.push(value))
+        {
             LOG_DEBUG(6, fmt::format("trying to push interrupt {} into a full interrupt queue", value));
+        }
     }
 
     /**
@@ -342,7 +348,9 @@ namespace PSX
         auto parameter_or_error = m_parameter_fifo.pop();
 
         if(!parameter_or_error)
+        {
             ABORT_WITH_MESSAGE(fmt::format("trying to pop parameter from empty parameter queue"));
+        }
 
         m_index.parameter_fifo_empty = m_parameter_fifo.empty();
         m_index.parameter_fifo_full  = 1;

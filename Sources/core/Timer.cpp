@@ -212,6 +212,7 @@ namespace PSX
                         u32 mode = m_counter_mode.synchronization_enabled;
 
                         LOG_DEBUG(4, fmt::format("timer0 set sync {}", mode));
+                        MARK_UNUSED(mode);
                     }
 
                     if constexpr (Source == ClockSource::HBlank)
@@ -225,6 +226,7 @@ namespace PSX
                         u32 mode = m_counter_mode.synchronization_enabled;
 
                         LOG_DEBUG(4, fmt::format("timer1 set sync {}", mode));
+                        MARK_UNUSED(mode);
                     }
 
                     if constexpr (Source == ClockSource::SystemClock)
@@ -239,6 +241,7 @@ namespace PSX
                         u32 mode = m_counter_mode.synchronization_enabled;
 
                         LOG_DEBUG(4, fmt::format("timer2 set sync {}", mode));
+                        MARK_UNUSED(mode);
                     }
                 }
             }

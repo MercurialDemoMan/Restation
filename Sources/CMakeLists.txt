@@ -44,6 +44,7 @@ add_executable(emu
     deps/imgui-1.90.3/imgui.cpp
     deps/imgui-1.90.3/backends/imgui_impl_sdl2.cpp
     deps/imgui-1.90.3/backends/imgui_impl_sdlrenderer2.cpp
+    deps/imgui-1.90.3/misc/cpp/imgui_stdlib.cpp
 
     # compile core
     core/Bus.cpp

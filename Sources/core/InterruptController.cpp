@@ -114,6 +114,7 @@ namespace PSX
         };
 
         LOG_DEBUG(4, fmt::format("interrupt trigger: {}", interrupt_name[static_cast<u32>(interrupt)]));
+        MARK_UNUSED(interrupt_name);
 
         m_status.raw() |= (1 << static_cast<u32>(interrupt));
 
