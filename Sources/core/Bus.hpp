@@ -48,6 +48,7 @@
 #include "Forward.hpp"
 #include "TimerTypes.hpp"
 #include "GPUConstants.hpp"
+#include "CDROMTypes.hpp"
 
 namespace PSX
 {
@@ -77,6 +78,11 @@ namespace PSX
          * @brief reads game and initializes/readies the cdrom
          */
         void meta_load_game(const std::string& game_path);
+
+        /**
+         * @brief set console region, which will be checked against the region of the disc
+         */
+        void meta_set_console_region(ConsoleRegion);
 
         /**
          * @brief obtain the state of vram from gpu

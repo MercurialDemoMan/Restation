@@ -161,6 +161,8 @@ namespace PSX
             m_status.shell_open = 1;
             m_disc = Disc::create_unloaded();
         }
+
+        meta_set_console_region(ConsoleRegion::America);
     }
 
     /**
@@ -707,7 +709,14 @@ namespace PSX
                     push_to_response_fifo(0x53); // S
                     push_to_response_fifo(0x43); // C
                     push_to_response_fifo(0x45); // E
-                    push_to_response_fifo(0x53); // S
+                    switch(m_meta_console_region)
+                    {
+                        case ConsoleRegion::Europe:  { push_to_interrupt_fifo(0x45); /*E*/ } break;
+                        case ConsoleRegion::America: { push_to_interrupt_fifo(0x41); /*A*/ } break;
+                        case ConsoleRegion::Japan:   { push_to_interrupt_fifo(0x49); /*I*/ } break;
+                        default: { UNREACHABLE(); } break;
+                    }
+                    return;
                 } break;
                 case Track::Type::Audio:
                 {

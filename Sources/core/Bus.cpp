@@ -397,6 +397,14 @@ namespace PSX
     }
 
     /**
+     * @brief set console region, which will be checked against the region of the disc
+     */
+    void Bus::meta_set_console_region(ConsoleRegion region)
+    {
+        m_cdrom->meta_set_console_region(region);
+    }
+
+    /**
      * @brief obtain the state of vram from gpu
      */
     const std::array<u16, VRamWidth * VRamHeight>& Bus::meta_get_vram_buffer() const

@@ -40,6 +40,7 @@
 #include "Disc.hpp"
 #include "CDROMConstants.hpp"
 #include "CDROMInstruction.hpp"
+#include "CDROMTypes.hpp"
 #include "Utils.hpp"
 
 namespace PSX
@@ -69,6 +70,11 @@ namespace PSX
          * @brief load disc from the host filesystem 
          */
         void meta_load_disc(const std::string& meta_file_path);
+
+        /**
+         * @brief set cdrom region, which will be checked against the region of the disc
+         */
+        void meta_set_console_region(ConsoleRegion);
 
     private:
 
@@ -271,6 +277,8 @@ namespace PSX
         fixed_queue<u8, InterruptFIFOSize> m_interrupt_fifo; /// queue for signaling finished command
         u8 m_interrupt_enable; /// can we send interrupts?
         u8 m_mute;             /// turn on/off audio streaming
+        
+        ConsoleRegion m_meta_console_region; /// keep track of console region, which will be checked against the disc region
     };
 }
 
