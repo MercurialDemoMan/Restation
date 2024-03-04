@@ -70,12 +70,22 @@ namespace PSX
         /**
          * @brief multiply 3d vector by 3d vector
          */
-        void multiply(const GTEVector<s16>&, const GTEVector<s16>&);
+        void multiply_and_translate(const GTEVector<s16>&, const GTEVector<s16>&, const GTEVector<s32>& translate);
 
         /**
-         * @brief multiply 3x3 matrix by 3d vector
+         * @brief multiply 3x3 matrix a by 3d vector b and translate it
          */
-        void multiply(const GTEMatrix<s16>&, const GTEVector<s16>&);
+        void multiply_and_translate(const GTEMatrix<s16>&, const GTEVector<s16>&, const GTEVector<s32>& translate);
+
+        /**
+         * @brief multiply 3x3 matrix by 3d vector and translate it (RTP command specialized)
+         */
+        s64 multiply_and_translate_rtp(const GTEMatrix<s16>&, const GTEVector<s16>&, const GTEVector<s32>& translate);
+
+        /**
+         * @brief multiply and translate 3x3 matrix by 3d vector
+         */
+        GTEVector<s64> multiply_and_translate_impl(const GTEMatrix<s16>&, const GTEVector<s16>&, const GTEVector<s32>& translate);
 
         /**
          * @brief check overflow/underflow of a value and assign it to mac and ir registers
@@ -103,10 +113,30 @@ namespace PSX
         void push_to_crgb_fifo(const GTEVector<u32>& color);
 
         /**
+         * @brief push new z coord to the screen queue 
+         */
+        void push_to_screen_z_fifo(s32);
+
+        /**
+         * @brief push new x and y coord to the screen queue 
+         */
+        void push_to_screen_xy_fifo(s32, s32);
+
+        /**
+         * @brief general implementation for the RTPS/RTPT commands 
+         */
+        void rtps_impl(u32 general_purpose_vector_index, bool set_mac0);
+
+        /**
+         * @brief divide two values using the UNR division algorithm 
+         */
+        u32 unr_division(u32 numerator, u32 denominator);
+
+        /**
          * instructions 
          */
         void UNK(const GTEInstruction&);   /// unknown opcode
-        void RTPS(const GTEInstruction&);  /// perspective transofrmation single
+        void RTPS(const GTEInstruction&);  /// perspective transformation single
         void NCLIP(const GTEInstruction&); /// normal clipping
         void OP(const GTEInstruction&);    /// outer product of 2 vectors
         void DPCS(const GTEInstruction&);  /// depth cueing single
