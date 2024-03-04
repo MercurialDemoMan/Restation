@@ -853,11 +853,13 @@ namespace PSX
     }  
 
     /**
-     * @brief 
+     * @brief average of three z values
      */
     void GTE::AVSZ3(const GTEInstruction&)
     {
-        TODO();
+        auto result = check_and_assign_to_mac(s64(m_zsf3.raw()) * (m_sxyz[1].z + m_sxyz[2].z + m_sxyz[3].z), 0);
+        m_otz.raw() = std::clamp(result >> 12, s64(0x0000), s64(0xFFFF));
+        m_error_flags.sz3_or_otz_saturated = m_otz.raw() != (result >> 12);
     } 
 
     /**

@@ -152,7 +152,7 @@ namespace PSX
         void SQR(const GTEInstruction&);   /// square of vector IR
         void DCPL(const GTEInstruction&);  /// depth cue color light
         void DPCT(const GTEInstruction&);  /// depth cueing triple
-        void AVSZ3(const GTEInstruction&); /// average of three Z values
+        void AVSZ3(const GTEInstruction&); /// average of three z values
         void AVSZ4(const GTEInstruction&); /// average of four z values
         void RTPT(const GTEInstruction&);  /// perspective transformation triple
         void GPF(const GTEInstruction&);   /// general purpose interpolation
