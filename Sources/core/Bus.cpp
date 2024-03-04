@@ -388,6 +388,15 @@ namespace PSX
     }
 
     /**
+     * @brief reads game and initializes/readies the cdrom
+     */
+    void Bus::meta_load_game(const std::string& game_path)
+    {
+        // TODO: make PSX EXE loadable
+        m_cdrom->meta_load_disc(game_path);
+    }
+
+    /**
      * @brief obtain the state of vram from gpu
      */
     const std::array<u16, VRamWidth * VRamHeight>& Bus::meta_get_vram_buffer() const

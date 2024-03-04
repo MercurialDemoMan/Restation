@@ -74,6 +74,11 @@ namespace PSX
         void meta_load_bios(const std::string& bios_path);
 
         /**
+         * @brief reads game and initializes/readies the cdrom
+         */
+        void meta_load_game(const std::string& game_path);
+
+        /**
          * @brief obtain the state of vram from gpu
          */
         const std::array<u16, VRamWidth * VRamHeight>& meta_get_vram_buffer() const;

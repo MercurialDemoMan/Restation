@@ -54,6 +54,7 @@ App::App(int argc, char* argv[])
 
     //TODO: make argument handling better
     if(argc > 1) m_emulator_core->meta_load_bios(argv[1]);
+    if(argc > 2) m_emulator_core->meta_load_game(argv[2]);
 
     // keep main loop running
     m_run = true;
@@ -83,8 +84,8 @@ void App::init_frontend()
         "Restation", 
         SDL_WINDOWPOS_CENTERED, 
         SDL_WINDOWPOS_CENTERED, 
-        1024, 
-        720, 
+        PSX::VRamWidth, 
+        PSX::VRamHeight, 
         SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
     );
     if(m_window == nullptr)
