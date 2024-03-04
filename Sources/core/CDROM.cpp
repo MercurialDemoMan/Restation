@@ -656,11 +656,80 @@ namespace PSX
     }       
     
     /**
-     * 
+     * @brief Get Disk Identificator
      */
     void CDROM::GETID()
     {
-        TODO();
+        // shell is open
+        if(m_status.shell_open)
+        {
+            push_to_interrupt_fifo(5);
+            push_to_response_fifo(0x11);
+            push_to_response_fifo(0x80);
+            return;
+        }
+        
+        // TODO: disc spin-up, is it even necessary?
+
+        // TODO: detect busy, is it even necessary?
+
+        // common response to non-error status
+        push_to_interrupt_fifo(3);
+        push_to_response_fifo(m_status.raw);
+
+        // no disc present in cd-rom
+        if(!m_disc->num_tracks())
+        {
+            push_to_interrupt_fifo(5);
+            push_to_response_fifo(0x08);
+            push_to_response_fifo(0x40);
+            push_to_response_fifo(0x00);
+            push_to_response_fifo(0x00);
+            push_to_response_fifo(0x00);
+            push_to_response_fifo(0x00);
+            push_to_response_fifo(0x00);
+            push_to_response_fifo(0x00);
+            return;
+        }
+
+        {
+            auto starting_position = Position { .minutes = 0, .seconds = 2, .fractions = 0 };
+            auto starting_sector   = m_disc->read_sector(starting_position);
+            switch(starting_sector.type)
+            {
+                case Track::Type::Data:
+                {
+                    push_to_interrupt_fifo(2);
+                    push_to_response_fifo(0x02);
+                    push_to_response_fifo(0x00);
+                    push_to_response_fifo(0x20);
+                    push_to_response_fifo(0x00);
+                    push_to_response_fifo(0x53); // S
+                    push_to_response_fifo(0x43); // C
+                    push_to_response_fifo(0x45); // E
+                    push_to_response_fifo(0x53); // S
+                } break;
+                case Track::Type::Audio:
+                {
+                    push_to_interrupt_fifo(5);
+                    push_to_response_fifo(0x0A);
+                    push_to_response_fifo(0x90);
+                    push_to_response_fifo(0x00);
+                    push_to_response_fifo(0x00);
+                    push_to_response_fifo(0x00);
+                    push_to_response_fifo(0x00);
+                    push_to_response_fifo(0x00);
+                    push_to_response_fifo(0x00);
+                    return;
+                } break;
+                case Track::Type::Invalid:
+                {
+                    TODO();
+                } break;
+            }
+        }
+
+        UNREACHABLE();
     }      
     
     /**
