@@ -854,8 +854,8 @@ namespace PSX
      */
     void CPU::LWC2(const CPUInstruction& ins)
     {
-        MARK_UNUSED(ins);
-        TODO();
+        u32 data = m_bus->dispatch_read<u32>(m_register_field[ins.register_source] + ins.immediate_signed);
+        m_gte->write(ins.register_target, data);
     }
 
     /**
