@@ -36,6 +36,7 @@
 #include "Disc.hpp"
 #include "Macros.hpp"
 #include "DiscConstants.hpp"
+#include "DiscTypes.hpp"
 
 namespace PSX
 {
@@ -88,7 +89,7 @@ namespace PSX
             .type          = Track::Type::Data,
             .data_position = Position { .minutes = 0, .seconds = 0, .fractions = 0 },
             .offset        = 0,
-            .num_sectors   = u32(std::ceil(float(file_size) / float(Sector::Size))),
+            .num_sectors   = u32(std::ceil(float(file_size) / float(Sector::SizeWithHeaderAndWithSyncBytes))),
             .meta_file     = meta_file
         };
 
@@ -180,9 +181,9 @@ namespace PSX
 
             // TODO: if audio present, we need to manipulate the disc_pos
 
-            std::vector<u8> sector_buffer(Sector::Size);
-            track.meta_file->seekg(track.offset + disc_pos.linear_block_address() * Sector::Size);
-            track.meta_file->read(reinterpret_cast<char*>(sector_buffer.data()), Sector::Size);
+            std::vector<u8> sector_buffer(Sector::SizeWithHeaderAndWithSyncBytes);
+            track.meta_file->seekg(track.offset + disc_pos.linear_block_address() * Sector::SizeWithHeaderAndWithSyncBytes);
+            track.meta_file->read(reinterpret_cast<char*>(sector_buffer.data()), Sector::SizeWithHeaderAndWithSyncBytes);
             if(track.meta_file->eof())
             {
                 ABORT_WITH_MESSAGE(fmt::format("trying to read outside of the disc file at {}", pos.linear_block_address()));

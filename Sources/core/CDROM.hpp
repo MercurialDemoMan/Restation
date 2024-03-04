@@ -252,6 +252,11 @@ namespace PSX
         u8 pop_from_parameter_fifo();
 
         /**
+         * @brief check if we can modify data fifo (if we ended reading current sector) 
+         */
+        bool data_fifo_ready() const;
+
+        /**
          * @brief update status register with new mode
          */
         void set_status_mode(Status::Mode);
@@ -275,8 +280,10 @@ namespace PSX
         fixed_queue<u8, ParameterFIFOSize> m_parameter_fifo; /// queue for command arguments
         fixed_queue<u8, ResponseFIFOSize>  m_response_fifo;  /// queue for command results
         fixed_queue<u8, InterruptFIFOSize> m_interrupt_fifo; /// queue for signaling finished command
-        u8 m_interrupt_enable; /// can we send interrupts?
-        u8 m_mute;             /// turn on/off audio streaming
+        u8 m_interrupt_enable;       /// can we send interrupts?
+        u8 m_mute;                   /// turn on/off audio streaming
+        std::vector<u8> m_data_fifo; /// store data from read sector
+        u32 m_data_fifo_cursor;      /// be able to artificially address the data_fifo, as if it were loading
         
         ConsoleRegion m_meta_console_region; /// keep track of console region, which will be checked against the disc region
     };

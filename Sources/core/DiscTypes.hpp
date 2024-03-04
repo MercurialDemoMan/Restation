@@ -91,7 +91,11 @@ namespace PSX
      */
     struct Sector
     {
-        static constexpr u32 Size = 2352;
+        static constexpr u32 SizeWithoutHeader                 = 2048;
+        static constexpr u32 SizeWithHeaderAndWithoutSyncBytes = 2340;
+        static constexpr u32 SizeWithHeaderAndWithSyncBytes    = 2352;
+        static constexpr u32 ReadDelay                         = SizeWithHeaderAndWithoutSyncBytes;
+        static constexpr u32 SyncBytesSize                     = SizeWithHeaderAndWithSyncBytes - SizeWithHeaderAndWithoutSyncBytes;
 
         std::vector<u8> data;
         Track::Type     type;

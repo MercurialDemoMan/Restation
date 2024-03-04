@@ -53,12 +53,12 @@ namespace PSX
             // only progress reading status if we are reading data or playing audio
             if(m_status.read || m_status.play)
             {
-                if(m_cycles++ % (Sector::Size >> m_mode.speed) == 0)
+                // only read the entire sector, once the reading head reaches current sector size (can be modified by the reading speed flag)
+                if(m_cycles++ % (Sector::ReadDelay >> m_mode.speed) == 0)
                 {
-                    m_current_sector = m_disc->read_sector
-                    (
-                        Position::create(m_sector_head++)
-                    );
+                    auto current_position = Position::create(m_sector_head++);
+
+                    m_current_sector = m_disc->read_sector(current_position);
 
                     // reading data
                     if(m_current_sector.type == Track::Type::Data && m_status.read)
@@ -66,7 +66,7 @@ namespace PSX
                         push_to_interrupt_fifo(1);
                         push_to_response_fifo(m_status.raw);
 
-                        TODO();
+                        // TODO: XA decoding
                     }
                     // playing audio
                     else if(m_current_sector.type == Track::Type::Audio && m_status.play)
@@ -152,6 +152,12 @@ namespace PSX
         m_interrupt_enable = 0;
         m_mute = 0;
 
+        m_parameter_fifo.clear();
+        m_interrupt_fifo.clear();
+        m_response_fifo.clear();
+        m_data_fifo.clear();
+        m_data_fifo_cursor = 0;
+
         if(m_disc)
         {
             m_status.shell_open = 0;
@@ -197,6 +203,14 @@ namespace PSX
     }
 
     /**
+     * @brief set cdrom region, which will be checked against the region of the disc
+     */
+    void CDROM::meta_set_console_region(ConsoleRegion region)
+    {
+        m_meta_console_region = region;
+    }
+
+    /**
      * @brief extract response byte from response fifo 
      */
     u8 CDROM::read_response()
@@ -223,7 +237,26 @@ namespace PSX
      */
     u8 CDROM::read_data()
     {
-        TODO();
+        if(m_data_fifo.empty())
+            UNREACHABLE();
+
+        u32 sync_bytes_offset = Sector::SyncBytesSize + Sector::SyncBytesSize * (m_mode.sector_size == 0);
+
+        // repeat last read value if we reached the end of the sector
+        if(m_mode.sector_size == 0 && m_data_fifo_cursor >= Sector::SizeWithoutHeader)
+        {
+            m_data_fifo_cursor++;
+            return m_data_fifo[sync_bytes_offset + Sector::SizeWithoutHeader - 8];
+        }
+
+        // repeat last read value if we reached the end of the sector
+        if(m_mode.sector_size == 1 && m_data_fifo_cursor >= Sector::SizeWithHeaderAndWithoutSyncBytes)
+        {
+            m_data_fifo_cursor++;
+            return m_data_fifo[sync_bytes_offset + Sector::SizeWithHeaderAndWithoutSyncBytes - 4];
+        }
+
+        return m_data_fifo[sync_bytes_offset + m_data_fifo_cursor++];
     }
 
     /**
@@ -290,7 +323,21 @@ namespace PSX
         {
             case 0:
             {
-                TODO();
+                if(value & 0b1000'0000) // BFRD Want Data
+                {
+                    if(data_fifo_ready())
+                    {
+                        m_data_fifo = m_current_sector.data;
+                        m_data_fifo_cursor = 0;
+                        m_index.data_fifo_empty = 1;
+                    }
+                }
+                else // reset data fifo
+                {
+                    m_data_fifo.clear();
+                    m_data_fifo_cursor = 0;
+                    m_index.data_fifo_empty = 0;
+                }
             } break;
             case 1:
             {
@@ -367,6 +414,16 @@ namespace PSX
         m_index.parameter_fifo_full  = 1;
 
         return parameter_or_error.value();
+    }
+
+    /**
+     * @brief check if we can modify data fifo (if we ended reading current sector) 
+     */
+    bool CDROM::data_fifo_ready() const
+    {
+        return m_data_fifo.empty() ||
+               (!m_mode.sector_size && m_data_fifo_cursor >= Sector::SizeWithoutHeader) ||
+               ( m_mode.sector_size && m_data_fifo_cursor >= Sector::SizeWithHeaderAndWithoutSyncBytes);
     }
 
     /**
@@ -694,6 +751,7 @@ namespace PSX
             return;
         }
 
+        // Licensed:Mode2
         {
             auto starting_position = Position { .minutes = 0, .seconds = 2, .fractions = 0 };
             auto starting_sector   = m_disc->read_sector(starting_position);
@@ -711,9 +769,9 @@ namespace PSX
                     push_to_response_fifo(0x45); // E
                     switch(m_meta_console_region)
                     {
-                        case ConsoleRegion::Europe:  { push_to_interrupt_fifo(0x45); /*E*/ } break;
-                        case ConsoleRegion::America: { push_to_interrupt_fifo(0x41); /*A*/ } break;
-                        case ConsoleRegion::Japan:   { push_to_interrupt_fifo(0x49); /*I*/ } break;
+                        case ConsoleRegion::Europe:  { push_to_response_fifo(0x45); /*E*/ } break;
+                        case ConsoleRegion::America: { push_to_response_fifo(0x41); /*A*/ } break;
+                        case ConsoleRegion::Japan:   { push_to_response_fifo(0x49); /*I*/ } break;
                         default: { UNREACHABLE(); } break;
                     }
                     return;
