@@ -92,7 +92,7 @@ namespace PSX
             }
             case 2:
             {
-                return read_data();
+                return read_data_byte();
             }
             case 3:
             {
@@ -235,7 +235,7 @@ namespace PSX
     /**
      * @brief extract data byte from data fifo 
      */
-    u8 CDROM::read_data()
+    u8 CDROM::read_data_byte()
     {
         if(m_data_fifo.empty())
             UNREACHABLE();
@@ -257,6 +257,17 @@ namespace PSX
         }
 
         return m_data_fifo[sync_bytes_offset + m_data_fifo_cursor++];
+    }
+
+    /**
+     * @brief extract data word from data fifo 
+     */
+    u32 CDROM::read_data_word()
+    {
+        return u32(read_data_byte() <<  0) |
+               u32(read_data_byte() <<  8) |
+               u32(read_data_byte() << 16) |
+               u32(read_data_byte() << 24);
     }
 
     /**

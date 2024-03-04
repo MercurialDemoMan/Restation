@@ -76,6 +76,11 @@ namespace PSX
          */
         void meta_set_console_region(ConsoleRegion);
 
+        /**
+         * @brief extract data word from data fifo 
+         */
+        u32 read_data_word();
+
     private:
 
         /**
@@ -219,7 +224,7 @@ namespace PSX
         /**
          * @brief extract data byte from data fifo 
          */
-        u8 read_data();
+        u8 read_data_byte();
 
         /**
          * @brief extract interrupt byte from interrupt fifo 

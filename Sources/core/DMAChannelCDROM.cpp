@@ -41,7 +41,6 @@ namespace PSX
      */
     u32 DMAChannelCDROM::read_from_component()
     {
-        TODO();
-        return m_cdrom->read(0);
+        return m_cdrom->read_data_word();
     }
 }
