@@ -367,7 +367,6 @@ namespace PSX
         m_status.spindle_motor = 1;
         m_status.seek_error    = 0;
         m_status.id_error      = 0;
-        m_status.shell_open    = 0;
         m_status.read          = mode == Status::Mode::Read;
         m_status.seek          = mode == Status::Mode::Seek;
         m_status.play          = mode == Status::Mode::Play;
