@@ -44,7 +44,7 @@ namespace PSX
      */
     std::shared_ptr<Disc> Disc::create(const std::string& meta_file_path)
     {
-        std::shared_ptr<Disc> disc = std::shared_ptr<Disc>(new Disc());
+        auto disc = Disc::create_unloaded();
 
         if(meta_file_path.ends_with(".bin"))
         {
@@ -56,6 +56,14 @@ namespace PSX
         }
 
         return disc;
+    }
+
+    /**
+     * @brief create empty disc
+     */
+    std::shared_ptr<Disc> Disc::create_unloaded()
+    {
+        return std::shared_ptr<Disc>(new Disc());
     }
 
     /**
@@ -85,6 +93,18 @@ namespace PSX
         };
 
         m_tracks.push_back(track);
+        m_meta_loaded = true;
+    }
+
+    /**
+     * @brief obtain number of loaded tracks
+     */
+    u32 Disc::num_tracks() const
+    {
+        if(!m_meta_loaded)
+            return 0;
+
+        return m_tracks.size();
     }
 
     /**
@@ -92,6 +112,9 @@ namespace PSX
      */
     Position Disc::get_track_offset(u32 index)
     {
+        if(!m_meta_loaded)
+            return Position::create(0);
+
         u32 result = 0;
 
         for(s32 i = 0; i < s32(index) - 1; i++)
@@ -113,6 +136,9 @@ namespace PSX
      */
     std::optional<u32> Disc::get_track_index(const Position& pos)
     {
+        if(!m_meta_loaded)
+            return {};
+
         for(u32 i = 0; i < m_tracks.size(); i++)
         {
             auto offset = get_track_offset(i);
@@ -133,6 +159,9 @@ namespace PSX
      */
     Sector Disc::read_sector(const Position& pos)
     {
+        if(!m_meta_loaded)
+            return Sector { .data = {}, .type = Track::Type::Invalid };
+
         auto index_or_error = get_track_index(pos);
 
         if(index_or_error)

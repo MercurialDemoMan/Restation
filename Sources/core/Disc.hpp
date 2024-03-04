@@ -51,6 +51,11 @@ namespace PSX
          */
         static std::shared_ptr<Disc> create(const std::string& meta_file_path);
 
+        /**
+         * @brief create empty disc
+         */
+        static std::shared_ptr<Disc> create_unloaded();
+
         ~Disc();
 
         /**
@@ -58,9 +63,18 @@ namespace PSX
          */
         Sector read_sector(const Position&);
 
+        /**
+         * @brief obtain number of loaded tracks
+         */
+        u32 num_tracks() const;
+
     private:
 
-        Disc() {}
+        Disc(): 
+            m_meta_loaded(false) 
+        {
+
+        }
 
         /**
          * @brief load 'bin' disc dump and initialize the disc 
@@ -77,7 +91,8 @@ namespace PSX
          */
         Position get_track_offset(u32 index);
 
-        std::vector<Track> m_tracks;
+        std::vector<Track> m_tracks; /// track information  
+        bool m_meta_loaded;          /// did we load disc into the emulator?
     };
 }
 

@@ -142,7 +142,6 @@ namespace PSX
         m_index.parameter_fifo_full = 1;
 
         m_status.raw = 0;
-        m_status.shell_open = 1;
 
         m_mode.raw = 0;
 
@@ -152,6 +151,16 @@ namespace PSX
 
         m_interrupt_enable = 0;
         m_mute = 0;
+
+        if(m_disc)
+        {
+            m_status.shell_open = 0;
+        }
+        else
+        {
+            m_status.shell_open = 1;
+            m_disc = Disc::create_unloaded();
+        }
     }
 
     /**
