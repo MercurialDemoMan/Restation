@@ -127,6 +127,11 @@ namespace PSX
          */
         void rtps_impl(u32 general_purpose_vector_index, bool set_mac0);
 
+         /**
+         * @brief general implementation for the NCDS/NCDT commands 
+         */
+        void ncds_impl(u32 general_purpose_vector_index);
+
         /**
          * @brief divide two values using the UNR division algorithm 
          */

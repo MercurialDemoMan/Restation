@@ -661,6 +661,54 @@ namespace PSX
     }
 
     /**
+     * @brief general implementation for the NCDS/NCDT commands 
+     */
+    void GTE::ncds_impl(u32 general_purpose_vector_index)
+    {
+        switch(general_purpose_vector_index)
+        {
+            case 0: { multiply_and_translate(m_light_source_matrix, m_vxyz0, GTEVector<s32> { .x = 0, .y = 0, .z = 0 }); } break;
+            case 1: { multiply_and_translate(m_light_source_matrix, m_vxyz1, GTEVector<s32> { .x = 0, .y = 0, .z = 0 }); } break;
+            case 2: { multiply_and_translate(m_light_source_matrix, m_vxyz2, GTEVector<s32> { .x = 0, .y = 0, .z = 0 }); } break;
+            default: { UNREACHABLE(); } break;
+        }
+
+        multiply_and_translate
+        (
+            m_light_color_matrix, 
+            GTEVector<s16>
+            {
+                .x = m_ir[1].raw(),
+                .y = m_ir[2].raw(),
+                .z = m_ir[3].raw()
+            },
+            m_background_color
+        );
+
+        auto new_ir = GTEVector<s16>
+        {
+            .x = m_ir[1].raw(),
+            .y = m_ir[2].raw(),
+            .z = m_ir[3].raw()
+        };
+
+        check_and_assign_result((s64(m_far_color.r) << 12) - ((m_rgbc.read(0) << 4) * m_ir[1].raw()), 1, true);
+        check_and_assign_result((s64(m_far_color.g) << 12) - ((m_rgbc.read(1) << 4) * m_ir[2].raw()), 2, true);
+        check_and_assign_result((s64(m_far_color.b) << 12) - ((m_rgbc.read(2) << 4) * m_ir[3].raw()), 3, true);
+    
+        check_and_assign_result(((m_rgbc.read(0) << 4) * new_ir.x) + m_ir[0].raw() * m_ir[1].raw(), 1, !m_current_instruction.lm);
+        check_and_assign_result(((m_rgbc.read(1) << 4) * new_ir.y) + m_ir[0].raw() * m_ir[2].raw(), 2, !m_current_instruction.lm);
+        check_and_assign_result(((m_rgbc.read(2) << 4) * new_ir.z) + m_ir[0].raw() * m_ir[3].raw(), 3, !m_current_instruction.lm);
+
+        push_to_crgb_fifo(GTEVector<u32>
+        {
+            .r = static_cast<u32>(m_mac[1].raw()) >> 4,
+            .g = static_cast<u32>(m_mac[2].raw()) >> 4,
+            .b = static_cast<u32>(m_mac[3].raw()) >> 4
+        });
+    }
+
+    /**
      * @brief divide two values using the UNR division algorithm 
      */
     u32 GTE::unr_division(u32 numerator, u32 denominator)
@@ -767,11 +815,11 @@ namespace PSX
     } 
 
     /**
-     * @brief 
+     * @brief normal color depth cue single vector
      */
     void GTE::NCDS(const GTEInstruction&)
     {
-        TODO();
+        ncds_impl(0);
     }  
 
     /**
