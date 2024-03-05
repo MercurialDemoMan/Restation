@@ -109,28 +109,39 @@ namespace PSX
         {
             case 0:
             {
-                m_index.index = value & 0b0011; return;
-            }
+                m_index.index = value & 0b0011;
+            } break;
             case 1:
             {
                 switch(m_index.index)
                 {
-                    case 0:  { execute(CDROMInstruction(value)); return; }
-                    case 3:  { TODO(); }
-                    default: { UNREACHABLE(); }
+                    case 0:  
+                    { 
+                        execute(CDROMInstruction(value));
+                    } break;
+                    case 3:
+                    { 
+                        m_volume_rr = value;
+                    } break;
+                    default: 
+                    { 
+                        UNREACHABLE();
+                    } break;
                 }
-            }
+            } break;
             case 2:
             {
-                write_parameter(value); return;
-            }
+                write_parameter(value);
+            } break;
             case 3:
             {
-                write_request(value); return;
-            }
+                write_request(value);
+            } break;
+            default:
+            {
+                UNREACHABLE();
+            } break;
         }
-
-        UNREACHABLE();
     }
 
     void CDROM::reset()
@@ -151,6 +162,8 @@ namespace PSX
 
         m_interrupt_enable = 0;
         m_mute = 0;
+        m_volume_ll = m_volume_rr = 0x80;
+        m_volume_lr = m_volume_rl = 0;
 
         m_parameter_fifo.clear();
         m_interrupt_fifo.clear();
@@ -315,13 +328,16 @@ namespace PSX
             } break;
             case 2:
             {
-                TODO();
+                m_volume_ll = value;
             } break;
             case 3:
             {
-                TODO();
-            }
-            default: { UNREACHABLE(); }
+                m_volume_rl = value;
+            } break;
+            default: 
+            { 
+                UNREACHABLE(); 
+            } break;
         }
     }
 
@@ -367,12 +383,13 @@ namespace PSX
             } break;
             case 2:
             {
-                TODO();
+                m_volume_lr = value;
             } break;
             case 3:
             {
-                TODO();
-            }
+                LOG("apply volume changes");
+                // TODO: apply volume changes
+            } break;
             default:
             {
                 UNREACHABLE();
