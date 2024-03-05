@@ -710,6 +710,7 @@ namespace PSX
 
     /**
      * @brief divide two values using the UNR division algorithm 
+     * @todo this super doesn't work
      */
     u32 GTE::unr_division(u32 numerator, u32 denominator)
     {
@@ -783,11 +784,11 @@ namespace PSX
     /**
      * @brief outer product of 2 vectors
      */
-    void GTE::OP(const GTEInstruction&)
+    void GTE::OP(const GTEInstruction& ins)
     {
-        check_and_assign_result(m_rotation_matrix.at(1, 1) * m_ir[3].raw() - m_rotation_matrix.at(2, 2) * m_ir[2].raw(), 1, !m_current_instruction.lm);
-        check_and_assign_result(m_rotation_matrix.at(2, 2) * m_ir[1].raw() - m_rotation_matrix.at(0, 0) * m_ir[3].raw(), 2, !m_current_instruction.lm);
-        check_and_assign_result(m_rotation_matrix.at(0, 0) * m_ir[2].raw() - m_rotation_matrix.at(1, 1) * m_ir[1].raw(), 3, !m_current_instruction.lm);
+        check_and_assign_result(m_rotation_matrix.at(1, 1) * m_ir[3].raw() - m_rotation_matrix.at(2, 2) * m_ir[2].raw(), 1, !ins.lm);
+        check_and_assign_result(m_rotation_matrix.at(2, 2) * m_ir[1].raw() - m_rotation_matrix.at(0, 0) * m_ir[3].raw(), 2, !ins.lm);
+        check_and_assign_result(m_rotation_matrix.at(0, 0) * m_ir[2].raw() - m_rotation_matrix.at(1, 1) * m_ir[1].raw(), 3, !ins.lm);
     }  
 
     /**
