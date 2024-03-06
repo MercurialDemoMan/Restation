@@ -64,6 +64,53 @@ namespace PSX
 
         std::shared_ptr<Bus> m_bus;
 
+        /**
+         * @brief 0x1F801824 MDEC Status Register (R)
+         */
+        union Status
+        {
+            struct
+            {
+                u32 parameter_remaining_minus_one: 16;
+                u32 current_block:                 3; // 0 - Y1, 1 - Y2, 2 - Y3, 3 - Y4, 4 - Cr, 5 - Cb
+
+                u32: 4;
+
+                u32 data_output_bit15:   1;
+                u32 data_output_signed:  1;
+                u32 data_output_depth:   2; // 0 - 4bit, 1 - 8bit, 2 - 24bit, 3 - 15bit
+                u32 data_out_request:    1;
+                u32 data_in_request:     1;
+                u32 command_busy:        1;
+                u32 data_in_fifo_full:   1;
+                u32 data_out_fifo_empty: 1;
+            };
+
+            u32 raw;
+        };
+
+        /**
+         * @brief 0x1F801824 MDEC Control/Reset Register (W)
+         */
+        union Control
+        {
+            struct
+            {
+                u32: 29;
+
+                u32 enable_data_out_request: 1;
+                u32 enable_data_in_request:  1;
+                u32 reset:                   1;
+            };
+
+            u32 raw;
+        };
+
+        /**
+         * MDEC state 
+         */
+        Status m_status;   // 0x1F801824 MDEC Status Register (R)
+        Control m_control; // 0x1F801824 MDEC Control/Reset Register (W)
     };
 }
 
