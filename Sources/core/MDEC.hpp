@@ -49,6 +49,8 @@ namespace PSX
     {
     public:
 
+        static constexpr const u32 MacroblockSize = 8 * 8;
+
         MDEC(const std::shared_ptr<Bus>& bus) :
             m_bus(bus)
         {
@@ -78,6 +80,16 @@ namespace PSX
          * @brief execute new command or specify parameter for a command 
          */
         void write_command_or_parameter(u32);
+
+        /**
+         * @brief update and obtain the status register 
+         */
+        u32 read_status();
+
+        /**
+         * @brief collect the decoded output 
+         */
+        u32 read_data_or_response();
 
         std::shared_ptr<Bus> m_bus;
 
@@ -126,11 +138,17 @@ namespace PSX
         /**
          * MDEC state 
          */
-        Status m_status;   // 0x1F801824 MDEC Status Register (R)
-        Control m_control; // 0x1F801824 MDEC Control/Reset Register (W)
-
-        MDECInstruction m_current_instruction;
-        u16             m_command_num_arguments;
+        Status           m_status;  // 0x1F801824 MDEC Status Register (R)
+        Control          m_control; // 0x1F801824 MDEC Control/Reset Register (W)
+        MDECInstruction  m_current_instruction;
+        u16              m_command_num_arguments;
+        u32              m_current_command_argument_index;
+        u32              m_quantization_table_selector;
+        std::vector<u16> m_input_fifo;
+        std::vector<u32> m_output_fifo;
+        std::array<s16, MacroblockSize> m_idct_table;
+        std::array<u8,  MacroblockSize> m_chroma_quantization_table;
+        std::array<u8,  MacroblockSize> m_luma_quantization_table;
     };
 }
 

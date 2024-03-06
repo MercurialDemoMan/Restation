@@ -43,6 +43,35 @@ namespace PSX
      */
     union MDECInstruction
     {
+        /**
+         * parameters for Set Quantization Tables command 
+         */
+        struct
+        {
+            u32 color: 1;
+            
+            u32: 31;
+        };
+
+        /**
+         * parameters for Decode Macroblock command 
+         */
+        struct
+        {
+            u32 num_arguments:     16;
+
+            u32: 11;
+            
+            u32 data_output_bit15:  1;
+            u32 data_output_signed: 1;
+            u32 data_output_depth:  3;
+
+            u32: 3;
+        };
+
+        /**
+         * parameters for parsing instruction 
+         */
         struct
         {
             u32 data:   29;

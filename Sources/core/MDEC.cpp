@@ -47,11 +47,11 @@ namespace PSX
     {
         if(in_range<u32>(address, 0, 3))
         {
-            TODO();
+            return read_data_or_response();
         }
         if(in_range<u32>(address, 4, 7))
         {
-            TODO();
+            return read_status();
         }
 
         UNREACHABLE();
@@ -79,14 +79,64 @@ namespace PSX
 
         m_current_instruction.raw = 0;
         m_command_num_arguments = 0;
+        m_current_command_argument_index = 0;
+        m_quantization_table_selector = 0;
+
+        m_input_fifo.clear();
+        m_output_fifo.clear();
+        std::fill(m_idct_table.begin(), m_idct_table.end(), 0);
+        std::fill(m_luma_quantization_table.begin(), m_luma_quantization_table.end(), 0);
+        std::fill(m_chroma_quantization_table.begin(), m_chroma_quantization_table.end(), 0);
     }
 
     /**
      * @brief directly execute the instruction
      */
-    void MDEC::execute(const MDECInstruction&)
+    void MDEC::execute(const MDECInstruction& ins)
     {
-        TODO();
+        m_current_command_argument_index = 0;
+
+        switch(ins.opcode)
+        {
+            case 1: // Decode Macroblock
+            {
+                m_status.data_output_bit15  = ins.data_output_bit15;
+                m_status.data_output_signed = ins.data_output_signed;
+                m_status.data_output_depth  = ins.data_output_depth;
+                m_status.command_busy       = 1;
+                m_command_num_arguments     = ins.num_arguments;
+
+                m_input_fifo.clear();
+                m_output_fifo.clear();
+            } break;
+
+            case 2: // Set Quantization Tables
+            {
+                m_status.command_busy = 1;
+                m_quantization_table_selector = ins.color;
+                // set luma only
+                if(!m_quantization_table_selector)
+                {
+                    m_command_num_arguments = MacroblockSize / sizeof(u32);
+                }
+                // set both luma and chroma
+                else
+                {
+                    m_command_num_arguments = MacroblockSize * 2 / sizeof(u32);
+                }
+            } break;
+
+            case 3: // Set Inverse Discrete Cosine Transformation Table
+            {
+                m_status.command_busy = 1;
+                m_command_num_arguments = MacroblockSize / 2;
+            } break;
+
+            default:
+            {
+                UNREACHABLE();
+            } break;
+        }
     }
 
     /**
@@ -110,29 +160,55 @@ namespace PSX
      */
     void MDEC::write_command_or_parameter(u32 value)
     {
+        // execute new command
         if(m_command_num_arguments == 0)
         {
             m_current_instruction.raw = value;
             execute(m_current_instruction);
             m_status.parameter_remaining_minus_one = m_command_num_arguments - 1;
         }
+        // write new parameter
         else
         {
             switch(m_current_instruction.opcode)
             {
                 case 1: // Decode Macroblock
                 {
-                    TODO();
+                    m_input_fifo.push_back((value >>  0) & 0xFFFF);
+                    m_input_fifo.push_back((value >> 16) & 0xFFFF);
+                
+                    if(m_command_num_arguments == 1)
+                    {
+                        TODO(); // decode macroblock
+                    }
                 } break;
 
-                case 2: // Set Quantization Table
+                case 2: // Set Quantization Tables
                 {
-                    TODO();
+                    if(in_range<u32>(m_current_command_argument_index, 0, MacroblockSize / 4 - 1))
+                    {
+                        m_luma_quantization_table[m_current_command_argument_index * 4 + 0] = (value >>  0) & 0xFF;
+                        m_luma_quantization_table[m_current_command_argument_index * 4 + 1] = (value >>  8) & 0xFF;
+                        m_luma_quantization_table[m_current_command_argument_index * 4 + 2] = (value >> 16) & 0xFF;
+                        m_luma_quantization_table[m_current_command_argument_index * 4 + 3] = (value >> 24) & 0xFF;
+                    }
+                    else if(in_range<u32>(m_current_command_argument_index, MacroblockSize / 4, MacroblockSize * 2 / 4 - 1))
+                    {
+                        m_chroma_quantization_table[(m_current_command_argument_index - MacroblockSize / 4) * 4 + 0] = (value >>  0) & 0xFF;
+                        m_chroma_quantization_table[(m_current_command_argument_index - MacroblockSize / 4) * 4 + 1] = (value >>  8) & 0xFF;
+                        m_chroma_quantization_table[(m_current_command_argument_index - MacroblockSize / 4) * 4 + 2] = (value >> 16) & 0xFF;
+                        m_chroma_quantization_table[(m_current_command_argument_index - MacroblockSize / 4) * 4 + 3] = (value >> 24) & 0xFF;
+                    }
+                    else
+                    {
+                        UNREACHABLE();
+                    }
                 } break;
 
                 case 3: // Set Inverse Discrete Cosine Transformation Table
                 {
-                    TODO();
+                    m_idct_table[m_current_command_argument_index * 2 + 0] = (value >>  0) & 0xFFFF;
+                    m_idct_table[m_current_command_argument_index * 2 + 1] = (value >> 16) & 0xFFFF;
                 } break;
 
                 default:
@@ -141,7 +217,27 @@ namespace PSX
                 } break;
             }
 
+            m_current_command_argument_index += 1;
             m_status.parameter_remaining_minus_one = (--m_command_num_arguments) - 1;
         }
+    }
+
+    /**
+     * @brief update and obtain the status register 
+     */
+    u32 MDEC::read_status()
+    {
+        m_status.data_out_fifo_empty = m_output_fifo.empty();
+        m_status.data_in_fifo_full   = !m_input_fifo.empty();
+        m_status.command_busy        = !m_output_fifo.empty();
+        return m_status.raw;
+    }
+
+    /**
+     * @brief collect the decoded output 
+     */
+    u32 MDEC::read_data_or_response()
+    {
+        TODO();
     }
 }
