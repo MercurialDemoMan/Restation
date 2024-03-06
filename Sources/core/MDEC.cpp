@@ -33,6 +33,7 @@
 
 #include "MDEC.hpp"
 #include "Bus.hpp"
+#include "Utils.hpp"
 
 namespace PSX
 {
@@ -44,19 +45,103 @@ namespace PSX
 
     u32 MDEC::read(u32 address)
     {
-        MARK_UNUSED(address);
-        TODO();
+        if(in_range<u32>(address, 0, 3))
+        {
+            TODO();
+        }
+        if(in_range<u32>(address, 4, 7))
+        {
+            TODO();
+        }
+
+        UNREACHABLE();
     }
 
     void MDEC::write(u32 address, u32 value)
     {
-        MARK_UNUSED(address);
-        MARK_UNUSED(value);
-        TODO();
+        if(in_range<u32>(address, 0, 3))
+        {
+            write_command_or_parameter(value); return;
+        }
+        if(in_range<u32>(address, 4, 7))
+        {
+            write_control(value); return;
+        }
+
+        UNREACHABLE();
     }
 
     void MDEC::reset()
     {
-        
+        m_status.raw = 0;
+        m_status.current_block = 4;
+        m_status.data_out_fifo_empty = 1;
+
+        m_current_instruction.raw = 0;
+        m_command_num_arguments = 0;
+    }
+
+    /**
+     * @brief directly execute the instruction
+     */
+    void MDEC::execute(const MDECInstruction&)
+    {
+        TODO();
+    }
+
+    /**
+     * @brief modify the control register 
+     */
+    void MDEC::write_control(u32 value)
+    {
+        m_control.raw = value;
+
+        if(m_control.reset)
+        {
+            reset();
+        }
+
+        m_status.data_in_request  = m_control.enable_data_in_request;
+        m_status.data_out_request = m_control.enable_data_out_request; 
+    }
+    
+    /**
+     * @brief execute new command or specify parameter for a command 
+     */
+    void MDEC::write_command_or_parameter(u32 value)
+    {
+        if(m_command_num_arguments == 0)
+        {
+            m_current_instruction.raw = value;
+            execute(m_current_instruction);
+            m_status.parameter_remaining_minus_one = m_command_num_arguments - 1;
+        }
+        else
+        {
+            switch(m_current_instruction.opcode)
+            {
+                case 1: // Decode Macroblock
+                {
+                    TODO();
+                } break;
+
+                case 2: // Set Quantization Table
+                {
+                    TODO();
+                } break;
+
+                case 3: // Set Inverse Discrete Cosine Transformation Table
+                {
+                    TODO();
+                } break;
+
+                default:
+                {
+                    UNREACHABLE();
+                } break;
+            }
+
+            m_status.parameter_remaining_minus_one = (--m_command_num_arguments) - 1;
+        }
     }
 }

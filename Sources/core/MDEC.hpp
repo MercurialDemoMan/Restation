@@ -35,8 +35,10 @@
 #define MDEC_HPP
 
 #include <memory>
+#include <queue>
 #include "Component.hpp"
 #include "Forward.hpp"
+#include "MDECInstruction.hpp"
 
 namespace PSX
 {
@@ -61,6 +63,21 @@ namespace PSX
         virtual void reset() override;
 
     private:
+
+        /**
+         * @brief directly execute the instruction
+         */
+        void execute(const MDECInstruction&);
+
+        /**
+         * @brief modify the control register 
+         */
+        void write_control(u32);
+
+        /**
+         * @brief execute new command or specify parameter for a command 
+         */
+        void write_command_or_parameter(u32);
 
         std::shared_ptr<Bus> m_bus;
 
@@ -111,6 +128,9 @@ namespace PSX
          */
         Status m_status;   // 0x1F801824 MDEC Status Register (R)
         Control m_control; // 0x1F801824 MDEC Control/Reset Register (W)
+
+        MDECInstruction m_current_instruction;
+        u16             m_command_num_arguments;
     };
 }
 
