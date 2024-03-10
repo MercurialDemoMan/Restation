@@ -62,7 +62,7 @@ namespace PSX
         /**
          * @brief best simulation step quantum 
          */
-        static constexpr const u32 OptimalSimulationStep = 301;
+        static constexpr const u32 OptimalSimulationStep = 112;
 
         /**
          * @brief allocate bus and initialize all psx components

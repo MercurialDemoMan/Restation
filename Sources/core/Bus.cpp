@@ -350,7 +350,7 @@ namespace PSX
         m_timer_dotclock->execute(num_steps);    
         m_timer_hblank->execute(num_steps);      
         m_timer_systemclock->execute(num_steps); 
-        m_cdrom->execute(num_steps);
+        m_cdrom->execute(num_steps / OptimalSimulationStep);
         m_gpu->execute(num_steps * (11.0/7.0));
     }
 
