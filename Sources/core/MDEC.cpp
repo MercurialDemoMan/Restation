@@ -136,6 +136,7 @@ namespace PSX
 
                 m_input_fifo.clear();
                 m_output_fifo.clear();
+                m_output_fifo_cursor = 0;
             } break;
 
             case 2: // Set Quantization Tables
@@ -157,7 +158,7 @@ namespace PSX
             case 3: // Set Inverse Discrete Cosine Transformation Table
             {
                 m_status.command_busy = 1;
-                m_command_num_arguments = MacroblockSize / 2;
+                m_command_num_arguments = MacroblockSize / sizeof(u16);
             } break;
 
             default:
@@ -207,25 +208,25 @@ namespace PSX
                 
                     if(m_command_num_arguments == 1)
                     {
-                        TODO(); // decode macroblock
+                        decode_all_macroblocks_from_input_fifo();
                     }
                 } break;
 
                 case 2: // Set Quantization Tables
                 {
-                    if(in_range<u32>(m_current_command_argument_index, 0, MacroblockSize / 4 - 1))
+                    if(in_range<u32>(m_current_command_argument_index, 0, MacroblockSize / sizeof(u32) - 1))
                     {
-                        m_luma_quantization_table[m_current_command_argument_index * 4 + 0] = (value >>  0) & 0xFF;
-                        m_luma_quantization_table[m_current_command_argument_index * 4 + 1] = (value >>  8) & 0xFF;
-                        m_luma_quantization_table[m_current_command_argument_index * 4 + 2] = (value >> 16) & 0xFF;
-                        m_luma_quantization_table[m_current_command_argument_index * 4 + 3] = (value >> 24) & 0xFF;
+                        m_luma_quantization_table[m_current_command_argument_index * sizeof(u32) + 0] = (value >>  0) & 0xFF;
+                        m_luma_quantization_table[m_current_command_argument_index * sizeof(u32) + 1] = (value >>  8) & 0xFF;
+                        m_luma_quantization_table[m_current_command_argument_index * sizeof(u32) + 2] = (value >> 16) & 0xFF;
+                        m_luma_quantization_table[m_current_command_argument_index * sizeof(u32) + 3] = (value >> 24) & 0xFF;
                     }
-                    else if(in_range<u32>(m_current_command_argument_index, MacroblockSize / 4, MacroblockSize * 2 / 4 - 1))
+                    else if(in_range<u32>(m_current_command_argument_index, MacroblockSize / sizeof(u32), MacroblockSize * 2 / sizeof(u32) - 1))
                     {
-                        m_chroma_quantization_table[(m_current_command_argument_index - MacroblockSize / 4) * 4 + 0] = (value >>  0) & 0xFF;
-                        m_chroma_quantization_table[(m_current_command_argument_index - MacroblockSize / 4) * 4 + 1] = (value >>  8) & 0xFF;
-                        m_chroma_quantization_table[(m_current_command_argument_index - MacroblockSize / 4) * 4 + 2] = (value >> 16) & 0xFF;
-                        m_chroma_quantization_table[(m_current_command_argument_index - MacroblockSize / 4) * 4 + 3] = (value >> 24) & 0xFF;
+                        m_chroma_quantization_table[(m_current_command_argument_index - MacroblockSize / sizeof(u32)) * sizeof(u32) + 0] = (value >>  0) & 0xFF;
+                        m_chroma_quantization_table[(m_current_command_argument_index - MacroblockSize / sizeof(u32)) * sizeof(u32) + 1] = (value >>  8) & 0xFF;
+                        m_chroma_quantization_table[(m_current_command_argument_index - MacroblockSize / sizeof(u32)) * sizeof(u32) + 2] = (value >> 16) & 0xFF;
+                        m_chroma_quantization_table[(m_current_command_argument_index - MacroblockSize / sizeof(u32)) * sizeof(u32) + 3] = (value >> 24) & 0xFF;
                     }
                     else
                     {
@@ -235,14 +236,19 @@ namespace PSX
 
                 case 3: // Set Inverse Discrete Cosine Transformation Table
                 {
-                    m_idct_table[m_current_command_argument_index * 2 + 0] = (value >>  0) & 0xFFFF;
-                    m_idct_table[m_current_command_argument_index * 2 + 1] = (value >> 16) & 0xFFFF;
+                    m_idct_table[m_current_command_argument_index * sizeof(s16) + 0] = (value >>  0) & 0xFFFF;
+                    m_idct_table[m_current_command_argument_index * sizeof(s16) + 1] = (value >> 16) & 0xFFFF;
                 } break;
 
                 default:
                 {
                     UNREACHABLE();
                 } break;
+            }
+
+            if(m_command_num_arguments == 0)
+            {
+                ABORT_WITH_MESSAGE("invalid parsing of MDEC command: consumed all arguments, but didn't escape parsing");
             }
 
             m_current_command_argument_index += 1;
