@@ -60,7 +60,7 @@ namespace PSX
         {
             u32 num_arguments:     16;
 
-            u32: 11;
+            u32: 9;
             
             u32 data_output_bit15:  1;
             u32 data_output_signed: 1;
