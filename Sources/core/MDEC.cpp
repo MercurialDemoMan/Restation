@@ -317,4 +317,23 @@ namespace PSX
             return 0;
         }
     }
+
+    /**
+     * @brief consumes input and decodes macroblocks from the input fifo 
+     */
+    void MDEC::decode_all_macroblocks_from_input_fifo()
+    {
+        m_input_fifo_cursor = 0;
+
+        while(m_input_fifo_cursor < m_input_fifo.size())
+        {
+            // decode macroblock from input fifo based on the offset m_input_fifo_cursor
+            std::vector<u32> decoded_block = decode_macroblock();
+
+            // append the result to output
+            std::copy(decoded_block.begin(), decoded_block.end(), std::back_inserter(m_output_fifo));
+        }
+
+        m_input_fifo.clear();
+    }
 }
