@@ -272,6 +272,49 @@ namespace PSX
      */
     u32 MDEC::read_data_or_response()
     {
-        TODO();
+        if(!m_output_fifo.empty() && m_output_fifo_cursor < m_output_fifo.size())
+        {
+            u32 result = 0;
+
+            switch(m_status.data_output_depth)
+            {
+                case 0:
+                case 1:
+                {
+                    TODO();
+                } break;
+
+                case 2: // 24bit
+                {
+                    TODO();
+                } break;
+
+                case 3: // 15bit
+                {
+                    auto color_low  = Color15Bit::create_from_24bit(m_output_fifo[m_output_fifo_cursor++]);
+                    auto color_high = Color15Bit::create_from_24bit(m_output_fifo[m_output_fifo_cursor++]);
+
+                    result = (((m_status.data_output_bit15 << 15) | color_low.raw)  <<  0) |
+                             (((m_status.data_output_bit15 << 15) | color_high.raw) << 16);
+                    LOG(fmt::format("colors: 0x{:08x}", result));
+                } break;
+
+                default:
+                {
+                    UNREACHABLE();
+                } break;
+            }
+
+            if(m_input_fifo_cursor >= m_output_fifo.size())
+            {
+                m_output_fifo.clear();
+            }
+
+            return result;
+        }
+        else
+        {
+            return 0;
+        }
     }
 }
