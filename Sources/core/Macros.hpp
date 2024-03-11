@@ -75,6 +75,17 @@
 #define DELETE_MOVE_ASSIGNMENT(class_name) class_name operator=(const class_name&&) = delete
 
 /**
+ * packing 
+ */
+#if defined(__GNUC__)
+    #define PACKED(structure) structure __attribute__((packed))
+#elif defined(_MSC_VER)
+    #define PACKED(structure) __pragma(pack(push, 1)) structure __pragma(pack(pop))
+#else
+#error "Unsupported compiler, please specify struct packing in Macros.hpp for your compiler"
+#endif
+
+/**
  * logging utilities 
  */
 #define LOG(message) do \
