@@ -41,6 +41,8 @@ namespace PSX
     {
         for(u32 _ = 0; _ < num_steps; _++)
         {
+            m_index.transmission_busy = 0;
+
             // trigger queued interrupt
             if(!m_interrupt_fifo.empty())
             {
@@ -54,7 +56,7 @@ namespace PSX
             if(m_status.read || m_status.play)
             {
                 // only read the entire sector, once the reading head reaches current sector size (can be modified by the reading speed flag)
-                if(m_cycles++ % (Sector::ReadDelay >> m_mode.speed) == 0)
+                if(++m_cycles % (Sector::ReadDelay >> m_mode.speed) == 0)
                 {
                     auto current_position = Position::create(m_sector_head++);
 
@@ -267,6 +269,11 @@ namespace PSX
         {
             m_data_fifo_cursor++;
             return m_data_fifo[sync_bytes_offset + Sector::SizeWithHeaderAndWithoutSyncBytes - 4];
+        }
+        
+        if(data_fifo_ready())
+        {
+            m_index.data_fifo_empty = 0;
         }
 
         return m_data_fifo[sync_bytes_offset + m_data_fifo_cursor++];
