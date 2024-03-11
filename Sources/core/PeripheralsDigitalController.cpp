@@ -84,8 +84,6 @@ namespace PSX
                 }
                 else
                 {
-
-                    LOG("fuck");
                     m_communication_counter = 0;
                     return 0xFF;
                 }
