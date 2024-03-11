@@ -70,7 +70,7 @@ namespace PSX
 
     private:
 
-        Disc(): 
+        explicit Disc(): 
             m_meta_loaded(false) 
         {
 
