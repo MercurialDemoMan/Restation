@@ -52,8 +52,6 @@ namespace PSX
      */
     bool DMAChannelMDECIN::sync_request() const
     {
-        // TODO: implement/stub mdec
-        TODO();
-        return true;
+        return m_mdec->is_input_fifo_ready();
     }
 }
