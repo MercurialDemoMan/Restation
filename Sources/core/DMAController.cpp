@@ -76,7 +76,7 @@ namespace PSX
             u32 channel_index = static_cast<u32>(channel->type());
 
             // if current channel is enabled
-            if((m_control.raw & (0b1000 << (channel_index * 4))) == 0)
+            if((m_control.raw & (0b1000 << (channel_index * 4))) != 0)
             {
                 channel->execute(num_steps);
             }
