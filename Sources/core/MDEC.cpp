@@ -366,4 +366,161 @@ namespace PSX
 
         return result;
     }
+
+    /**
+     * @brief decode 1 component of a macroblock based on a specific quantization table 
+     */
+    bool MDEC::decode_block_with_quantization_table
+    (
+        std::array<s16, MacroblockSize>& output_block, 
+        const std::array<u8, MacroblockSize>& quantization_table)
+    {
+        static constexpr const u16 SkipMarker = 0xFE00;
+
+        static constexpr const std::array<u8, 64> ZagZig = 
+        {
+            0,  1,  8,  16, 9,  2,  3,  10, 
+            17, 24, 32, 25, 18, 11, 4,  5, 
+            12, 19, 26, 33, 40, 48, 41, 34, 
+            27, 20, 13, 6,  7,  14, 21, 28, 
+            35, 42, 49, 56, 57, 50, 43, 36, 
+            29, 22, 15, 23, 30, 37, 44, 51, 
+            58, 59, 52, 45, 38, 31, 39, 46, 
+            53, 60, 61, 54, 47, 55, 62, 63, 
+        };
+
+        output_block.fill(0);
+        
+        // skip padding using marker
+        for(; m_input_fifo_cursor < m_input_fifo.size() && m_input_fifo[m_input_fifo_cursor] == SkipMarker; m_input_fifo_cursor++)
+        {
+
+        }
+
+        if(m_input_fifo_cursor >= m_input_fifo.size())
+        {
+            LOG_WARNING("reached the end of the block while decoding dct");
+            return false;
+        }
+
+        // extract dct component
+        auto dct = m_input_fifo[m_input_fifo_cursor++];
+        u16 q_scale = (dct >> 10) & 0x3F;
+        s16 current = extend_sign<s16, 10>(dct & 0x03FF);
+        s16 value   = current * quantization_table[0];
+
+        // decode rle components
+        for(u32 i = 0; i < MacroblockSize; )
+        {
+            if(q_scale == 0)
+            {
+                value = current * 2;
+            }
+
+            value = std::clamp<s16>(value, -0x0400, 0x03FF);
+            if(q_scale > 0)
+            {
+                output_block[ZagZig[i]] = value;
+            }
+            if(q_scale == 0)
+            {
+                output_block[i] = value;
+            }
+
+            if(m_input_fifo_cursor >= m_input_fifo.size())
+            {
+                LOG_WARNING("reached the end of the block while decoding dct");
+                return false;
+            }
+
+            auto rle = m_input_fifo[m_input_fifo_cursor++];
+
+            i = i + ((rle >> 10) & 0x3F) + 1;
+
+            current = extend_sign<s16, 10>(rle & 0x03FF);
+
+            value = (current * quantization_table[i] * q_scale + 4) / 8;
+        }
+
+        do_idct(output_block);
+
+        return true;
+    }
+
+    /**
+     * @brief perform inverse discrete cosine transform to convert from frequencies to actual color 
+     */
+    void MDEC::do_idct(std::array<s16, MacroblockSize>& block)
+    {
+        std::array<s64, MacroblockSize> result;
+        result.fill(0);
+
+        for(u32 x = 0; x < 8; x++)
+        {
+            for(u32 y = 0; y < 8; y++)
+            {
+                s32 sum = 0;
+
+                for(u32 z = 0; z < 8; z++)
+                {
+                    sum += block[y + z * 8] * (m_idct_table[x + z * 8] / 8);
+                }
+
+                result[x + y * 8] = (sum + 0x0FFF) / 0x2000;
+            }
+        }
+
+        for(u32 x = 0; x < 8; x++)
+        {
+            for(u32 y = 0; y < 8; y++)
+            {
+                s32 sum = 0;
+
+                for(u32 z = 0; z < 8; z++)
+                {
+                    sum += result[y + z * 8] * (m_idct_table[x + z * 8] / 8);
+                }
+
+                block[x + y * 8] = (sum + 0x0FFF) / 0x2000;
+            }
+        }
+    }
+
+    /**
+     * @brief convert a decoded macroblock from yuv colorspace to rgb colorspace 
+     */
+    std::vector<u32> MDEC::convert_macroblock_from_ycbcr_to_rgb()
+    {
+        std::vector<u32> result(16 * 16);
+        
+        auto yuv_to_rgb = [&](u32 x_offset, u32 y_offset)
+        {
+            for(u32 y = 0; y < 8; y++)
+            {
+                for(u32 x = 0; x < 8; x++)
+                {
+                    u32 y_block_offset = (y_offset / 8) * 2 + (x_offset / 8);
+                    s32 Y  = m_y_block[y_block_offset][x + y * 8];
+                    s32 Cr = m_cr_block[((x + x_offset) / 2) + ((y + y_offset) / 2) * 8];
+                    s32 Cb = m_cb_block[((x + x_offset) / 2) + ((y + y_offset) / 2) * 8];
+
+                    s32 R = (1.402 * Cr);
+                    s32 G = (-0.3437 * Cb) + (-0.7143 * Cr);
+                    s32 B = (1.772 * Cb);
+                    u8  Rbyte = std::clamp(Y + R, -128, 127) + 128;
+                    u8  Gbyte = std::clamp(Y + G, -128, 127) + 128;
+                    u8  Bbyte = std::clamp(Y + B, -128, 127) + 128;
+                    result[(x + x_offset) + (y + y_offset) * 16] = (Bbyte << 16) | (Gbyte << 8) | (Rbyte << 0);
+                }
+            }
+        };
+
+        yuv_to_rgb(0, 0);
+        yuv_to_rgb(0, 8);
+        yuv_to_rgb(8, 0);
+        yuv_to_rgb(8, 8);
+
+
+        return result;
+    }
 }
