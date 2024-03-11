@@ -68,6 +68,7 @@ add_executable(emu
     core/RamController.cpp
     core/MemController.cpp
     core/DMAController.cpp
+    core/ExecutableFile.cpp
     core/CacheController.cpp
     core/CPUDisassembler.cpp
     core/DMAChannelCDROM.cpp
