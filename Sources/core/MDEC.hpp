@@ -36,6 +36,8 @@
 
 #include <memory>
 #include <queue>
+#include <vector>
+#include <array>
 #include "Component.hpp"
 #include "Forward.hpp"
 #include "MDECInstruction.hpp"
@@ -64,6 +66,16 @@ namespace PSX
         virtual void write(u32 address, u32 value) override;
         virtual void reset() override;
 
+        /**
+         * @brief used by DMAChannelMDECIN to check if input data fifo is ready for writing
+         */
+        bool is_input_fifo_ready() const;
+
+        /**
+         * @brief used by DMAChannelMDECOUT to check if output data fifo is ready for reading
+         */
+        bool is_output_fifo_ready() const;
+
     private:
 
         /**
@@ -90,6 +102,36 @@ namespace PSX
          * @brief collect the decoded output 
          */
         u32 read_data_or_response();
+
+        /**
+         * @brief consumes input and decodes macroblocks from the input fifo 
+         */
+        void decode_all_macroblocks_from_input_fifo();
+
+        /**
+         * @brief decodes 1 macroblock from input fifo (offset is specified by the m_input_fifo_cursor) 
+         */
+        std::vector<u32> decode_macroblock();
+
+        /**
+         * @brief decode 1 component of a macroblock based on a specific quantization table 
+         * @return successfully decoded a block
+         */
+        bool decode_block_with_quantization_table
+        (
+            std::array<s16, MacroblockSize>& output_block, 
+            const std::array<u8, MacroblockSize>& quantization_table
+        );
+
+        /**
+         * @brief perform inverse discrete cosine transform to convert from frequencies to actual color 
+         */
+        void do_idct(std::array<s16, MacroblockSize>& block);
+
+        /**
+         * @brief convert a decoded macroblock from yuv colorspace to rgb colorspace 
+         */
+        std::vector<u32> convert_macroblock_from_ycbcr_to_rgb();
 
         std::shared_ptr<Bus> m_bus;
 
@@ -144,11 +186,16 @@ namespace PSX
         u16              m_command_num_arguments;
         u32              m_current_command_argument_index;
         u32              m_quantization_table_selector;
+        u32              m_input_fifo_cursor;
+        u32              m_output_fifo_cursor;
         std::vector<u16> m_input_fifo;
         std::vector<u32> m_output_fifo;
         std::array<s16, MacroblockSize> m_idct_table;
         std::array<u8,  MacroblockSize> m_chroma_quantization_table;
         std::array<u8,  MacroblockSize> m_luma_quantization_table;
+        std::array<s16, MacroblockSize> m_y_block[4]; // luma is 2x bigger than chroma
+        std::array<s16, MacroblockSize> m_cb_block;
+        std::array<s16, MacroblockSize> m_cr_block;
     };
 }
 

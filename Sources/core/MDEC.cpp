@@ -32,8 +32,10 @@
  */
 
 #include "MDEC.hpp"
+#include "GPUTypes.hpp"
 #include "Bus.hpp"
 #include "Utils.hpp"
+#include <algorithm>
 
 namespace PSX
 {
@@ -73,20 +75,46 @@ namespace PSX
 
     void MDEC::reset()
     {
-        m_status.raw = 0;
-        m_status.current_block = 4;
+        m_status.raw                 = 0;
+        m_status.current_block       = 4;
         m_status.data_out_fifo_empty = 1;
 
-        m_current_instruction.raw = 0;
-        m_command_num_arguments = 0;
+        m_current_instruction.raw        = 0;
+        m_command_num_arguments          = 0;
         m_current_command_argument_index = 0;
-        m_quantization_table_selector = 0;
+        m_quantization_table_selector    = 0;
+        m_input_fifo_cursor              = 0;
+        m_output_fifo_cursor             = 0;
 
         m_input_fifo.clear();
         m_output_fifo.clear();
         std::fill(m_idct_table.begin(), m_idct_table.end(), 0);
         std::fill(m_luma_quantization_table.begin(), m_luma_quantization_table.end(), 0);
         std::fill(m_chroma_quantization_table.begin(), m_chroma_quantization_table.end(), 0);
+        std::fill(m_y_block[0].begin(), m_y_block[0].end(), 0);
+        std::fill(m_y_block[1].begin(), m_y_block[1].end(), 0);
+        std::fill(m_y_block[2].begin(), m_y_block[2].end(), 0);
+        std::fill(m_y_block[3].begin(), m_y_block[3].end(), 0);
+        std::fill(m_cb_block.begin(), m_cb_block.end(), 0);
+        std::fill(m_cr_block.begin(), m_cr_block.end(), 0);
+    }
+
+    /**
+     * @brief used by DMAChannelMDECIN to check if input data fifo is ready for writing
+     */
+    bool MDEC::is_input_fifo_ready() const
+    {
+        return m_status.data_in_request &&
+               m_output_fifo.empty();
+    }
+
+    /**
+     * @brief used by DMAChannelMDECOUT to check if output data fifo is ready for reading
+     */
+    bool MDEC::is_output_fifo_ready() const
+    {
+        return m_status.data_out_request &&
+               !m_output_fifo.empty();
     }
 
     /**
