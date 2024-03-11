@@ -296,7 +296,6 @@ namespace PSX
 
                     result = (((m_status.data_output_bit15 << 15) | color_low.raw)  <<  0) |
                              (((m_status.data_output_bit15 << 15) | color_high.raw) << 16);
-                    LOG(fmt::format("colors: 0x{:08x}", result));
                 } break;
 
                 default:
@@ -335,5 +334,36 @@ namespace PSX
         }
 
         m_input_fifo.clear();
+    }
+
+    /**
+     * @brief decodes 1 macroblock from input fifo (offset is specified by the m_input_fifo_cursor) 
+     */
+    std::vector<u32> MDEC::decode_macroblock()
+    {
+        std::vector<u32> result;
+
+        switch(m_status.data_output_depth)
+        {
+            case 0: // 4bit
+            case 1: // 8bit
+            {
+                TODO(); 
+            } break;
+
+            case 2: // 24bit
+            case 3: // 15bit
+            {
+                if(!decode_block_with_quantization_table(m_cr_block, m_chroma_quantization_table)) return {};
+                if(!decode_block_with_quantization_table(m_cb_block, m_chroma_quantization_table)) return {};
+                if(!decode_block_with_quantization_table(m_y_block[0], m_luma_quantization_table)) return {};
+                if(!decode_block_with_quantization_table(m_y_block[1], m_luma_quantization_table)) return {};
+                if(!decode_block_with_quantization_table(m_y_block[2], m_luma_quantization_table)) return {};
+                if(!decode_block_with_quantization_table(m_y_block[3], m_luma_quantization_table)) return {};
+                result = convert_macroblock_from_ycbcr_to_rgb();
+            } break;
+        }
+
+        return result;
     }
 }
