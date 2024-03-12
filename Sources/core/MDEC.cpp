@@ -354,7 +354,7 @@ namespace PSX
                 } break;
             }
 
-            if(m_input_fifo_cursor >= m_output_fifo.size())
+            if(m_output_fifo_cursor >= m_output_fifo.size())
             {
                 m_output_fifo.clear();
             }
@@ -542,7 +542,7 @@ namespace PSX
     std::vector<u32> MDEC::convert_macroblock_from_ycbcr_to_rgb()
     {
         std::vector<u32> result(16 * 16);
-        
+
         auto yuv_to_rgb = [&](u32 x_offset, u32 y_offset)
         {
             for(u32 y = 0; y < 8; y++)
@@ -569,7 +569,6 @@ namespace PSX
         yuv_to_rgb(0, 8);
         yuv_to_rgb(8, 0);
         yuv_to_rgb(8, 8);
-
 
         return result;
     }
