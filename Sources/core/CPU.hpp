@@ -36,8 +36,11 @@
 
 #include <array>
 #include <memory>
+#include <optional>
+#include <set>
 #include "Component.hpp"
 #include "Forward.hpp"
+#include "ExecutableFile.hpp"
 #include "CPUInstruction.hpp"
 #include "ExceptionController.hpp"
 #include "GTE.hpp"
@@ -84,6 +87,30 @@ namespace PSX
          * @brief assess the state of the cpu and return it in a readable form
          */
         std::string to_string() const;
+
+        /**
+         * @brief modify the state of CPU to launch executable file 
+         */
+        void meta_load_executable(const std::shared_ptr<ExecutableFile>&);
+
+        /**
+         * @brief append breakpoint to the list of breakpoints
+         *        cpu will halt it's execution and hit breakpoint 
+         *        can be checked using the `meta_did_hit_breakpoint`
+         */
+        void meta_add_breakpoint(u32 address);
+
+        /**
+         * @brief check if CPU hit a breakpoint and if yes, return
+         *        the breakpoint address 
+         */
+        std::optional<u32> meta_did_hit_breakpoint() const;
+
+        /**
+         * @brief signal a CPU that a breakpoint was processed and the CPU
+         *        can continue in execution
+         */
+        void meta_acknowledge_breakpoint();
 
     private:
 
@@ -342,8 +369,9 @@ namespace PSX
         /// circular buffer to keep track of a few last executed instructions 
         std::array<ExecutedInstruction, LastExecutedInstructionsSize> m_meta_last_executed_instructions; 
         u32 m_meta_last_executed_instruction_index;  
-
         u64 m_meta_cycles; /// track number of clock cycles
+        std::set<u32> m_meta_breakpoints; /// track breakpoints
+        bool m_meta_did_hit_breakpoint;
     };
 }
 

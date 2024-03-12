@@ -60,6 +60,26 @@ namespace PSX
                 trigger_exception(Exception::Interrupt);
             }
 
+            // handle host breakpoints
+            if(!m_meta_breakpoints.empty())
+            {
+                // CPU hit a breakpoint, but host did acknowledged it yet
+                if(m_meta_did_hit_breakpoint)
+                {
+                    return;
+                }
+                else
+                {
+                    // find breakpoint and trigger it, if current pc is in breakpoints container 
+                    auto it = m_meta_breakpoints.find(m_program_counter);
+                    if(it != m_meta_breakpoints.end())
+                    {
+                        m_meta_did_hit_breakpoint = true;
+                        m_meta_breakpoints.erase(it);
+                    }
+                }
+            }
+
             // get instruction from memory
             m_current_instruction = fetch_instruction(m_program_counter);
 
@@ -81,12 +101,6 @@ namespace PSX
 
             // keep track of clock cycles
             m_meta_cycles++;
-            /*
-            if(m_meta_cycles > 86363)
-            {
-                LOG(to_string());
-                exit(1);
-            }*/
         }
     }
 
@@ -133,6 +147,8 @@ namespace PSX
 
         m_exception_controller->reset();
         m_gte->reset();
+        m_meta_breakpoints.clear();
+        m_meta_did_hit_breakpoint = false;
     }
 
     /**
@@ -369,6 +385,53 @@ namespace PSX
             result += fmt::format("            0x{:08x}: {}\n", exec_ins.address, disassemble(exec_ins.ins));
         }
         return result;
+    }
+
+    /**
+     * @brief modify the state of CPU to launch executable file 
+     */
+    void CPU::meta_load_executable(const std::shared_ptr<ExecutableFile>& executable_file)
+    {
+        m_program_counter = executable_file->initial_pc();
+        m_program_counter_next = m_program_counter + sizeof(CPUInstruction);
+        m_register_field[28] = executable_file->initial_gp();
+        m_register_field[29] = executable_file->initial_sp();
+        m_register_field[30] = executable_file->initial_sp();
+    }
+
+    /**
+     * @brief append breakpoint to the list of breakpoints
+     *        cpu will halt it's execution and hit breakpoint 
+     *        can be checked using the `meta_did_hit_breakpoint`
+     */
+    void CPU::meta_add_breakpoint(u32 address)
+    {
+        m_meta_breakpoints.insert(address);
+    }
+
+    /**
+     * @brief check if CPU hit a breakpoint and if yes, return
+     *        the breakpoint address 
+     */
+    std::optional<u32> CPU::meta_did_hit_breakpoint() const
+    {
+        if(m_meta_did_hit_breakpoint)
+        {
+            return m_program_counter;
+        }
+        else
+        {
+            return {};
+        }
+    }
+
+    /**
+     * @brief signal a CPU that a breakpoint was processed and the CPU
+     *        can continue in execution
+     */
+    void CPU::meta_acknowledge_breakpoint()
+    {
+        m_meta_did_hit_breakpoint = false;
     }
 
     /**
