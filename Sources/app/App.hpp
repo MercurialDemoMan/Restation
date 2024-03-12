@@ -41,6 +41,7 @@
 #include <condition_variable>
 #include "../core/Bus.hpp"
 #include "../core/Macros.hpp"
+#include "../core/GPUTypes.hpp"
 #include "Menu.hpp"
 #include "Input.hpp"
 
@@ -102,18 +103,30 @@ private:
      */
     void emulator_thread();
 
+    /**
+     * @brief copy the vram contents into the 15bit framebuffer  
+     */
+    void update_framebuffer_15bit();
+
+    /**
+     * @brief copy the vram contents into the 24bit framebuffer  
+     */
+    void update_framebuffer_24bit();
+
     static std::shared_ptr<App> m_singleton_instance; /// Manage singleton instance
 
-    SDL_Window*   m_window;        /// Manage Window
-    SDL_Renderer* m_renderer;      /// Manage Window Surface Renderer
-    SDL_Texture*  m_framebuffer;   /// Manage Window Framebuffer
-    std::atomic<bool> m_run;       /// Manage Main App Emulator/Rendering Loop
-    SDL_Rect      m_framebuffer_view; /// Cutout of VRAM
+    SDL_Window*   m_window;            /// Manage Window
+    SDL_Renderer* m_renderer;          /// Manage Window Surface Renderer
+    SDL_Texture*  m_framebuffer_15bit; /// Manage Window Framebuffer (15bit)
+    SDL_Texture*  m_framebuffer_24bit; /// Manage Window Framebuffer (24bit)
+    std::atomic<bool> m_run;           /// Manage Main App Emulator/Rendering Loop
+    SDL_Rect      m_framebuffer_view;  /// Cutout of VRAM
 
-    std::shared_ptr<Input>    m_input;                                      /// SDL2 Input Manager
-    std::shared_ptr<PSX::Bus> m_emulator_core;                              /// Store Actual Emulator State
+    std::shared_ptr<Input>     m_input;                                     /// SDL2 Input Manager
+    std::shared_ptr<PSX::Bus>  m_emulator_core;                             /// Store Actual Emulator State
     std::array<PSX::u16, PSX::VRamWidth * PSX::VRamHeight> m_emulator_vram; /// Store Copy of Emulator VRAM
-    glm::ivec4                m_emulator_framebuffer_view;                  /// Cutout of VRAM
+    glm::ivec4                 m_emulator_framebuffer_view;                 /// Cutout of VRAM
+    PSX::DisplayAreaColorDepth m_emulator_display_area_color_depth;         /// Current GPU VRAM color depth
 
     std::thread             m_emulator_thread;      /// Manage Emulator Thread
     std::mutex              m_vram_mutex;           /// v
