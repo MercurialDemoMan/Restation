@@ -52,11 +52,20 @@ namespace PSX
          */
         static std::shared_ptr<ExecutableFile> create(const std::string& meta_file_path);
 
+        /**
+         * @brief access header information 
+         */
+        u32 initial_pc() const;
+        u32 initial_gp() const;
+        u32 initial_sp() const;
+        u32 text_base() const;
+        const std::vector<u8>& text() const;
+
     private:
 
         explicit ExecutableFile()
         {
-
+            
         }
 
         /**
@@ -87,8 +96,8 @@ namespace PSX
 
         static_assert(sizeof(Header) == 0x0800);
 
-        Header                      m_header;  // header information about the executable
-        std::vector<CPUInstruction> m_program; // text section of the executable
+        Header          m_header;  // header information about the executable
+        std::vector<u8> m_program; // text section of the executable
     };
 }
 

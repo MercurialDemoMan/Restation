@@ -58,11 +58,13 @@ namespace PSX
      */
     void ExecutableFile::meta_initialize_from_exe(const std::string& meta_file_path)
     {
+        LOG(fmt::format("loading executable from {}", meta_file_path));
+
         auto file_size = std::filesystem::file_size(meta_file_path);
 
         if(file_size <= sizeof(Header))
         {
-            ABORT_WITH_MESSAGE(fmt::format("failed to load executable from path {}: file is too small to be PS-X Executable (file size: {}B, minimal size: {}B)", file_size, sizeof(Header)));
+            ABORT_WITH_MESSAGE(fmt::format("failed to load executable from path {}: file is too small to be PS-X Executable (file size: {}B, minimal size: {}B)", meta_file_path, file_size, sizeof(Header)));
         }
 
         LOG_DEBUG(1, fmt::format("loading exe from {} of size {}B", meta_file_path, file_size));
@@ -79,17 +81,55 @@ namespace PSX
         
         if(exe_file_contents.size() <= sizeof(Header))
         {
-            ABORT_WITH_MESSAGE(fmt::format("failed to load executable from path {}: file is too small to be PS-X Executable (file size: {}B, minimal size: {}B)", file_size, sizeof(Header)));
+            ABORT_WITH_MESSAGE(fmt::format("failed to load executable from path {}: file is too small to be PS-X Executable (file size: {}B, minimal size: {}B)", meta_file_path, file_size, sizeof(Header)));
         }
 
         // copy header
         std::memcpy(&m_header, exe_file_contents.data(), sizeof(Header));
 
-        // copy text section
-        std::copy(exe_file_contents.begin() + sizeof(Header), exe_file_contents.end(), std::back_inserter(m_program));
+        if(exe_file_contents.size() - sizeof(Header) != m_header.file_size)
+        {
+            auto header_file_size = m_header.file_size;
+            ABORT_WITH_MESSAGE(fmt::format("failed to lead executable from path {}: the text size {}B does not match the text size in the header {}B", meta_file_path, exe_file_contents.size() - sizeof(Header), header_file_size));
+        }
 
-        LOG_DEBUG(1, "exe loaded");
+        // copy text section
+        m_program.resize(m_header.file_size);
+        std::memcpy(m_program.data(), exe_file_contents.data() + sizeof(Header), m_header.file_size);
+
+        if(m_header.file_size != m_program.size())
+        {
+            auto header_file_size = m_header.file_size;
+            ABORT_WITH_MESSAGE(fmt::format("failed to load executable from path {}: the file size {}B does not match the file size in the header {}B", meta_file_path, m_program.size(), header_file_size));
+        }
+
+        LOG("exe loaded");
 
         meta_file.close();
     }
+
+    /**
+     * @brief access PS-X Executable information 
+     */
+    u32 ExecutableFile::initial_pc() const
+    {
+        return m_header.initial_pc;
+    }
+    u32 ExecutableFile::initial_gp() const
+    {
+        return m_header.initial_gp_r28;
+    }
+    u32 ExecutableFile::initial_sp() const
+    {
+        return m_header.initial_sp_r29_base + m_header.initial_sp_r29_offset;
+    }
+    u32 ExecutableFile::text_base() const
+    {
+        return m_header.ram_placement;
+    }
+    const std::vector<u8>& ExecutableFile::text() const
+    {
+        return m_program;
+    }
+
 }
