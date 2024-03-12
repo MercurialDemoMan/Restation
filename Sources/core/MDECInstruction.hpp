@@ -64,7 +64,7 @@ namespace PSX
             
             u32 data_output_bit15:  1;
             u32 data_output_signed: 1;
-            u32 data_output_depth:  3;
+            u32 data_output_depth:  2;
 
             u32: 3;
         };
@@ -80,6 +80,8 @@ namespace PSX
 
         u32 raw;
     };
+
+    static_assert(sizeof(MDECInstruction) == sizeof(u32));
 }
 
 #endif // MDECINSTRUCTION_HPP
