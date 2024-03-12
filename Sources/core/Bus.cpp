@@ -351,7 +351,7 @@ namespace PSX
             return;
         }
         m_peripherals->execute(num_steps);
-        m_dma_controller->execute(num_steps);
+        m_dma_controller->execute(num_steps / OptimalSimulationStep);
         m_timer_dotclock->execute(num_steps);    
         m_timer_hblank->execute(num_steps);      
         m_timer_systemclock->execute(num_steps); 
@@ -397,7 +397,6 @@ namespace PSX
      */
     void Bus::meta_load_game(const std::string& game_path)
     {
-        // TODO: what about non-ascii path??
         auto game_path_lower = game_path;
         std::transform(game_path_lower.begin(), game_path_lower.end(), game_path_lower.begin(), [](u8 ascii_char)
         {
@@ -509,7 +508,7 @@ namespace PSX
     }
 
     /**
-     * @brief copy portion of the PSX address space to host
+     * @brief copy host memory to PSX address space
      */
     void Bus::meta_copy_from_host_to_emulator(const std::vector<u8>& from, u32 to)
     {

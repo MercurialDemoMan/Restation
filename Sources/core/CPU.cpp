@@ -60,23 +60,21 @@ namespace PSX
                 trigger_exception(Exception::Interrupt);
             }
 
+            // CPU hit a breakpoint, but host did not acknowledged it yet
+            if(m_meta_did_hit_breakpoint)
+            {
+                return;
+            }
+
             // handle host breakpoints
             if(!m_meta_breakpoints.empty())
             {
-                // CPU hit a breakpoint, but host did acknowledged it yet
-                if(m_meta_did_hit_breakpoint)
+                // find breakpoint and trigger it, if current pc is in breakpoints container 
+                auto it = m_meta_breakpoints.find(m_program_counter);
+                if(it != m_meta_breakpoints.end())
                 {
-                    return;
-                }
-                else
-                {
-                    // find breakpoint and trigger it, if current pc is in breakpoints container 
-                    auto it = m_meta_breakpoints.find(m_program_counter);
-                    if(it != m_meta_breakpoints.end())
-                    {
-                        m_meta_did_hit_breakpoint = true;
-                        m_meta_breakpoints.erase(it);
-                    }
+                    m_meta_did_hit_breakpoint = true;
+                    m_meta_breakpoints.erase(it);
                 }
             }
 

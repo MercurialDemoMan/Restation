@@ -151,7 +151,7 @@ namespace PSX
         std::vector<u8> meta_copy_from_emulator_to_host(u32 address, u32 size);
 
         /**
-         * @brief copy portion of the PSX address space to host
+         * @brief copy host memory to PSX address space
          */
         void meta_copy_from_host_to_emulator(const std::vector<u8>& from, u32 to);
         
