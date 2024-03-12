@@ -79,6 +79,11 @@ namespace PSX
     private:
 
         /**
+         * @brief reset the MDEC from a command
+         */
+        void soft_reset();
+
+        /**
          * @brief directly execute the instruction
          */
         void execute(const MDECInstruction&);
@@ -160,6 +165,8 @@ namespace PSX
             u32 raw;
         };
 
+        static_assert(sizeof(Status) == sizeof(u32));
+
         /**
          * @brief 0x1F801824 MDEC Control/Reset Register (W)
          */
@@ -177,6 +184,8 @@ namespace PSX
             u32 raw;
         };
 
+        static_assert(sizeof(Control) == sizeof(u32));
+
         /**
          * MDEC state 
          */
@@ -188,6 +197,7 @@ namespace PSX
         u32              m_quantization_table_selector;
         u32              m_input_fifo_cursor;
         u32              m_output_fifo_cursor;
+        u32              m_read24bit_value_cursor;
         std::vector<u16> m_input_fifo;
         std::vector<u32> m_output_fifo;
         std::array<s16, MacroblockSize> m_idct_table;

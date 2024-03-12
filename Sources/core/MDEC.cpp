@@ -85,6 +85,7 @@ namespace PSX
         m_quantization_table_selector    = 0;
         m_input_fifo_cursor              = 0;
         m_output_fifo_cursor             = 0;
+        m_read24bit_value_cursor         = 0;
 
         m_input_fifo.clear();
         m_output_fifo.clear();
@@ -97,6 +98,25 @@ namespace PSX
         std::fill(m_y_block[3].begin(), m_y_block[3].end(), 0);
         std::fill(m_cb_block.begin(), m_cb_block.end(), 0);
         std::fill(m_cr_block.begin(), m_cr_block.end(), 0);
+    }
+
+    /**
+     * @brief reset the MDEC from a command
+     */
+    void MDEC::soft_reset()
+    {
+        m_current_instruction.raw    = 0;
+        m_status.raw                 = 0;
+        m_status.current_block       = 4;
+        m_status.data_out_fifo_empty = 1;
+        m_output_fifo_cursor         = 0;
+
+        LOG(fmt::format("soft reset {}", m_command_num_arguments));
+
+        if(m_command_num_arguments != 0)
+        {
+            ABORT_WITH_MESSAGE(fmt::format("??? {}", m_command_num_arguments));
+        }
     }
 
     /**
@@ -133,6 +153,7 @@ namespace PSX
                 m_status.data_output_depth  = ins.data_output_depth;
                 m_status.command_busy       = 1;
                 m_command_num_arguments     = ins.num_arguments;
+                m_read24bit_value_cursor    = 0;
 
                 m_input_fifo.clear();
                 m_output_fifo.clear();
@@ -177,7 +198,7 @@ namespace PSX
 
         if(m_control.reset)
         {
-            reset();
+            soft_reset();
         }
 
         m_status.data_in_request  = m_control.enable_data_in_request;
