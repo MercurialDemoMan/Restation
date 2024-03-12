@@ -285,6 +285,7 @@ namespace PSX
         m_status.data_out_fifo_empty = m_output_fifo.empty();
         m_status.data_in_fifo_full   = !m_input_fifo.empty();
         m_status.command_busy        = !m_output_fifo.empty();
+
         return m_status.raw;
     }
 
@@ -307,7 +308,35 @@ namespace PSX
 
                 case 2: // 24bit
                 {
-                    TODO();
+                    switch(m_read24bit_value_cursor++)
+                    {
+                        case 0: 
+                        {
+                            u32 result_low  = (m_output_fifo[m_output_fifo_cursor++] & 0x00FF'FFFF) >>  0;
+                            u32 result_high = (m_output_fifo[m_output_fifo_cursor]   & 0x0000'00FF) << 24;
+                            result = result_low | result_high;
+                        } break;
+                        case 1: 
+                        { 
+                            u32 result_low  = (m_output_fifo[m_output_fifo_cursor++] & 0x00FF'FF00) >>  8; 
+                            u32 result_high = (m_output_fifo[m_output_fifo_cursor]   & 0x0000'FFFF) << 16;
+                            result = result_low | result_high;
+
+                        } break;
+                        case 2:
+                        { 
+                            u32 result_low  = (m_output_fifo[m_output_fifo_cursor++] & 0x00FF'0000) >> 16;
+                            u32 result_high = (m_output_fifo[m_output_fifo_cursor++] & 0x00FF'FFFF) <<  8;
+                            result = result_low | result_high;
+                        } break;
+                        default:
+                        {
+                            UNREACHABLE();
+                        } break;
+                    }
+
+                    m_read24bit_value_cursor %= 3;
+
                 } break;
 
                 case 3: // 15bit
