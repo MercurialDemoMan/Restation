@@ -835,11 +835,16 @@ namespace PSX
     }      
     
     /**
-     * 
+     * @brief Read Without Retry
      */
     void CDROM::READS()
     {
-        TODO();
+        m_sector_head = m_sector_seek_target;
+
+        set_status_mode(Status::Mode::Read);
+
+        push_to_interrupt_fifo(3);
+        push_to_response_fifo(m_status.raw);
     }      
     
     /**
