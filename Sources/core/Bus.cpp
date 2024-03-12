@@ -44,6 +44,7 @@
 #include "RamController.hpp"
 #include "MemController.hpp"
 #include "DMAController.hpp"
+#include "ExecutableFile.hpp"
 #include "CacheController.hpp"
 #include "InterruptController.hpp"
 #include "PeripheralsInput.hpp"
@@ -344,8 +345,12 @@ namespace PSX
      */
     void Bus::execute(u32 num_steps)
     {
-        m_peripherals->execute(num_steps);
         m_cpu->execute(num_steps);
+        if(m_cpu->meta_did_hit_breakpoint())
+        {
+            return;
+        }
+        m_peripherals->execute(num_steps);
         m_dma_controller->execute(num_steps);
         m_timer_dotclock->execute(num_steps);    
         m_timer_hblank->execute(num_steps);      
@@ -392,8 +397,22 @@ namespace PSX
      */
     void Bus::meta_load_game(const std::string& game_path)
     {
-        // TODO: make PSX EXE loadable
-        m_cdrom->meta_load_disc(game_path);
+        if(game_path.ends_with(".bin"))
+        {
+            m_cdrom->meta_load_disc(game_path);
+        }
+        else if(game_path.ends_with(".exe"))
+        {
+            static constexpr const u32 ConsoleInitializedAddress = 0x8003'0000;
+            auto executable = ExecutableFile::create(game_path);
+            meta_run_until(ConsoleInitializedAddress);
+            m_cpu->meta_load_executable(executable);
+            meta_copy_from_host_to_emulator(executable->text(), executable->text_base());
+        }
+        else
+        {
+            ABORT_WITH_MESSAGE(fmt::format("trying to load unsupported game format {}", game_path));
+        }
     }
 
     /**
@@ -444,6 +463,53 @@ namespace PSX
     glm::ivec4 Bus::meta_get_framebuffer_view() const
     {
         return m_gpu->meta_get_framebuffer_view();
+    }
+
+    /**
+     * @brief run the emulator until CPU hits a particular address with program counter 
+     */
+    void Bus::meta_run_until(u32 program_counter)
+    {
+        m_cpu->meta_add_breakpoint(program_counter);
+        while(!m_cpu->meta_did_hit_breakpoint())
+        {
+            execute(OptimalSimulationStep);
+        }
+        m_cpu->meta_acknowledge_breakpoint();
+    }
+
+    /**
+     * @brief append breakpoint to the list of breakpoints
+     *        bus will halt execution of all components and hit breakpoint 
+     *        can be checked using the `m_cpu->meta_did_hit_breakpoint`
+     */
+    void Bus::meta_add_breakpoint(u32 address)
+    {
+        m_cpu->meta_add_breakpoint(address);
+    }
+
+    /**
+     * @brief copy portion of the PSX address space to host
+     */
+    std::vector<u8> Bus::meta_copy_from_emulator_to_host(u32 address, u32 size)
+    {
+        std::vector<u8> result(size);
+        for(u32 i = 0; i < size; i++)
+        {
+            result[i] = dispatch_read<u8>(address + i);
+        }
+        return result;
+    }
+
+    /**
+     * @brief copy portion of the PSX address space to host
+     */
+    void Bus::meta_copy_from_host_to_emulator(const std::vector<u8>& from, u32 to)
+    {
+        for(auto value: from)
+        {
+            dispatch_write<u8>(to++, value);
+        }
     }
 
     /**

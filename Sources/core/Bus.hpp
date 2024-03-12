@@ -34,10 +34,11 @@
 #ifndef BUS_HPP
 #define BUS_HPP
 
-#include <span>
+#include <set>
 #include <array>
 #include <string>
 #include <memory>
+#include <vector>
 #include <iostream>
 #include <glm/glm.hpp>
 #include "Types.hpp"
@@ -131,6 +132,28 @@ namespace PSX
          */
         template<typename T>
         void dispatch_write(u32 address, T value);
+
+        /**
+         * @brief run the emulator until CPU hits a particular address with program counter 
+         */
+        void meta_run_until(u32 program_counter);
+
+        /**
+         * @brief append breakpoint to the list of breakpoints
+         *        bus will halt execution of all components and hit breakpoint 
+         *        can be checked using the `m_cpu->meta_did_hit_breakpoint`
+         */
+        void meta_add_breakpoint(u32 address);
+
+        /**
+         * @brief copy portion of the PSX address space to host
+         */
+        std::vector<u8> meta_copy_from_emulator_to_host(u32 address, u32 size);
+
+        /**
+         * @brief copy portion of the PSX address space to host
+         */
+        void meta_copy_from_host_to_emulator(const std::vector<u8>& from, u32 to);
         
     private:
 
