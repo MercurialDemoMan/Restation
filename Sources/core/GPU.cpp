@@ -1246,7 +1246,7 @@ namespace PSX
                 // blend if transparent
                 if(args.is_semi_transparent)
                 {
-                    if(new_color.mask || args.color_depth != 0)
+                    if(new_color.mask || args.color_depth == 0)
                     {
                         new_color = Color15Bit::create_blended(original_color, new_color, m_draw_mode.semi_transparency);
                     }
