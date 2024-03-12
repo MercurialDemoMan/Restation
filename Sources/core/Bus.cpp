@@ -91,8 +91,6 @@ namespace PSX
         m_timer_hblank         = std::make_shared<Timer<ClockSource::HBlank>>(m_interrupt_controller);     
         m_timer_systemclock    = std::make_shared<Timer<ClockSource::SystemClock>>(m_interrupt_controller);
         
-        m_meta_vblank_flag = false;
-
         LOG("initialized all hardware components");
     }
 
@@ -117,6 +115,8 @@ namespace PSX
         m_timer_dotclock->reset();
         m_timer_hblank->reset();
         m_timer_systemclock->reset();
+
+        m_meta_vblank_flag = false;
     }
 
     /**
@@ -469,6 +469,14 @@ namespace PSX
     glm::ivec4 Bus::meta_get_framebuffer_view() const
     {
         return m_gpu->meta_get_framebuffer_view();
+    }
+
+    /**
+     * @brief obtain current display area color depth 
+     */
+    DisplayAreaColorDepth Bus::meta_get_display_area_color_depth() const
+    {
+        return m_gpu->meta_get_display_area_color_depth();
     }
 
     /**

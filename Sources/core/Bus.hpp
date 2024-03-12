@@ -50,6 +50,7 @@
 #include "TimerTypes.hpp"
 #include "GPUConstants.hpp"
 #include "CDROMTypes.hpp"
+#include "GPUTypes.hpp"
 
 namespace PSX
 {
@@ -110,6 +111,11 @@ namespace PSX
          * @brief get the current rendering cutout of the vram
          */
         glm::ivec4 meta_get_framebuffer_view() const;
+
+        /**
+         * @brief obtain current display area color depth 
+         */
+        DisplayAreaColorDepth meta_get_display_area_color_depth() const;
 
         /**
          * @brief execute all components for num_steps clock cycles
