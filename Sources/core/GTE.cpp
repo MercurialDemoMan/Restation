@@ -576,15 +576,15 @@ namespace PSX
     /**
      * @brief push new color to the crgb queue 
      */
-    void GTE::push_to_crgb_fifo(const GTEVector<u32>& color)
+    void GTE::push_to_crgb_fifo(const GTEVector<s32>& color)
     {
         // move values in queue
         m_crgb[0].raw() = m_crgb[1].raw();
         m_crgb[1].raw() = m_crgb[2].raw();
 
-        u32 red   = std::clamp(color.r, 0x00u, 0xFFu);
-        u32 green = std::clamp(color.g, 0x00u, 0xFFu);
-        u32 blue  = std::clamp(color.b, 0x00u, 0xFFu);
+        s32 red   = std::clamp(color.r, 0x00, 0xFF);
+        s32 green = std::clamp(color.g, 0x00, 0xFF);
+        s32 blue  = std::clamp(color.b, 0x00, 0xFF);
 
         // update error flags
         m_error_flags.color_r_saturated = color.r != red;
@@ -700,11 +700,11 @@ namespace PSX
         check_and_assign_result(((m_rgbc.read(1) << 4) * new_ir.y) + m_ir[0].raw() * m_ir[2].raw(), 2, !m_current_instruction.lm);
         check_and_assign_result(((m_rgbc.read(2) << 4) * new_ir.z) + m_ir[0].raw() * m_ir[3].raw(), 3, !m_current_instruction.lm);
 
-        push_to_crgb_fifo(GTEVector<u32>
+        push_to_crgb_fifo(GTEVector<s32>
         {
-            .r = static_cast<u32>(m_mac[1].raw()) >> 4,
-            .g = static_cast<u32>(m_mac[2].raw()) >> 4,
-            .b = static_cast<u32>(m_mac[3].raw()) >> 4
+            .r = m_mac[1].raw() >> 4,
+            .g = m_mac[2].raw() >> 4,
+            .b = m_mac[3].raw() >> 4
         });
     }
 
@@ -954,11 +954,11 @@ namespace PSX
             }
         );
 
-        push_to_crgb_fifo(GTEVector<u32>
+        push_to_crgb_fifo(GTEVector<s32>
         {
-            .r = static_cast<u32>(m_mac[1].raw()) >> 4,
-            .g = static_cast<u32>(m_mac[2].raw()) >> 4,
-            .b = static_cast<u32>(m_mac[3].raw()) >> 4
+            .r = m_mac[1].raw() >> 4,
+            .g = m_mac[2].raw() >> 4,
+            .b = m_mac[3].raw() >> 4
         });
     }   
 

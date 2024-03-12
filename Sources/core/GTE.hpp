@@ -110,7 +110,7 @@ namespace PSX
         /**
          * @brief push new color to the crgb queue 
          */
-        void push_to_crgb_fifo(const GTEVector<u32>& color);
+        void push_to_crgb_fifo(const GTEVector<s32>& color);
 
         /**
          * @brief push new z coord to the screen queue 
