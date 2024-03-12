@@ -76,7 +76,6 @@ namespace PSX
         SetDrawingAreaBottomRight = 228,
         SetDrawingOffset          = 229,
         MaskBitSetting            = 230,
-
     };
 
     /**
@@ -113,6 +112,15 @@ namespace PSX
         CopyCPUToVRamDataPhase    = 6,
         CopyVRamToCPU   = 7,
         CopyVRamToVRam  = 8
+    };
+
+    /**
+     * @brief GPU current color depth 
+     */
+    enum class DisplayAreaColorDepth
+    {
+        Depth15Bit = 0,
+        Depth24Bit = 1
     };
 
     /**
