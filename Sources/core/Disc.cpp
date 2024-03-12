@@ -46,16 +46,7 @@ namespace PSX
     std::shared_ptr<Disc> Disc::create(const std::string& meta_file_path)
     {
         auto disc = Disc::create_unloaded();
-
-        if(meta_file_path.ends_with(".bin"))
-        {
-            disc->meta_initialize_from_bin(meta_file_path);
-        }
-        else
-        {
-            ABORT_WITH_MESSAGE(fmt::format("trying to load unsupported disc format {}", meta_file_path));
-        }
-
+        disc->meta_initialize_from_bin(meta_file_path);
         return disc;
     }
 

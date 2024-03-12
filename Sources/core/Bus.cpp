@@ -397,11 +397,18 @@ namespace PSX
      */
     void Bus::meta_load_game(const std::string& game_path)
     {
-        if(game_path.ends_with(".bin"))
+        // TODO: what about non-ascii path??
+        auto game_path_lower = game_path;
+        std::transform(game_path_lower.begin(), game_path_lower.end(), game_path_lower.begin(), [](u8 ascii_char)
+        {
+            return std::tolower(ascii_char);
+        });
+
+        if(game_path_lower.ends_with(".bin"))
         {
             m_cdrom->meta_load_disc(game_path);
         }
-        else if(game_path.ends_with(".exe"))
+        else if(game_path_lower.ends_with(".exe"))
         {
             static constexpr const u32 ConsoleInitializedAddress = 0x8003'0000;
             auto executable = ExecutableFile::create(game_path);

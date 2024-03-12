@@ -40,16 +40,7 @@ namespace PSX
     std::shared_ptr<ExecutableFile> ExecutableFile::create(const std::string& meta_file_path)
     {
         auto exe_file = std::shared_ptr<ExecutableFile>(new ExecutableFile());
-
-        if(meta_file_path.ends_with(".exe"))
-        {
-            exe_file->meta_initialize_from_exe(meta_file_path);
-        }
-        else
-        {
-            ABORT_WITH_MESSAGE(fmt::format("trying to load unsupported disc format {}", meta_file_path));
-        }
-
+        exe_file->meta_initialize_from_exe(meta_file_path);
         return exe_file;
     }
 
