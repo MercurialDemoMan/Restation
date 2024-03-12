@@ -88,6 +88,11 @@ namespace PSX
          */
         const std::array<u16, VRamWidth * VRamHeight>& meta_get_vram_buffer() const;
 
+        /**
+         * @brief obtain current display area color depth 
+         */
+        DisplayAreaColorDepth meta_get_display_area_color_depth() const;
+
     private:
 
         /**

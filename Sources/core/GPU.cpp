@@ -1669,4 +1669,12 @@ namespace PSX
             height
         };
     }
+
+    /**
+     * @brief obtain current display area color depth 
+     */
+    DisplayAreaColorDepth GPU::meta_get_display_area_color_depth() const
+    {
+        return DisplayAreaColorDepth(m_display_mode.display_area_color_depth);
+    }
 }
