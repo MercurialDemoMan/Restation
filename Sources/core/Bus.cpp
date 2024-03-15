@@ -350,13 +350,13 @@ namespace PSX
         {
             return;
         }
-        m_peripherals->execute(num_steps);
         m_dma_controller->execute(num_steps / OptimalSimulationStep);
-        m_timer_dotclock->execute(num_steps);    
-        m_timer_hblank->execute(num_steps);      
-        m_timer_systemclock->execute(num_steps); 
+        m_timer_dotclock->execute(num_steps);
+        m_timer_hblank->execute(num_steps);
+        m_timer_systemclock->execute(num_steps);
         m_cdrom->execute(num_steps / OptimalSimulationStep);
-        m_gpu->execute(num_steps * (11.0/7.0));
+        m_gpu->execute(num_steps * (11.0/7.0) * 2);
+        m_peripherals->execute(num_steps);
     }
 
     /**

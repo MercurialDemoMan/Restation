@@ -257,7 +257,7 @@ namespace PSX
         static constexpr const u32 ExpansionBase    = 0x1F000000;
         static constexpr const u32 ScratchpadBase   = 0x1F800000;
         static constexpr const u32 MemControlBase   = 0x1F801000;
-        static constexpr const u32 PeripheralsBase  = 0x1f801040;
+        static constexpr const u32 PeripheralsBase  = 0x1F801040;
         static constexpr const u32 SerialBase       = 0x1F801050;
         static constexpr const u32 RamControlBase   = 0x1F801060;
         static constexpr const u32 InterruptBase    = 0x1F801070;
