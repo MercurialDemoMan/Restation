@@ -244,7 +244,7 @@ namespace PSX
             // parse node header
             u32 node_header = m_bus->dispatch_read<u32>(start_address);
             u32 num_words   = node_header >> 24;
-            u32 next_node   = node_header & 0xFFFFFF;
+            u32 next_node   = node_header & 0x00FF'FFFF;
 
             // copy data
             start_address  += step_direction;
@@ -259,7 +259,7 @@ namespace PSX
             start_address = next_node;
 
             // end copy
-            if(start_address & 0x800000)
+            if((start_address & 0x0080'0000) || (start_address == 0))
             {
                 break;
             }
