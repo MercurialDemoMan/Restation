@@ -60,7 +60,10 @@ namespace PSX
                 {
                     auto current_position = Position::create(m_sector_head++);
 
-                    m_current_sector = m_disc->read_sector(current_position);
+                    m_current_sector      = m_disc->read_sector(current_position);
+                    m_current_subchannelq = m_disc->read_subchannelq(current_position);
+
+                    //TODO: perform subchannelq checksum and sync bytes verification
 
                     // reading data
                     if(m_current_sector.type == Track::Type::Data && m_status.read)
@@ -123,7 +126,7 @@ namespace PSX
                     } break;
                     case 3:
                     { 
-                        m_volume_rr = value;
+                        m_volume_rr_temp = value;
                     } break;
                     default: 
                     { 
@@ -164,8 +167,8 @@ namespace PSX
 
         m_interrupt_enable = 0;
         m_mute = 0;
-        m_volume_ll = m_volume_rr = 0x80;
-        m_volume_lr = m_volume_rl = 0;
+        m_volume_ll_temp = m_volume_rr_temp = m_volume_ll = m_volume_rr = 0x80;
+        m_volume_lr_temp = m_volume_rl_temp = m_volume_lr = m_volume_rl = 0;
 
         m_parameter_fifo.clear();
         m_interrupt_fifo.clear();
@@ -335,11 +338,11 @@ namespace PSX
             } break;
             case 2:
             {
-                m_volume_ll = value;
+                m_volume_ll_temp = value;
             } break;
             case 3:
             {
-                m_volume_rl = value;
+                m_volume_rl_temp = value;
             } break;
             default: 
             { 
@@ -390,12 +393,14 @@ namespace PSX
             } break;
             case 2:
             {
-                m_volume_lr = value;
+                m_volume_lr_temp = value;
             } break;
             case 3:
             {
-                LOG("apply volume changes");
-                // TODO: apply volume changes
+                m_volume_ll = m_volume_ll_temp;
+                m_volume_lr = m_volume_lr_temp;
+                m_volume_rl = m_volume_rl_temp;
+                m_volume_rr = m_volume_rr_temp;
             } break;
             default:
             {
@@ -625,11 +630,15 @@ namespace PSX
     }     
     
     /**
-     * 
+     * @brief ADPCM Filter
      */
     void CDROM::SETFILTER()
     {
-        TODO();
+        m_filter.file    = pop_from_parameter_fifo();
+        m_filter.channel = pop_from_parameter_fifo();
+
+        push_to_interrupt_fifo(3);
+        push_to_response_fifo(m_status.raw);
     }  
     
     /**
@@ -660,11 +669,20 @@ namespace PSX
     }    
     
     /**
-     * 
+     * @brief Get Position From Subchannel Q
      */
     void CDROM::GETLOCP()
     {
-        TODO();
+        push_to_interrupt_fifo(3);
+
+        push_to_response_fifo(m_current_subchannelq.track_number);
+        push_to_response_fifo(m_current_subchannelq.index_number);
+        push_to_response_fifo(m_current_subchannelq.relative_position_mm);
+        push_to_response_fifo(m_current_subchannelq.relative_position_ss);
+        push_to_response_fifo(m_current_subchannelq.relative_position_ff);
+        push_to_response_fifo(m_current_subchannelq.absolute_position_mm);
+        push_to_response_fifo(m_current_subchannelq.absolute_position_ss);
+        push_to_response_fifo(m_current_subchannelq.absolute_position_ff);
     }    
     
     /**

@@ -217,6 +217,15 @@ namespace PSX
         };
 
         /**
+         * @brief 0x0D ADPCM filter 
+         */
+        struct ADPCMFilter
+        {
+            u8 file;
+            u8 channel;
+        };
+
+        /**
          * @brief extract response byte from response fifo 
          */
         u8 read_response();
@@ -287,12 +296,18 @@ namespace PSX
         fixed_queue<u8, InterruptFIFOSize> m_interrupt_fifo; /// queue for signaling finished command
         u8 m_interrupt_enable;       /// can we send interrupts?
         u8 m_mute;                   /// turn on/off audio streaming
+        u8 m_volume_ll_temp;         /// keep track of stereo volume
+        u8 m_volume_lr_temp;         /// keep track of stereo volume
+        u8 m_volume_rl_temp;         /// keep track of stereo volume
+        u8 m_volume_rr_temp;         /// keep track of stereo volume
         u8 m_volume_ll;              /// keep track of stereo volume
         u8 m_volume_lr;              /// keep track of stereo volume
         u8 m_volume_rl;              /// keep track of stereo volume
         u8 m_volume_rr;              /// keep track of stereo volume
         std::vector<u8> m_data_fifo; /// store data from read sector
         u32 m_data_fifo_cursor;      /// be able to artificially address the data_fifo, as if it were loading
+        ADPCMFilter m_filter;
+        SubChannelQ m_current_subchannelq;
         
         ConsoleRegion m_meta_console_region; /// keep track of console region, which will be checked against the disc region
     };
