@@ -184,6 +184,11 @@ namespace PSX
     u8 bcd_to_binary(u8 bcd);
 
     /**
+     * @brief convert binary number to binary-coded decimal 
+     */
+    u8 binary_to_bcd(u8 binary);
+
+    /**
      * @brief check if value is between min and max inclusively
      */
     template<typename T>

@@ -42,4 +42,12 @@ namespace PSX
     {
         return ((bcd >> 4) & 0x0F) * 10 + (bcd & 0x0F);
     }
+
+    /**
+     * @brief convert binary number to binary-coded decimal 
+     */
+    u8 binary_to_bcd(u8 binary)
+    {
+        return ((binary / 10) << 4) | (binary % 10);
+    }
 }
