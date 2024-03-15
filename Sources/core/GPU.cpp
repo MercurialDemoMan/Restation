@@ -1234,7 +1234,20 @@ namespace PSX
                 else
                 {
                     // fetch texture color
-                    new_color = vram_fetch_texture_color(args.color_depth, mask_texture_u(u), mask_texture_v(v), args.texpage_x, args.texpage_y);
+                    new_color = vram_fetch_texture_color
+                    (
+                        args.color_depth, 
+                        mask_texture_u(u), 
+                        mask_texture_v(v), 
+                        args.texpage_x, 
+                        args.texpage_y
+                    );
+
+                    // 16bit texture is fully transparent when the source color is 0
+                    if(new_color.raw == 0x0000)
+                    {
+                        continue;
+                    }
 
                     // mix texture with the rectangle color
                     if(!args.is_raw_texture)

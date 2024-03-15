@@ -110,13 +110,6 @@ namespace PSX
         m_status.current_block       = 4;
         m_status.data_out_fifo_empty = 1;
         m_output_fifo_cursor         = 0;
-
-        LOG(fmt::format("soft reset {}", m_command_num_arguments));
-
-        if(m_command_num_arguments != 0)
-        {
-            ABORT_WITH_MESSAGE(fmt::format("??? {}", m_command_num_arguments));
-        }
     }
 
     /**
