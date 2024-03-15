@@ -37,6 +37,9 @@
 #include <memory>
 #include "Component.hpp"
 #include "Forward.hpp"
+#include "Constants.hpp"
+#include "MemoryRegion.hpp"
+#include "SPUConstants.hpp"
 
 namespace PSX
 {
@@ -64,6 +67,100 @@ namespace PSX
 
         std::shared_ptr<Bus> m_bus;
 
+        /**
+         * @brief 0x1F801DAA - SPU Control Register (SPUCNT)
+         */
+        union Control
+        {
+            struct
+            {
+                u16 cd_audio_enable:              1;
+                u16 external_audio_enable:        1;
+                u16 cd_audio_reverb_enable:       1;
+                u16 external_audio_reverb_enable: 1;
+                u16 sound_ram_transfer_mode:      2; // 0 - stop, 1 - manual write, 2 - dma write, 3 - dma read
+                u16 irq9_enable:                  1;
+                u16 reverb_master_enable:         1;
+                u16 noise_frequency_step:         2; // 0 - step 4, 1 - step 5, 2 - step 6, 3 - step 7
+                u16 noise_frequency_shift:        4; // 0 - low frequency ... 15 - high frequency
+                u16 mute_spu:                     1;
+                u16 spu_enable:                   1;
+            };
+
+            u16 raw;
+            u8  bytes[sizeof(u16)];
+        };
+
+        /**
+         * @brief 0x1F801DAE - SPU Status Register (SPUSTAT) (R)
+         */
+        union Status
+        {
+            struct
+            {
+                u16 cd_audio_enable:              1;
+                u16 external_audio_enable:        1;
+                u16 cd_audio_reverb_enable:       1;
+                u16 external_audio_reverb_enable: 1;
+                u16 sound_ram_transfer_mode:      2; // 0 - stop, 1 - manual write, 2 - dma write, 3 - dma read
+                u16 irq9_flag:                    1;
+                u16 data_transfer_dma_rw_request: 1;
+                u16 data_transfer_dma_w_request:  1;
+                u16 data_transfer_dma_r_request:  1;
+                u16 data_transfer_busy_flag:      1;
+                u16 writing_to_first_or_second_half_of_capture_buffer: 1; // 0 - first, 1 - second
+
+                u16: 4;
+            };
+
+            u16 raw;
+            u8  bytes[sizeof(u16)];
+        };
+
+        static_assert(sizeof(Control) == sizeof(u16));
+
+        /**
+         * @brief 0x1F801DAC - Sound RAM Data Transfer Control (should be 0x0004)
+         */
+        union DataTransferControl
+        {
+            struct
+            {
+                u16: 1;
+
+                u16 sound_ram_data_transfer_type: 3; // should be 2
+
+                u16: 12;
+            };
+
+            u16 raw;
+            u8  bytes[sizeof(u16)];
+        };
+
+        static_assert(sizeof(DataTransferControl) == sizeof(u16));
+
+        /**
+         * SPU registers 
+         */
+        Register<u16> m_main_volume_left;
+        Register<u16> m_main_volume_right;
+        Register<u16> m_reverb_volume_left;
+        Register<u16> m_reverb_volume_right;
+        Register<u16> m_cd_volume_left;
+        Register<u16> m_cd_volume_right;
+        Register<u16> m_external_volume_left;
+        Register<u16> m_external_volume_right;
+        Register<u16> m_sram_data_transfer_address;
+        Register<u16> m_reverb_work_area_start_address;
+        u16           m_sram_data_transfer_current_address;
+        Control       m_control;
+        Status        m_status;
+        DataTransferControl m_data_transfer_control;
+
+        /**
+         * SPU memory regions
+         */
+        MemoryRegion<SRAMSize> m_sram;
     };
 }
 
