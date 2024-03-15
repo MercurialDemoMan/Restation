@@ -37,6 +37,7 @@
 #include "Macros.hpp"
 #include "DiscConstants.hpp"
 #include "DiscTypes.hpp"
+#include "Utils.hpp"
 
 namespace PSX
 {
@@ -190,6 +191,34 @@ namespace PSX
         {
             ABORT_WITH_MESSAGE(fmt::format("trying to read from invalid position {}", pos.linear_block_address()));
         }
+    }
+
+    /**
+     * @brief read subchannel Q for a sector 
+     */
+    SubChannelQ Disc::read_subchannelq(const Position& pos)
+    {
+        auto track_index = get_track_index(pos);
+
+        if(!track_index.has_value())
+        {
+            ABORT_WITH_MESSAGE(fmt::format("trying to obtain invalid track index from pos {}", pos.linear_block_address()));
+        }
+
+        auto relative_position = Position::create(pos.linear_block_address() - get_track_offset(track_index.value()).linear_block_address());
+
+        return SubChannelQ
+        {
+            .track_number         = binary_to_bcd(track_index.value() & 0x0000'00FF),
+            .index_number         = binary_to_bcd(1),
+            .relative_position_mm = binary_to_bcd(relative_position.minutes & 0x0000'00FF),
+            .relative_position_ss = binary_to_bcd(relative_position.seconds & 0x0000'00FF),
+            .relative_position_ff = binary_to_bcd(relative_position.fractions & 0x0000'00FF),
+            .reserved             = 0,
+            .absolute_position_mm = binary_to_bcd(pos.minutes & 0x0000'00FF),
+            .absolute_position_ss = binary_to_bcd(pos.seconds & 0x0000'00FF),
+            .absolute_position_ff = binary_to_bcd(pos.fractions & 0x0000'00FF)
+        };
     }
 
     Disc::~Disc()

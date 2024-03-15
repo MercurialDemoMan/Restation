@@ -100,6 +100,27 @@ namespace PSX
         std::vector<u8> data;
         Track::Type     type;
     };
+
+    /**
+     * @brief subchannel multiplexed with the user data
+     *        contains meta information about following sector
+     *        like current position and track index
+     *        and also acts as a checksum for error detection (not implemented)
+     * https://en.wikipedia.org/wiki/Compact_Disc_subcode
+     * https://psx-spx.consoledev.net/cdromdrive/#cdrom-subchannels
+     */
+    struct SubChannelQ
+    {
+        u8 track_number;
+        u8 index_number;
+        u8 relative_position_mm;
+        u8 relative_position_ss;
+        u8 relative_position_ff;
+        u8 reserved;
+        u8 absolute_position_mm;
+        u8 absolute_position_ss;
+        u8 absolute_position_ff;
+    };
 }
 
 #endif // DISCTYPES_HPP

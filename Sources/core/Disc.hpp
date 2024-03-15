@@ -68,6 +68,11 @@ namespace PSX
          */
         u32 num_tracks() const;
 
+        /**
+         * @brief read subchannel Q for a sector 
+         */
+        SubChannelQ read_subchannelq(const Position&);
+
     private:
 
         explicit Disc(): 
