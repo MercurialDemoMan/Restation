@@ -32,7 +32,7 @@
  */
 #include "DMAChannelSPU.hpp"
 #include "Bus.hpp"
-#include "GPU.hpp"
+#include "SPU.hpp"
 
 namespace PSX
 {
@@ -41,8 +41,11 @@ namespace PSX
      */
     u32 DMAChannelSPU::read_from_component()
     {
-        TODO(); 
-        return 0;
+        constexpr const u32 SRAMAccessCommand = 0x01A8;
+        return (m_spu->read(SRAMAccessCommand) <<  0) |
+               (m_spu->read(SRAMAccessCommand) <<  8) |
+               (m_spu->read(SRAMAccessCommand) << 16) |
+               (m_spu->read(SRAMAccessCommand) << 24);
     }
 
     /**
@@ -50,7 +53,10 @@ namespace PSX
      */
     void DMAChannelSPU::write_to_component(u32 value)
     {
-        MARK_UNUSED(value);
-        TODO();
+        constexpr const u32 SRAMAccessCommand = 0x01A8;
+        m_spu->write(SRAMAccessCommand, (value >>  0) & 0xFF);
+        m_spu->write(SRAMAccessCommand, (value >>  8) & 0xFF); 
+        m_spu->write(SRAMAccessCommand, (value >> 16) & 0xFF);
+        m_spu->write(SRAMAccessCommand, (value >> 24) & 0xFF);
     }
 }
