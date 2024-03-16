@@ -45,9 +45,6 @@ namespace PSX
 
     u32 SPU::read(u32 address)
     {
-        MARK_UNUSED(address);
-        //return 0;
-
         if(in_range<u32>(address, 0, 16 * 24 - 1))
         {
             return 0; //TODO(); // read from voice
@@ -292,5 +289,43 @@ namespace PSX
         m_control.raw = 0;
         m_status.raw  = 0;
         m_data_transfer_control.raw   = 0x0004;
+    }
+
+    void SPU::serialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->serialize_from(m_main_volume_left);
+        save_state->serialize_from(m_main_volume_right);
+        save_state->serialize_from(m_reverb_volume_left);
+        save_state->serialize_from(m_reverb_volume_right);
+        save_state->serialize_from(m_cd_volume_left);
+        save_state->serialize_from(m_cd_volume_right);
+        save_state->serialize_from(m_external_volume_left);
+        save_state->serialize_from(m_external_volume_right);
+        save_state->serialize_from(m_sram_data_transfer_address);
+        save_state->serialize_from(m_reverb_work_area_start_address);
+        save_state->serialize_from(m_sram_data_transfer_current_address);
+        save_state->serialize_from(m_control.raw);
+        save_state->serialize_from(m_status.raw);
+        save_state->serialize_from(m_data_transfer_control.raw);
+        save_state->serialize_from(m_sram);
+    }
+
+    void SPU::deserialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->deserialize_to(m_main_volume_left);
+        save_state->deserialize_to(m_main_volume_right);
+        save_state->deserialize_to(m_reverb_volume_left);
+        save_state->deserialize_to(m_reverb_volume_right);
+        save_state->deserialize_to(m_cd_volume_left);
+        save_state->deserialize_to(m_cd_volume_right);
+        save_state->deserialize_to(m_external_volume_left);
+        save_state->deserialize_to(m_external_volume_right);
+        save_state->deserialize_to(m_sram_data_transfer_address);
+        save_state->deserialize_to(m_reverb_work_area_start_address);
+        save_state->deserialize_to(m_sram_data_transfer_current_address);
+        save_state->deserialize_to(m_control.raw);
+        save_state->deserialize_to(m_status.raw);
+        save_state->deserialize_to(m_data_transfer_control.raw);
+        save_state->deserialize_to(m_sram);
     }
 }
