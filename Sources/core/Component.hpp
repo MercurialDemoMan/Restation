@@ -34,8 +34,10 @@
 #ifndef COMPONENT_HPP
 #define COMPONENT_HPP
 
+#include <memory>
 #include "Types.hpp"
 #include "Macros.hpp"
+#include "SaveState.hpp"
 
 namespace PSX
 {
@@ -73,6 +75,16 @@ namespace PSX
          * @brief reset device into its' initial state
          */
         virtual void reset() = 0;
+
+        /**
+         * @brief serialize component 
+         */
+        virtual void serialize(std::shared_ptr<SaveState>&) = 0;
+
+        /**
+         * @brief de-serialize component 
+         */
+        virtual void deserialize(std::shared_ptr<SaveState>&) = 0;
     };
 }
 

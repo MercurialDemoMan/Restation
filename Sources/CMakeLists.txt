@@ -58,6 +58,7 @@ add_executable(emu
     core/CDROM.cpp
     core/Timer.cpp
     core/IOPorts.cpp
+    core/SaveState.cpp
     core/SerialPort.cpp
     core/DMAChannel.cpp
     core/Peripherals.cpp

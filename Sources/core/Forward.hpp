@@ -44,6 +44,7 @@ namespace PSX
     class CDROM;
     template<ClockSource> class Timer;
     class IOPorts;
+    class SaveState;
     class SerialPort;
     class DMAChannel;
     class Peripherals;
