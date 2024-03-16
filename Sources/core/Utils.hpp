@@ -42,6 +42,7 @@
 #include <type_traits>
 #include "Types.hpp"
 #include "Constants.hpp"
+#include "Macros.hpp"
 
 namespace PSX
 {
@@ -214,11 +215,11 @@ namespace PSX
 
         bool push(const T& value)
         {
-            if((m_end + 1) % Capacity == m_start)
+            if((m_end + 1) % (Capacity + 1) == m_start)
                 return false;
             
             m_data[m_end] = value;
-            m_end = (m_end + 1) % Capacity;
+            m_end = (m_end + 1) % (Capacity + 1);
 
             return true;
         }
@@ -237,7 +238,7 @@ namespace PSX
                 return {};
 
             T result = m_data[m_start];
-            m_start = (m_start + 1) % Capacity;
+            m_start = (m_start + 1) % (Capacity + 1);
 
             return result;
         }
@@ -249,7 +250,7 @@ namespace PSX
 
         bool full() const
         {
-            return ((m_start + 1) % Capacity) == m_end;
+            return ((m_start + 1) % (Capacity + 1)) == m_end;
         }
 
         void clear()
@@ -257,9 +258,24 @@ namespace PSX
             m_start = m_end = 0;
         }
 
+        u32 size() const
+        {
+            return ((m_end - m_start) % (Capacity + 1));
+        }
+
+        T& at(u32 index)
+        {
+            return m_data[(m_start + index) % (Capacity + 1)];
+        }
+
+        const T& at(u32 index) const
+        {
+            return m_data[(m_start + index) % (Capacity + 1)];
+        }
+
     private:
 
-        std::array<T, Capacity> m_data;
+        std::array<T, Capacity + 1> m_data;
         u32 m_start;
         u32 m_end;
     };
