@@ -268,6 +268,28 @@ namespace PSX
         m_meta_irq_occured               = false;
     }
 
+    template<ClockSource Source>
+    void Timer<Source>::serialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->serialize_from(m_current_counter_value);
+        save_state->serialize_from(m_counter_mode.raw);
+        save_state->serialize_from(m_counter_target_value);
+        save_state->serialize_from(m_meta_counter);
+        save_state->serialize_from(m_meta_paused);
+        save_state->serialize_from(m_meta_irq_occured);
+    }
+
+    template<ClockSource Source>
+    void Timer<Source>::deserialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->deserialize_to(m_current_counter_value);
+        save_state->deserialize_to(m_counter_mode.raw);
+        save_state->deserialize_to(m_counter_target_value);
+        save_state->deserialize_to(m_meta_counter);
+        save_state->deserialize_to(m_meta_paused);
+        save_state->deserialize_to(m_meta_irq_occured);
+    }
+
     /**
      * @brief set interrupt request flag 
      */
