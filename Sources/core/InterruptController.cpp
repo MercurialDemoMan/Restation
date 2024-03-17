@@ -84,7 +84,19 @@ namespace PSX
         m_status = 0;
         m_mask   = 0;
     }
-    
+
+    void InterruptController::serialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->serialize_from(m_status);
+        save_state->serialize_from(m_mask);
+    }
+
+    void InterruptController::deserialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->deserialize_to(m_status);
+        save_state->deserialize_to(m_mask);
+    }
+
     /**
      * @brief check for queued up interrupt 
      */
