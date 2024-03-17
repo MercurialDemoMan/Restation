@@ -355,7 +355,7 @@ namespace PSX
         m_timer_hblank->execute(num_steps);
         m_timer_systemclock->execute(num_steps);
         m_cdrom->execute(num_steps / OptimalSimulationStep);
-        m_gpu->execute(num_steps * (11.0/7.0) * 2);
+        m_gpu->execute(num_steps * (11.0/7.0) * 3);
         m_peripherals->execute(num_steps);
     }
 
@@ -371,7 +371,7 @@ namespace PSX
 
         if(!bios_file.is_open())
         {
-            LOG_ERROR("bios file could not be opened");
+            LOG_ERROR(fmt::format("bios file {} could not be opened", bios_path));
             return;
         }
 
@@ -388,6 +388,8 @@ namespace PSX
         
         // initialize bios
         std::memcpy(m_bios.data(), bios_file_contents.data(), BiosSize);
+
+        bios_file.close();
 
         LOG_DEBUG(1, "bios loaded");
     }
@@ -524,6 +526,62 @@ namespace PSX
         {
             dispatch_write<u8>(to++, value);
         }
+    }
+
+    /**
+     * @brief accumulate the state of the emulator and save it to the file 
+     */
+    void Bus::serialize(std::shared_ptr<SaveState>& save_state)
+    {
+        m_cpu->serialize(save_state);
+        m_gpu->serialize(save_state);
+        m_spu->serialize(save_state);
+        m_mdec->serialize(save_state);
+        m_cdrom->serialize(save_state);
+        m_io_ports->serialize(save_state);
+        m_serial_port->serialize(save_state);
+        m_peripherals->serialize(save_state);
+        m_ram_controller->serialize(save_state);
+        m_mem_controller->serialize(save_state);
+        m_dma_controller->serialize(save_state);
+        m_cache_controller->serialize(save_state);
+        m_interrupt_controller->serialize(save_state);
+        m_timer_dotclock->serialize(save_state);
+        m_timer_hblank->serialize(save_state);
+        m_timer_systemclock->serialize(save_state);
+        save_state->serialize_from(m_ram);
+        save_state->serialize_from(m_bios);
+        save_state->serialize_from(m_scratchpad);
+        save_state->serialize_from(m_expansion);
+        save_state->serialize_from(m_meta_vblank_flag);
+    }
+
+    /**
+     * @brief load state from a file and restore all components as they were
+     */
+    void Bus::deserialize(std::shared_ptr<SaveState>& save_state)
+    {
+        m_cpu->deserialize(save_state);
+        m_gpu->deserialize(save_state);
+        m_spu->deserialize(save_state);
+        m_mdec->deserialize(save_state);
+        m_cdrom->deserialize(save_state);
+        m_io_ports->deserialize(save_state);
+        m_serial_port->deserialize(save_state);
+        m_peripherals->deserialize(save_state);
+        m_ram_controller->deserialize(save_state);
+        m_mem_controller->deserialize(save_state);
+        m_dma_controller->deserialize(save_state);
+        m_cache_controller->deserialize(save_state);
+        m_interrupt_controller->deserialize(save_state);
+        m_timer_dotclock->deserialize(save_state);
+        m_timer_hblank->deserialize(save_state);
+        m_timer_systemclock->deserialize(save_state);
+        save_state->deserialize_to(m_ram);
+        save_state->deserialize_to(m_bios);
+        save_state->deserialize_to(m_scratchpad);
+        save_state->deserialize_to(m_expansion);
+        save_state->deserialize_to(m_meta_vblank_flag);
     }
 
     /**

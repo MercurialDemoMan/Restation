@@ -160,6 +160,16 @@ namespace PSX
          * @brief copy host memory to PSX address space
          */
         void meta_copy_from_host_to_emulator(const std::vector<u8>& from, u32 to);
+
+        /**
+         * @brief accumulate the state of the emulator and save it to the file 
+         */
+        void serialize(std::shared_ptr<SaveState>&);
+
+        /**
+         * @brief load state from a file and restore all components as they were
+         */
+        void deserialize(std::shared_ptr<SaveState>&);
         
     private:
 
