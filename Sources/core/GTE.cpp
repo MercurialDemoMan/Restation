@@ -335,6 +335,86 @@ namespace PSX
         m_error_flags.raw = 0;
     }
 
+    void GTE::serialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->serialize_from(m_vxyz0);
+        save_state->serialize_from(m_vxyz1);
+        save_state->serialize_from(m_vxyz2);
+        save_state->serialize_from(m_rgbc);
+        save_state->serialize_from(m_otz);
+        save_state->serialize_from(m_ir[0]);
+        save_state->serialize_from(m_ir[1]);
+        save_state->serialize_from(m_ir[2]);
+        save_state->serialize_from(m_ir[3]);
+        save_state->serialize_from(m_sxyz[0]);
+        save_state->serialize_from(m_sxyz[1]);
+        save_state->serialize_from(m_sxyz[2]);
+        save_state->serialize_from(m_sxyz[3]);
+        save_state->serialize_from(m_res1);
+        save_state->serialize_from(m_mac[0]);
+        save_state->serialize_from(m_mac[1]);
+        save_state->serialize_from(m_mac[2]);
+        save_state->serialize_from(m_mac[3]);
+        save_state->serialize_from(m_iorgb);
+        save_state->serialize_from(m_lzcs);
+        save_state->serialize_from(m_lzcr);
+        save_state->serialize_from(m_rotation_matrix);
+        save_state->serialize_from(m_translation_vector);
+        save_state->serialize_from(m_light_source_matrix);
+        save_state->serialize_from(m_background_color);
+        save_state->serialize_from(m_light_color_matrix);
+        save_state->serialize_from(m_far_color);
+        save_state->serialize_from(m_screen_offset[0]);
+        save_state->serialize_from(m_screen_offset[1]);
+        save_state->serialize_from(m_projection_plane_distance);
+        save_state->serialize_from(m_depth_queing_parameter_coeff);
+        save_state->serialize_from(m_depth_queing_parameter_offset);
+        save_state->serialize_from(m_zsf3);
+        save_state->serialize_from(m_zsf4);
+        save_state->serialize_from(m_error_flags.raw);
+        save_state->serialize_from(m_current_instruction);
+    }
+
+    void GTE::deserialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->deserialize_to(m_vxyz0);
+        save_state->deserialize_to(m_vxyz1);
+        save_state->deserialize_to(m_vxyz2);
+        save_state->deserialize_to(m_rgbc);
+        save_state->deserialize_to(m_otz);
+        save_state->deserialize_to(m_ir[0]);
+        save_state->deserialize_to(m_ir[1]);
+        save_state->deserialize_to(m_ir[2]);
+        save_state->deserialize_to(m_ir[3]);
+        save_state->deserialize_to(m_sxyz[0]);
+        save_state->deserialize_to(m_sxyz[1]);
+        save_state->deserialize_to(m_sxyz[2]);
+        save_state->deserialize_to(m_sxyz[3]);
+        save_state->deserialize_to(m_res1);
+        save_state->deserialize_to(m_mac[0]);
+        save_state->deserialize_to(m_mac[1]);
+        save_state->deserialize_to(m_mac[2]);
+        save_state->deserialize_to(m_mac[3]);
+        save_state->deserialize_to(m_iorgb);
+        save_state->deserialize_to(m_lzcs);
+        save_state->deserialize_to(m_lzcr);
+        save_state->deserialize_to(m_rotation_matrix);
+        save_state->deserialize_to(m_translation_vector);
+        save_state->deserialize_to(m_light_source_matrix);
+        save_state->deserialize_to(m_background_color);
+        save_state->deserialize_to(m_light_color_matrix);
+        save_state->deserialize_to(m_far_color);
+        save_state->deserialize_to(m_screen_offset[0]);
+        save_state->deserialize_to(m_screen_offset[1]);
+        save_state->deserialize_to(m_projection_plane_distance);
+        save_state->deserialize_to(m_depth_queing_parameter_coeff);
+        save_state->deserialize_to(m_depth_queing_parameter_offset);
+        save_state->deserialize_to(m_zsf3);
+        save_state->deserialize_to(m_zsf4);
+        save_state->deserialize_to(m_error_flags.raw);
+        save_state->deserialize_to(m_current_instruction);
+    }
+
     /**
      * @brief since GTE is only accessible through the cop2 instruction we need to directly execute the instruction 
      */

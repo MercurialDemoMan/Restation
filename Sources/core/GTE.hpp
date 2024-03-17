@@ -59,6 +59,8 @@ namespace PSX
         virtual u32  read(u32 address) override;
         virtual void write(u32 address, u32 value) override;
         virtual void reset() override;
+        virtual void serialize(std::shared_ptr<SaveState>&) override;
+        virtual void deserialize(std::shared_ptr<SaveState>&) override;
 
         /**
          * @brief since GTE is only accessible through the cop2 instruction we need to directly execute the instruction 
