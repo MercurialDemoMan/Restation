@@ -59,4 +59,14 @@ namespace PSX
     {
         m_cache_config.raw() = 0;
     }
+
+    void CacheController::serialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->serialize_from(m_cache_config);
+    }
+
+    void CacheController::deserialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->deserialize_to(m_cache_config);
+    }
 }
