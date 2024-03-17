@@ -58,4 +58,14 @@ namespace PSX
     {
         
     }
+
+    void SerialPort::serialize(std::shared_ptr<SaveState>&)
+    {
+
+    }
+    
+    void SerialPort::deserialize(std::shared_ptr<SaveState>&)
+    {
+
+    }
 }
