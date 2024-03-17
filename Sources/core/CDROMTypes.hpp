@@ -39,11 +39,20 @@ namespace PSX
     /**
      * @brief structure used for checking console/disc region
      */
-    enum class ConsoleRegion
+    enum class ConsoleRegion : u8
     {
         Europe,
         America,
         Japan
+    };
+
+    /**
+     * @brief 0x0D ADPCM filter 
+     */
+    struct ADPCMFilter
+    {
+        u8 file;
+        u8 channel;
     };
 }
 

@@ -189,6 +189,66 @@ namespace PSX
         meta_set_console_region(ConsoleRegion::America);
     }
 
+    void CDROM::serialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->serialize_from(m_cycles);
+        save_state->serialize_from(m_index.raw);
+        save_state->serialize_from(m_status.raw);
+        save_state->serialize_from(m_mode.raw);
+        save_state->serialize_from(m_current_sector);
+        save_state->serialize_from(m_sector_head);
+        save_state->serialize_from(m_sector_seek_target);
+        save_state->serialize_from(m_parameter_fifo);
+        save_state->serialize_from(m_response_fifo);
+        save_state->serialize_from(m_interrupt_fifo);
+        save_state->serialize_from(m_interrupt_enable);
+        save_state->serialize_from(m_mute);
+        save_state->serialize_from(m_volume_ll_temp);
+        save_state->serialize_from(m_volume_lr_temp);
+        save_state->serialize_from(m_volume_rl_temp);
+        save_state->serialize_from(m_volume_rr_temp);
+        save_state->serialize_from(m_volume_ll);
+        save_state->serialize_from(m_volume_lr);
+        save_state->serialize_from(m_volume_rl);
+        save_state->serialize_from(m_volume_rr);
+        save_state->serialize_from(m_data_fifo);
+        save_state->serialize_from(m_data_fifo_cursor);
+        save_state->serialize_from(m_filter);
+        save_state->serialize_from(m_current_subchannelq);
+        save_state->serialize_from(m_meta_console_region);
+        m_disc->serialize(save_state);
+    }
+
+    void CDROM::deserialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->deserialize_to(m_cycles);
+        save_state->deserialize_to(m_index.raw);
+        save_state->deserialize_to(m_status.raw);
+        save_state->deserialize_to(m_mode.raw);
+        save_state->deserialize_to(m_current_sector);
+        save_state->deserialize_to(m_sector_head);
+        save_state->deserialize_to(m_sector_seek_target);
+        save_state->deserialize_to(m_parameter_fifo);
+        save_state->deserialize_to(m_response_fifo);
+        save_state->deserialize_to(m_interrupt_fifo);
+        save_state->deserialize_to(m_interrupt_enable);
+        save_state->deserialize_to(m_mute);
+        save_state->deserialize_to(m_volume_ll_temp);
+        save_state->deserialize_to(m_volume_lr_temp);
+        save_state->deserialize_to(m_volume_rl_temp);
+        save_state->deserialize_to(m_volume_rr_temp);
+        save_state->deserialize_to(m_volume_ll);
+        save_state->deserialize_to(m_volume_lr);
+        save_state->deserialize_to(m_volume_rl);
+        save_state->deserialize_to(m_volume_rr);
+        save_state->deserialize_to(m_data_fifo);
+        save_state->deserialize_to(m_data_fifo_cursor);
+        save_state->deserialize_to(m_filter);
+        save_state->deserialize_to(m_current_subchannelq);
+        save_state->deserialize_to(m_meta_console_region);
+        m_disc->deserialize(save_state);
+    }
+
     /**
      * @brief execute instruction 
      */

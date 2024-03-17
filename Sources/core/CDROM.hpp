@@ -65,6 +65,8 @@ namespace PSX
         virtual u32  read(u32 address) override;
         virtual void write(u32 address, u32 value) override;
         virtual void reset() override;
+        virtual void serialize(std::shared_ptr<SaveState>&) override;
+        virtual void deserialize(std::shared_ptr<SaveState>&) override;
 
         /**
          * @brief load disc from the host filesystem 
@@ -217,15 +219,6 @@ namespace PSX
         };
 
         /**
-         * @brief 0x0D ADPCM filter 
-         */
-        struct ADPCMFilter
-        {
-            u8 file;
-            u8 channel;
-        };
-
-        /**
          * @brief extract response byte from response fifo 
          */
         u8 read_response();
@@ -308,7 +301,6 @@ namespace PSX
         u32 m_data_fifo_cursor;      /// be able to artificially address the data_fifo, as if it were loading
         ADPCMFilter m_filter;
         SubChannelQ m_current_subchannelq;
-        
         ConsoleRegion m_meta_console_region; /// keep track of console region, which will be checked against the disc region
     };
 }
