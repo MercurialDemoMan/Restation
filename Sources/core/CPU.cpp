@@ -149,6 +149,54 @@ namespace PSX
         m_meta_did_hit_breakpoint = false;
     }
 
+    void CPU::serialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->serialize_from(m_program_counter);
+        save_state->serialize_from(m_program_counter_next);
+        save_state->serialize_from(m_branch_delay_active);
+        save_state->serialize_from(m_branching);
+        save_state->serialize_from(m_register_field);
+        save_state->serialize_from(m_register_high);
+        save_state->serialize_from(m_register_low);
+        save_state->serialize_from(m_load_delay_slots[0]);
+        save_state->serialize_from(m_load_delay_slots[1]);
+        save_state->serialize_from(m_exception_program_counter);
+        save_state->serialize_from(m_current_instruction);
+        save_state->serialize_from(m_exception_branch_delay_active);
+        save_state->serialize_from(m_exception_branching);
+        save_state->serialize_from(m_meta_last_executed_instructions);
+        save_state->serialize_from(m_meta_last_executed_instruction_index);
+        save_state->serialize_from(m_meta_cycles);
+        save_state->serialize_from(m_meta_breakpoints);
+        save_state->serialize_from(m_meta_did_hit_breakpoint);
+        m_gte->serialize(save_state);
+        m_exception_controller->serialize(save_state);
+    }
+
+    void CPU::deserialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->deserialize_to(m_program_counter);
+        save_state->deserialize_to(m_program_counter_next);
+        save_state->deserialize_to(m_branch_delay_active);
+        save_state->deserialize_to(m_branching);
+        save_state->deserialize_to(m_register_field);
+        save_state->deserialize_to(m_register_high);
+        save_state->deserialize_to(m_register_low);
+        save_state->deserialize_to(m_load_delay_slots[0]);
+        save_state->deserialize_to(m_load_delay_slots[1]);
+        save_state->deserialize_to(m_exception_program_counter);
+        save_state->deserialize_to(m_current_instruction);
+        save_state->deserialize_to(m_exception_branch_delay_active);
+        save_state->deserialize_to(m_exception_branching);
+        save_state->deserialize_to(m_meta_last_executed_instructions);
+        save_state->deserialize_to(m_meta_last_executed_instruction_index);
+        save_state->deserialize_to(m_meta_cycles);
+        save_state->deserialize_to(m_meta_breakpoints);
+        save_state->deserialize_to(m_meta_did_hit_breakpoint);
+        m_gte->deserialize(save_state);
+        m_exception_controller->deserialize(save_state);
+    }
+
     /**
      * @brief allocate and initialize all coprocessors
      */
@@ -262,7 +310,7 @@ namespace PSX
 
         LOG_DEBUG(6, fmt::format("exception triggered: {}", exception_name[static_cast<u32>(exception_kind)]));
         MARK_UNUSED(exception_name);
-
+        
         if(exception_kind == Exception::BadAddressLoad ||
            exception_kind == Exception::BadAddressStore)
         {
@@ -277,7 +325,6 @@ namespace PSX
         {
             if(CPUInstruction(m_bus->dispatch_read<u32>(m_exception_program_counter)).opcode == static_cast<u32>(BaseOpcode::Coprocessor2))
             {
-                // TODO: verify this
                 m_exception_program_counter += sizeof(CPUInstruction);
             }
         }

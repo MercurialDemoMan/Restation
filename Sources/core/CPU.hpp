@@ -43,6 +43,7 @@
 #include "ExecutableFile.hpp"
 #include "CPUInstruction.hpp"
 #include "ExceptionController.hpp"
+#include "CPUTypes.hpp"
 #include "GTE.hpp"
 
 namespace PSX
@@ -67,6 +68,8 @@ namespace PSX
         virtual u32  read(u32 address) override;
         virtual void write(u32 address, u32 value) override;
         virtual void reset() override;
+        virtual void serialize(std::shared_ptr<SaveState>&) override;
+        virtual void deserialize(std::shared_ptr<SaveState>&) override;
 
         /**
          * @brief checks whether the cpu cache is isolated by the exception status register
@@ -262,33 +265,6 @@ namespace PSX
         };
 
         /**
-         * @brief structure for keeping track of load delays when setting a register 
-         */
-        struct LoadDelaySlot
-        {
-            u32 register_id;
-            u32 value;
-        };
-
-        /**
-         * @brief structure for keeping track of past executed instructions 
-         */
-        struct ExecutedInstruction
-        {
-            u32            address;
-            CPUInstruction ins;
-        };
-
-        /**
-         * @brief enumeration for indexing load delay slots
-         */
-        enum LoadDelaySlotIndex
-        {
-            Current = 0,
-            Next    = 1
-        };
-
-        /**
          * @brief allocate and initialize all coprocessors
          */
         void initialize_coprocessors();
@@ -335,7 +311,7 @@ namespace PSX
         static constexpr const u32 PCResetAddress               = 0xBFC0'0000; /// default reset address for program counter
         static constexpr const u32 JumpFilter                   = 0xF000'0000;
         static constexpr const u32 CacheLineValidMask           = 0x8000'0000;
-        static constexpr const u32 LastExecutedInstructionsSize = 64;
+        static constexpr const u32 LastExecutedInstructionsSize = 128;
 
         /**
          * connected devices 
@@ -352,7 +328,7 @@ namespace PSX
         bool m_branch_delay_active;  /// are we delaying execution after taking branch?
         bool m_branching;            /// are we currently branching?
 
-        u32  m_register_field[32];   /// array of general purpose registers
+        std::array<u32, 32> m_register_field; /// array of general purpose registers
         u32  m_register_high;        /// high register (used for storing multiplication and division results)
         u32  m_register_low;         /// low register (used for storing multiplication and division results)
 
