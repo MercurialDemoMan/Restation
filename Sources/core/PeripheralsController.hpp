@@ -37,6 +37,7 @@
 #include <memory>
 #include "Types.hpp"
 #include "PeripheralsInput.hpp"
+#include "SaveState.hpp"
 
 namespace PSX
 {
@@ -63,6 +64,16 @@ namespace PSX
          * @brief reset any communication temporaries 
          */
         virtual void reset() = 0;
+
+        /**
+         * @brief serialize component 
+         */
+        virtual void serialize(std::shared_ptr<SaveState>&) = 0;
+
+        /**
+         * @brief de-serialize component 
+         */
+        virtual void deserialize(std::shared_ptr<SaveState>&) = 0;
     };
 }
 

@@ -40,6 +40,7 @@
 #include "Forward.hpp"
 #include "PeripheralsInput.hpp"
 #include "PeripheralsController.hpp"
+#include "PeripheralsTypes.hpp"
 
 namespace PSX
 {
@@ -69,6 +70,8 @@ namespace PSX
         virtual u32  read(u32 address) override;
         virtual void write(u32 address, u32 value) override;
         virtual void reset() override;
+        virtual void serialize(std::shared_ptr<SaveState>&) override;
+        virtual void deserialize(std::shared_ptr<SaveState>&) override;
 
     private:
 
@@ -125,16 +128,6 @@ namespace PSX
 
             u16 raw;
             u8  bytes[sizeof(u16)];
-        };
-
-        /**
-         * @brief keep track of who are we currently communicating with 
-         */
-        enum class CurrentlyCommunicatingWith
-        {
-            None,
-            Controller,
-            MemoryCard
         };
 
         std::shared_ptr<Bus> m_bus;

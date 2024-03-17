@@ -171,6 +171,36 @@ namespace PSX
         m_memory_cards[1] = std::make_unique<PeripheralsMemoryCardController>();
     }
 
+    void Peripherals::serialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->serialize_from(m_joy_rx_data);
+        save_state->serialize_from(m_joy_stat.raw);
+        save_state->serialize_from(m_joy_mode);
+        save_state->serialize_from(m_joy_control.raw);
+        save_state->serialize_from(m_joy_baud);
+        save_state->serialize_from(m_meta_currently_communicating_with);
+        save_state->serialize_from(m_meta_interrupt_request_delay);
+        m_controllers[0]->serialize(save_state);
+        m_controllers[1]->serialize(save_state);
+        m_memory_cards[0]->serialize(save_state);
+        m_memory_cards[1]->serialize(save_state);
+    }
+
+    void Peripherals::deserialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->deserialize_to(m_joy_rx_data);
+        save_state->deserialize_to(m_joy_stat.raw);
+        save_state->deserialize_to(m_joy_mode);
+        save_state->deserialize_to(m_joy_control.raw);
+        save_state->deserialize_to(m_joy_baud);
+        save_state->deserialize_to(m_meta_currently_communicating_with);
+        save_state->deserialize_to(m_meta_interrupt_request_delay);
+        m_controllers[0]->deserialize(save_state);
+        m_controllers[1]->deserialize(save_state);
+        m_memory_cards[0]->deserialize(save_state);
+        m_memory_cards[1]->deserialize(save_state);
+    }
+
     /**
      * @brief communicate with peripherals
      */
