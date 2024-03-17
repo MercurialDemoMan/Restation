@@ -66,4 +66,14 @@ namespace PSX
     {
         
     }
+
+    void PeripheralsMemoryCardController::serialize(std::shared_ptr<SaveState>&)
+    {
+
+    }
+
+    void PeripheralsMemoryCardController::deserialize(std::shared_ptr<SaveState>&)
+    {
+        
+    }
 }
