@@ -95,6 +95,36 @@ namespace PSX
         m_prid      = 2;
     }
 
+    void ExceptionController::serialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->serialize_from(m_bpc);
+        save_state->serialize_from(m_bda);
+        save_state->serialize_from(m_jumpdest);
+        save_state->serialize_from(m_dcic.raw);
+        save_state->serialize_from(m_bad_vaddr);
+        save_state->serialize_from(m_bdam);
+        save_state->serialize_from(m_bpcm);
+        save_state->serialize_from(m_sr.raw);
+        save_state->serialize_from(m_cause.raw);
+        save_state->serialize_from(m_epc);
+        save_state->serialize_from(m_prid);
+    }
+
+    void ExceptionController::deserialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->deserialize_to(m_bpc);
+        save_state->deserialize_to(m_bda);
+        save_state->deserialize_to(m_jumpdest);
+        save_state->deserialize_to(m_dcic.raw);
+        save_state->deserialize_to(m_bad_vaddr);
+        save_state->deserialize_to(m_bdam);
+        save_state->deserialize_to(m_bpcm);
+        save_state->deserialize_to(m_sr.raw);
+        save_state->deserialize_to(m_cause.raw);
+        save_state->deserialize_to(m_epc);
+        save_state->deserialize_to(m_prid);
+    }
+
     /**
      * @brief update history of exceptions
      */
@@ -126,8 +156,8 @@ namespace PSX
         m_cause.exception = static_cast<u32>(exception_kind);
 
         // update exception history
-        m_sr.old_interrupt_disable = m_sr.previous_interrupt_disable;
-        m_sr.old_execution_mode    = m_sr.previous_execution_mode;
+        m_sr.old_interrupt_disable      = m_sr.previous_interrupt_disable;
+        m_sr.old_execution_mode         = m_sr.previous_execution_mode;
         m_sr.previous_interrupt_disable = m_sr.current_interrupt_enable;
         m_sr.previous_execution_mode    = m_sr.current_execution_mode;
         m_sr.current_interrupt_enable   = false;
