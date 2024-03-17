@@ -59,4 +59,14 @@ namespace PSX
     {
         m_ram_size.raw() = 0x00000B88;
     }
+
+    void RamController::serialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->serialize_from(m_ram_size);
+    }
+
+    void RamController::deserialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->deserialize_to(m_ram_size);
+    }
 }
