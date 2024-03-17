@@ -292,7 +292,14 @@ void App::run()
 
                 case PSX::DisplayAreaColorDepth::Depth24Bit:
                 {
-                    SDL_RenderCopy(m_renderer, m_framebuffer_24bit, NULL, NULL);
+                    if(m_menu.show_vram())
+                    {
+                        SDL_RenderCopy(m_renderer, m_framebuffer_24bit, NULL, NULL);
+                    }
+                    else
+                    {
+                        SDL_RenderCopy(m_renderer, m_framebuffer_24bit, &m_framebuffer_view, NULL);
+                    }
                 } break;
 
                 default:
@@ -332,6 +339,22 @@ void App::emulator_thread()
             m_menu.set_emulator_reset(false);
         }
 
+        if(m_menu.emulator_save_state())
+        {
+            auto save_state = PSX::SaveState::create();
+            m_emulator_core->serialize(save_state);
+            save_state->write_to_file("0.bin");
+            m_menu.set_emulator_save_state(false);
+        }
+
+        if(m_menu.emulator_load_state())
+        {
+            auto save_state = PSX::SaveState::create();
+            save_state->read_from_file("0.bin");
+            m_emulator_core->deserialize(save_state);
+            m_menu.set_emulator_load_state(false);
+        }
+
         // start timing frame
         auto start_timestamp = std::chrono::high_resolution_clock::now();
 
@@ -347,7 +370,6 @@ void App::emulator_thread()
         PSX::s64 desired_frame_time = 1'000'000.0 / m_emulator_core->meta_refresh_rate(); 
 
         // limit frame time based on the gpu mode
-        // TODO: something here is not quite right
         if(frame_time < desired_frame_time)
         {
             std::this_thread::sleep_for(std::chrono::microseconds(desired_frame_time - frame_time));
@@ -439,7 +461,6 @@ void App::update_framebuffer_24bit()
 
         std::lock_guard lock(m_vram_mutex);
         std::memcpy(framebuffer_pixels, m_emulator_vram.data(), framebuffer_pitch * PSX::VRamHeight);
-
         m_framebuffer_view.x = m_emulator_framebuffer_view.x;
         m_framebuffer_view.y = m_emulator_framebuffer_view.y;
         m_framebuffer_view.w = m_emulator_framebuffer_view.z;

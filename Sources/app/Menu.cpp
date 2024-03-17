@@ -44,6 +44,7 @@ void Menu::reset()
 {
     std::scoped_lock lock(m_menu_state_mutex);
     m_emulator_reset = false;
+    m_emulator_save_state = false;
     m_show_controls = false;
     m_show_vram = true;
 }
@@ -59,6 +60,14 @@ void Menu::render_and_update()
         if(ImGui::MenuItem("Reset"))
         {
             set_emulator_reset(true);
+        }
+        if(ImGui::MenuItem("Save State"))
+        {
+            set_emulator_save_state(true);
+        }
+        if(ImGui::MenuItem("Load State"))
+        {
+            set_emulator_load_state(true);
         }
         ImGui::EndMenu();
     }
@@ -118,6 +127,24 @@ bool Menu::emulator_reset()
 }
 
 /**
+ * @brief check if user wants to save state of the emulator
+ */
+bool Menu::emulator_save_state()
+{
+    std::scoped_lock lock(m_menu_state_mutex);
+    return m_emulator_save_state;
+}
+
+/**
+ * @brief check if user wants to load state of the emulator
+ */
+bool Menu::emulator_load_state()
+{
+    std::scoped_lock lock(m_menu_state_mutex);
+    return m_emulator_load_state;
+}
+
+/**
  * @brief set emulator reset status 
  */
 void Menu::set_emulator_reset(bool value)
@@ -126,6 +153,23 @@ void Menu::set_emulator_reset(bool value)
     m_emulator_reset = value;
 }
 
+/**
+ * @brief set emulator save state status 
+ */
+void Menu::set_emulator_save_state(bool value)
+{
+    std::scoped_lock lock(m_menu_state_mutex);
+    m_emulator_save_state = value;
+}
+
+/**
+ * @brief set emulator load state status 
+ */
+void Menu::set_emulator_load_state(bool value)
+{
+    std::scoped_lock lock(m_menu_state_mutex);
+    m_emulator_load_state = value;
+}
 
 /**
  * @brief on/off switch between showing whole vram or just the correct portion

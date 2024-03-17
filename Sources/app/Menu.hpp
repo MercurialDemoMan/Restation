@@ -58,6 +58,16 @@ public:
     bool emulator_reset();
 
     /**
+     * @brief check if user wants to save state of the emulator
+     */
+    bool emulator_save_state();
+
+    /**
+     * @brief check if user wants to load state of the emulator
+     */
+    bool emulator_load_state();
+
+    /**
      * @brief on/off switch between showing whole vram or just the correct portion
      */
     bool show_vram();
@@ -67,6 +77,16 @@ public:
      */
     void set_emulator_reset(bool);
 
+    /**
+     * @brief set emulator save state status 
+     */
+    void set_emulator_save_state(bool);
+
+    /**
+     * @brief set emulator load state status 
+     */
+    void set_emulator_load_state(bool);
+
 private:
 
     /**
@@ -75,6 +95,8 @@ private:
     void render_button_mapping(PSX::PeripheralsInput::DigitalButton);
 
     bool m_emulator_reset;
+    bool m_emulator_save_state;
+    bool m_emulator_load_state;
     bool m_show_controls;
     bool m_show_vram;
     std::string m_test;
