@@ -175,4 +175,18 @@ namespace PSX
     
         m_meta_interrupt_request = false;
     }
+
+    void DMAController::serialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->serialize_from(m_control.raw);
+        save_state->serialize_from(m_interrupt.raw);
+        save_state->serialize_from(m_meta_interrupt_request);
+    }
+
+    void DMAController::deserialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->deserialize_to(m_control.raw);
+        save_state->deserialize_to(m_interrupt.raw);
+        save_state->deserialize_to(m_meta_interrupt_request);
+    }
 }
