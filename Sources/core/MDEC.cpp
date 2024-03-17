@@ -100,6 +100,54 @@ namespace PSX
         std::fill(m_cr_block.begin(), m_cr_block.end(), 0);
     }
 
+    void MDEC::serialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->serialize_from(m_status.raw);
+        save_state->serialize_from(m_control.raw);
+        save_state->serialize_from(m_current_instruction);
+        save_state->serialize_from(m_command_num_arguments);
+        save_state->serialize_from(m_current_command_argument_index);
+        save_state->serialize_from(m_quantization_table_selector);
+        save_state->serialize_from(m_input_fifo_cursor);
+        save_state->serialize_from(m_output_fifo_cursor);
+        save_state->serialize_from(m_read24bit_value_cursor);
+        save_state->serialize_from(m_input_fifo);
+        save_state->serialize_from(m_output_fifo);
+        save_state->serialize_from(m_idct_table);
+        save_state->serialize_from(m_chroma_quantization_table);
+        save_state->serialize_from(m_luma_quantization_table);
+        save_state->serialize_from(m_y_block[0]);
+        save_state->serialize_from(m_y_block[1]);
+        save_state->serialize_from(m_y_block[2]);
+        save_state->serialize_from(m_y_block[3]);
+        save_state->serialize_from(m_cb_block);
+        save_state->serialize_from(m_cr_block);
+    }
+
+    void MDEC::deserialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->deserialize_to(m_status.raw);
+        save_state->deserialize_to(m_control.raw);
+        save_state->deserialize_to(m_current_instruction);
+        save_state->deserialize_to(m_command_num_arguments);
+        save_state->deserialize_to(m_current_command_argument_index);
+        save_state->deserialize_to(m_quantization_table_selector);
+        save_state->deserialize_to(m_input_fifo_cursor);
+        save_state->deserialize_to(m_output_fifo_cursor);
+        save_state->deserialize_to(m_read24bit_value_cursor);
+        save_state->deserialize_to(m_input_fifo);
+        save_state->deserialize_to(m_output_fifo);
+        save_state->deserialize_to(m_idct_table);
+        save_state->deserialize_to(m_chroma_quantization_table);
+        save_state->deserialize_to(m_luma_quantization_table);
+        save_state->deserialize_to(m_y_block[0]);
+        save_state->deserialize_to(m_y_block[1]);
+        save_state->deserialize_to(m_y_block[2]);
+        save_state->deserialize_to(m_y_block[3]);
+        save_state->deserialize_to(m_cb_block);
+        save_state->deserialize_to(m_cr_block);
+    }
+
     /**
      * @brief reset the MDEC from a command
      */
