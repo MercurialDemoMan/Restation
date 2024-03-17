@@ -131,4 +131,16 @@ namespace PSX
     {
         m_communication_counter = 0;
     }
+
+    void PeripheralsDigitalController::serialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->serialize_from(m_buttons_state.raw);
+        save_state->serialize_from(m_communication_counter);
+    }
+
+    void PeripheralsDigitalController::deserialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->deserialize_to(m_buttons_state.raw);
+        save_state->deserialize_to(m_communication_counter);
+    }
 }

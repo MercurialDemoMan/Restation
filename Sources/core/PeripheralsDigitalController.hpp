@@ -67,6 +67,8 @@ namespace PSX
          */
         virtual void reset() override;
 
+        virtual void serialize(std::shared_ptr<SaveState>&) override;
+        virtual void deserialize(std::shared_ptr<SaveState>&) override;
     private:
 
         /**
