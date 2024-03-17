@@ -113,6 +113,22 @@ namespace PSX
         m_meta_interrupt_request = false;
     }
 
+    void DMAChannel::serialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->serialize_from(m_base_address.raw);
+        save_state->serialize_from(m_block_control.raw);
+        save_state->serialize_from(m_channel_control.raw);
+        save_state->serialize_from(m_meta_interrupt_request);
+    }
+
+    void DMAChannel::deserialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->deserialize_to(m_base_address.raw);
+        save_state->deserialize_to(m_block_control.raw);
+        save_state->deserialize_to(m_channel_control.raw);
+        save_state->deserialize_to(m_meta_interrupt_request);
+    }
+    
     /**
      * @brief read from managed component
      */
