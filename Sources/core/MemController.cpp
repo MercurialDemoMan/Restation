@@ -113,4 +113,30 @@ namespace PSX
         m_cdrom_size      = 0;
         m_common_delay    = 0;
     }
+
+    void MemController::serialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->serialize_from(m_expansion1_base);
+        save_state->serialize_from(m_expansion2_base);
+        save_state->serialize_from(m_expansion1_size);
+        save_state->serialize_from(m_expansion2_size);
+        save_state->serialize_from(m_expansion3_size);
+        save_state->serialize_from(m_bios_size);
+        save_state->serialize_from(m_spu_size);
+        save_state->serialize_from(m_cdrom_size);
+        save_state->serialize_from(m_common_delay);
+    }
+
+    void MemController::deserialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->deserialize_to(m_expansion1_base);
+        save_state->deserialize_to(m_expansion2_base);
+        save_state->deserialize_to(m_expansion1_size);
+        save_state->deserialize_to(m_expansion2_size);
+        save_state->deserialize_to(m_expansion3_size);
+        save_state->deserialize_to(m_bios_size);
+        save_state->deserialize_to(m_spu_size);
+        save_state->deserialize_to(m_cdrom_size);
+        save_state->deserialize_to(m_common_delay);
+    }
 }
