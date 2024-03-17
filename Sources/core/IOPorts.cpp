@@ -49,4 +49,14 @@ namespace PSX
     {
         
     }
+
+    void IOPorts::serialize(std::shared_ptr<SaveState>&)
+    {
+
+    }
+
+    void IOPorts::deserialize(std::shared_ptr<SaveState>&)
+    {
+        
+    }
 }
