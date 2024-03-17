@@ -67,6 +67,8 @@ namespace PSX
         virtual u32  read(u32 address) override;
         virtual void write(u32 address, u32 value) override;
         virtual void reset() override;
+        virtual void serialize(std::shared_ptr<SaveState>&) override;
+        virtual void deserialize(std::shared_ptr<SaveState>&) override;
 
         /**
          * @brief dump VRAM into a image file 
@@ -386,7 +388,7 @@ namespace PSX
         bool                 m_ready_to_receive_dma_block;
         bool                 m_is_line_odd;
         GPUCommand           m_current_command;
-        std::deque<u32>      m_command_fifo;
+        fixed_queue<u32, GPUFIFOMaxSize> m_command_fifo;
         u32                  m_command_num_arguments;
         std::optional<u32>   m_clut_cache_x;
         std::optional<u32>   m_clut_cache_y;

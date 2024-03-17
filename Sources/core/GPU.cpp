@@ -168,6 +168,96 @@ namespace PSX
         m_meta_frames                = 0;
     }
 
+    void GPU::serialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->serialize_from(m_draw_mode.raw);
+        save_state->serialize_from(m_texture_window_setting.raw);
+        save_state->serialize_from(m_drawing_area_top);
+        save_state->serialize_from(m_drawing_area_left);
+        save_state->serialize_from(m_drawing_area_right);
+        save_state->serialize_from(m_drawing_area_bottom);
+        save_state->serialize_from(m_drawing_offset_x);
+        save_state->serialize_from(m_drawing_offset_y);
+        save_state->serialize_from(m_mask_bit_setting.raw);
+        save_state->serialize_from(m_interrupt_request);
+        save_state->serialize_from(m_display_disable);
+        save_state->serialize_from(m_dma_direction);
+        save_state->serialize_from(m_display_area_start_x);
+        save_state->serialize_from(m_display_area_start_y);
+        save_state->serialize_from(m_display_range_x_1);
+        save_state->serialize_from(m_display_range_x_2);
+        save_state->serialize_from(m_display_range_y_1);
+        save_state->serialize_from(m_display_range_y_2);
+        save_state->serialize_from(m_display_mode.raw);
+        save_state->serialize_from(m_new_texture_disable);
+        save_state->serialize_from(m_read_mode);
+        save_state->serialize_from(m_read_register);
+        save_state->serialize_from(m_dma_start_x);
+        save_state->serialize_from(m_dma_start_y);
+        save_state->serialize_from(m_dma_end_x);
+        save_state->serialize_from(m_dma_end_y);
+        save_state->serialize_from(m_dma_current_x);
+        save_state->serialize_from(m_dma_current_y);
+        save_state->serialize_from(m_ready_to_receive_dma_block);
+        save_state->serialize_from(m_is_line_odd);
+        save_state->serialize_from(m_current_command);
+        save_state->serialize_from(m_command_fifo);
+        save_state->serialize_from(m_command_num_arguments);
+        save_state->serialize_from(m_clut_cache_x);
+        save_state->serialize_from(m_clut_cache_y);
+        save_state->serialize_from(m_clut_cache_depth);
+        save_state->serialize_from(m_meta_cycles);
+        save_state->serialize_from(m_meta_lines);
+        save_state->serialize_from(m_meta_frames);
+        save_state->serialize_from(m_vram);
+        save_state->serialize_from(m_clut_cache);
+    }
+
+    void GPU::deserialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->deserialize_to(m_draw_mode.raw);
+        save_state->deserialize_to(m_texture_window_setting.raw);
+        save_state->deserialize_to(m_drawing_area_top);
+        save_state->deserialize_to(m_drawing_area_left);
+        save_state->deserialize_to(m_drawing_area_right);
+        save_state->deserialize_to(m_drawing_area_bottom);
+        save_state->deserialize_to(m_drawing_offset_x);
+        save_state->deserialize_to(m_drawing_offset_y);
+        save_state->deserialize_to(m_mask_bit_setting.raw);
+        save_state->deserialize_to(m_interrupt_request);
+        save_state->deserialize_to(m_display_disable);
+        save_state->deserialize_to(m_dma_direction);
+        save_state->deserialize_to(m_display_area_start_x);
+        save_state->deserialize_to(m_display_area_start_y);
+        save_state->deserialize_to(m_display_range_x_1);
+        save_state->deserialize_to(m_display_range_x_2);
+        save_state->deserialize_to(m_display_range_y_1);
+        save_state->deserialize_to(m_display_range_y_2);
+        save_state->deserialize_to(m_display_mode.raw);
+        save_state->deserialize_to(m_new_texture_disable);
+        save_state->deserialize_to(m_read_mode);
+        save_state->deserialize_to(m_read_register);
+        save_state->deserialize_to(m_dma_start_x);
+        save_state->deserialize_to(m_dma_start_y);
+        save_state->deserialize_to(m_dma_end_x);
+        save_state->deserialize_to(m_dma_end_y);
+        save_state->deserialize_to(m_dma_current_x);
+        save_state->deserialize_to(m_dma_current_y);
+        save_state->deserialize_to(m_ready_to_receive_dma_block);
+        save_state->deserialize_to(m_is_line_odd);
+        save_state->deserialize_to(m_current_command);
+        save_state->deserialize_to(m_command_fifo);
+        save_state->deserialize_to(m_command_num_arguments);
+        save_state->deserialize_to(m_clut_cache_x);
+        save_state->deserialize_to(m_clut_cache_y);
+        save_state->deserialize_to(m_clut_cache_depth);
+        save_state->deserialize_to(m_meta_cycles);
+        save_state->deserialize_to(m_meta_lines);
+        save_state->deserialize_to(m_meta_frames);
+        save_state->deserialize_to(m_vram);
+        save_state->deserialize_to(m_clut_cache);
+    }
+
     /**
      * @brief soft reset made by GP1 command 
      */
@@ -289,7 +379,7 @@ namespace PSX
         if(m_current_command == GPUCommand::Nop)
         {
             m_command_fifo.clear();
-            m_command_fifo.push_back(value);
+            m_command_fifo.push(value);
 
             u32  instruction_raw = value >> 24;
             auto instruction = GPUGP0Instruction(instruction_raw);
@@ -394,8 +484,8 @@ namespace PSX
             }
 
             // end list of poly line vertices
-            if(m_current_command == GPUCommand::LineRender            && 
-               LineRenderCommand(m_command_fifo.front()).is_poly_line &&
+            if(m_current_command == GPUCommand::LineRender                  && 
+               LineRenderCommand(m_command_fifo.top().value()).is_poly_line &&
                ((value & 0xF000'F000) == 0x5000'5000))
             {
                 TODO();
@@ -403,7 +493,7 @@ namespace PSX
             else
             {
                 // save the argument
-                m_command_fifo.push_back(value);
+                m_command_fifo.push(value);
 
                 // we have all the arguments -> execute the drawing/copy command
                 if(m_command_fifo.size() == m_command_num_arguments)

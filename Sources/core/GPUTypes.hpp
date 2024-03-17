@@ -101,7 +101,7 @@ namespace PSX
     /**
      * @brief GPU command 
      */
-    enum class GPUCommand
+    enum class GPUCommand : u8
     {
         Nop             = 0,
         VRamFill        = 1,
