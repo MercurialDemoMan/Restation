@@ -77,12 +77,13 @@ namespace PSX
 
         Track track =
         {
-            .id_number     = 1,
-            .type          = Track::Type::Data,
-            .data_position = Position { .minutes = 0, .seconds = 0, .fractions = 0 },
-            .offset        = 0,
-            .num_sectors   = u32(std::ceil(float(file_size) / float(Sector::SizeWithHeaderAndWithSyncBytes))),
-            .meta_file     = meta_file
+            .id_number      = 1,
+            .type           = Track::Type::Data,
+            .data_position  = Position { .minutes = 0, .seconds = 0, .fractions = 0 },
+            .offset         = 0,
+            .num_sectors    = u32(std::ceil(float(file_size) / float(Sector::SizeWithHeaderAndWithSyncBytes))),
+            .meta_file_path = meta_file_path,
+            .meta_file      = meta_file
         };
 
         m_tracks.push_back(track);
@@ -219,6 +220,24 @@ namespace PSX
             .absolute_position_ss = binary_to_bcd(pos.seconds & 0x0000'00FF),
             .absolute_position_ff = binary_to_bcd(pos.fractions & 0x0000'00FF)
         };
+    }
+
+    /**
+     * @brief serialize loaded disc 
+     */
+    void Disc::serialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->serialize_from(m_tracks);
+        save_state->serialize_from(m_meta_loaded);
+    }
+
+    /**
+     * @brief deserialize loaded disc 
+     */
+    void Disc::deserialize(std::shared_ptr<SaveState>& save_state)
+    {
+        save_state->deserialize_to(m_tracks);
+        save_state->deserialize_to(m_meta_loaded);
     }
 
     Disc::~Disc()

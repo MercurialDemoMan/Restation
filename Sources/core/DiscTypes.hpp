@@ -71,7 +71,7 @@ namespace PSX
      */
     struct Track
     {
-        enum class Type
+        enum class Type : u8
         {
             Data    = 0,
             Audio   = 1,
@@ -83,6 +83,7 @@ namespace PSX
         Position data_position;
         u32      offset;
         u32      num_sectors;
+        std::string meta_file_path;
         std::shared_ptr<std::ifstream> meta_file;
     };
 

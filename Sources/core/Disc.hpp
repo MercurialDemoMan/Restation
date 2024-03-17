@@ -39,6 +39,7 @@
 #include <memory>
 #include <optional>
 #include "DiscTypes.hpp"
+#include "SaveState.hpp"
 
 namespace PSX
 {
@@ -72,6 +73,16 @@ namespace PSX
          * @brief read subchannel Q for a sector 
          */
         SubChannelQ read_subchannelq(const Position&);
+
+        /**
+         * @brief serialize loaded disc 
+         */
+        void serialize(std::shared_ptr<SaveState>&);
+
+        /**
+         * @brief deserialize loaded disc 
+         */
+        void deserialize(std::shared_ptr<SaveState>&);
 
     private:
 
