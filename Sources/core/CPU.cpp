@@ -75,6 +75,7 @@ namespace PSX
                 {
                     m_meta_did_hit_breakpoint = true;
                     m_meta_breakpoints.erase(it);
+                    return;
                 }
             }
 
@@ -84,7 +85,7 @@ namespace PSX
             // track last executed instruction
             m_meta_last_executed_instructions[m_meta_last_executed_instruction_index] = 
             {
-                m_program_counter, m_current_instruction
+                m_meta_cycles, m_program_counter, m_current_instruction
             };
             m_meta_last_executed_instruction_index = (m_meta_last_executed_instruction_index + 1) % LastExecutedInstructionsSize;
 
@@ -139,7 +140,7 @@ namespace PSX
         // reset meta state
         m_meta_last_executed_instruction_index = 0;
         for(auto& ins: m_meta_last_executed_instructions)
-             ins = { 0, CPUInstruction(0x0000'0001) }; // invalid instruction
+             ins = { 0, 0, CPUInstruction(0x0000'0001) }; // invalid instruction
         
         m_meta_cycles = 0;
 
@@ -421,13 +422,13 @@ namespace PSX
         result += fmt::format("        epc: 0x{:08x}\n", m_exception_program_counter);
         result += fmt::format("        ein: {}\n", disassemble(m_current_instruction));
         result += fmt::format("        ebd: 0x{:08x}, ebr: 0x{:08x}\n", m_exception_branch_delay_active, m_exception_branching);
-        result += "        last instructions:\n";
+        result += fmt::format("        last instructions {}:\n", m_meta_last_executed_instruction_index);
         for(u32 i = 0; i < LastExecutedInstructionsSize; i++)
         {
             auto exec_ins = m_meta_last_executed_instructions[
                 (m_meta_last_executed_instruction_index + i) % LastExecutedInstructionsSize
             ];
-            result += fmt::format("            0x{:08x}: {}\n", exec_ins.address, disassemble(exec_ins.ins));
+            result += fmt::format("            {} 0x{:08x}: {}\n", exec_ins.cycles, exec_ins.address, disassemble(exec_ins.ins));
         }
         return result;
     }
@@ -437,11 +438,10 @@ namespace PSX
      */
     void CPU::meta_load_executable(const std::shared_ptr<ExecutableFile>& executable_file)
     {
-        m_program_counter = executable_file->initial_pc();
-        m_program_counter_next = m_program_counter + sizeof(CPUInstruction);
-        m_register_field[28] = executable_file->initial_gp();
-        m_register_field[29] = executable_file->initial_sp();
-        m_register_field[30] = executable_file->initial_sp();
+        set_program_counter(executable_file->initial_pc());
+        set_register(28, executable_file->initial_gp());
+        set_register(29, executable_file->initial_sp());
+        set_register(30, executable_file->initial_sp());
     }
 
     /**
