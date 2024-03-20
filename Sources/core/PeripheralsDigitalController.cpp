@@ -39,7 +39,7 @@ namespace PSX
     PeripheralsDigitalController::PeripheralsDigitalController(const std::shared_ptr<PeripheralsInput>& input) :
         m_input(input)
     {
-        m_buttons_state.raw = 0;
+        m_buttons_state.raw = 0xFFFF;
         m_communication_counter = 0;
     }
 
