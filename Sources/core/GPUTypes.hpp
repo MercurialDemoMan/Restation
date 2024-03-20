@@ -526,6 +526,21 @@ namespace PSX
         u32    is_semi_transparent;
         u32    is_gouraud_shaded;
     };
+
+    /**
+     * @brief helper for passing arguments to the LineRender command 
+     */
+    struct LineRenderArguments
+    {
+        s32 start_x;
+        s32 start_y;
+        s32 end_x;
+        s32 end_y;
+        Color24Bit start_color;
+        Color24Bit end_color;
+        u32 is_semi_transparent;
+        u32 is_gouraud_shaded;
+    };
 }
 
 #endif // GPUTYPES_HPP

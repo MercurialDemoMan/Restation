@@ -255,9 +255,14 @@ namespace PSX
         void vram_write_with_mask(u32 x, u32 y, u16 color);
 
         /**
-         * @brief read color from vram
+         * @brief read color from vram with bounds check
          */
         u16 vram_read(u32 x, u32 y) const;
+
+        /**
+         * @brief write color into vram with bounds check 
+         */
+        void vram_write(u32 x, u32 y, u16 value);
 
         /**
          * @brief dither color if enabled in texpage attribute

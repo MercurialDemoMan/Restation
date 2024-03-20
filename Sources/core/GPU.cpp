@@ -716,9 +716,7 @@ namespace PSX
         {
             for(u32 x = args.start_x; x < args.start_x + args.size_x; x++)
             {
-                if(x > VRamWidth - 1) UNREACHABLE();
-                if(y > VRamHeight - 1) UNREACHABLE();
-                m_vram[y * VRamWidth + x] = args.color.raw;
+                vram_write(x, y, args.color.raw);
             }
         }
     }
@@ -1157,7 +1155,7 @@ namespace PSX
                     
                     // update vram
                     new_color.mask |= m_mask_bit_setting.set_mask_while_drawing;
-                    m_vram[y * VRamWidth + x] = new_color.raw;
+                    vram_write(x, y, new_color.raw);
                 }
 
                 // update per-fragment attributes in the horizontal direction
@@ -1291,7 +1289,7 @@ namespace PSX
             
             // update vram
             new_color.mask |= m_mask_bit_setting.set_mask_while_drawing;
-            m_vram[(y >> 8) * VRamWidth + x] = new_color.raw;
+            vram_write(x, (y >> 8), new_color.raw);
             y += k;
         }
     }
@@ -1465,7 +1463,7 @@ namespace PSX
 
                 // update vram
                 new_color.mask |= m_mask_bit_setting.set_mask_while_drawing;
-                m_vram[y * VRamWidth + x] = new_color.raw;
+                vram_write(x, y, new_color.raw);
             }
         }
     }
@@ -1741,7 +1739,7 @@ namespace PSX
                 return;
         }
 
-        m_vram[y * VRamWidth + x] = color | mask;
+        vram_write(x, y, color | mask);
     }
 
     /**
@@ -1758,6 +1756,22 @@ namespace PSX
             UNREACHABLE();
         }
         return m_vram[y * VRamWidth + x];
+    }
+
+    /**
+     * @brief write color into vram with bounds check 
+     */
+    void GPU::vram_write(u32 x, u32 y, u16 value)
+    {
+        if(x > VRamWidth - 1) 
+        {
+            UNREACHABLE();
+        }
+        if(y > VRamHeight - 1)
+        {
+            UNREACHABLE();
+        }
+        m_vram[y * VRamWidth + x] = value;
     }
 
     /**
