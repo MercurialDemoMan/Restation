@@ -92,6 +92,13 @@
 { \
     std::fprintf(stdout, "[\e[0;36minfo\e[0m]: %s\n", std::string(message).c_str()); \
 } while(0)
+#define LOG_IF(value, message) do \
+{ \
+    if(value) \
+    { \
+        std::fprintf(stdout, "[\e[0;36minfo\e[0m]: %s\n", std::string(message).c_str()); \
+    } \
+} while(0)
 
 #ifndef LOG_DEBUG_LEVEL
 #define LOG_DEBUG(level, message)
