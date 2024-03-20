@@ -53,6 +53,7 @@ namespace PSX
      */
     struct ExecutedInstruction
     {
+        u64            cycles;
         u32            address;
         CPUInstruction ins;
     };
