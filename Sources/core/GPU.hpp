@@ -153,6 +153,11 @@ namespace PSX
         void line_render();
 
         /**
+         * @brief Perform Render Line GPU Command 
+         */
+        void do_line_render(LineRenderArguments);
+
+        /**
          * @brief Render Rectangle GPU Command parsing
          */
         void rectangle_render();

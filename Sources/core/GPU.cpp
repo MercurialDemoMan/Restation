@@ -484,11 +484,11 @@ namespace PSX
             }
 
             // end list of poly line vertices
-            if(m_current_command == GPUCommand::LineRender                  && 
-               LineRenderCommand(m_command_fifo.top().value()).is_poly_line &&
+            if(m_current_command == GPUCommand::LineRender          && 
+               LineRenderCommand(m_command_fifo.at(0)).is_poly_line &&
                ((value & 0xF000'F000) == 0x5000'5000))
             {
-                TODO();
+                m_current_command = GPUCommand::Nop;
             }
             else
             {
@@ -730,12 +730,8 @@ namespace PSX
     {
         PolygonRenderCommand command(m_command_fifo.at(0) >> 24);
 
-        std::vector<Vertex> vertices;
+        std::vector<Vertex> vertices(command.num_vertices());
         TextureInfo         texture_info;
-
-        // preallocate vertices
-        for(u32 i = 0; i < command.num_vertices(); i++)
-            vertices.push_back(Vertex());
 
         // parse vertices
         for(u32 i = 0, j = 1; i < command.num_vertices(); i++)
@@ -743,7 +739,6 @@ namespace PSX
             // vertex position
             vertices[i].pos_x = m_drawing_offset_x + extend_sign<s16, 11>((m_command_fifo.at(j) >>  0) & 0xFFFF);
             vertices[i].pos_y = m_drawing_offset_y + extend_sign<s16, 11>((m_command_fifo.at(j) >> 16) & 0xFFFF);
-
             j++;
 
             // vertex color
@@ -1062,7 +1057,7 @@ namespace PSX
         update_attributes_x(frag_attrs_init, frag_attrs_deltas, min.x);
         
         // begin rasterization
-        for(s32 y = min.y; y <= max.y; y++)
+        for(s32 y = min.y; y < max.y; y++)
         {
             // start interpolating vertex attributes
             FragmentAttributes current_attributes = frag_attrs_init;
@@ -1072,10 +1067,10 @@ namespace PSX
                 half_space_y.y,
                 half_space_y.z
             };
-            for(s32 x = min.x; x <= max.x; x++)
+            for(s32 x = min.x; x < max.x; x++)
             {
                 // if we are inside the triangle
-                if( (half_space_x.x > 0 || half_space_x.y > 0 || half_space_x.z > 0) &&
+                if( (half_space_x.x >= 0 || half_space_x.y >= 0 || half_space_x.z >= 0) &&
                    !(half_space_x.x < 0 || half_space_x.y < 0 || half_space_x.z < 0))
                 {
                     auto original_color = Color15Bit(vram_read(x, y));
@@ -1185,7 +1180,120 @@ namespace PSX
      */
     void GPU::line_render()
     {
-        TODO();
+        LineRenderCommand command(m_command_fifo.at(0) >> 24);
+
+        u32 start_color =  m_command_fifo.at(0) & 0x00FF'FFFF;
+        s32 start_x     = (m_command_fifo.at(1) >>  0) & 0xFFFF;
+        s32 start_y     = (m_command_fifo.at(1) >> 16) & 0xFFFF;
+        u32 end_color   = 0;
+        s32 end_x       = 0;
+        s32 end_y       = 0;
+        if(command.num_arguments() == 4)
+        {
+            end_color = m_command_fifo.at(2) & 0x00FF'FFFF;
+            end_x     = (m_command_fifo.at(3) >>  0) & 0xFFFF;
+            end_y     = (m_command_fifo.at(3) >> 16) & 0xFFFF;
+        }
+        else // command.num_arguments() == 3
+        {
+            end_color = start_color;
+            end_x     = (m_command_fifo.at(2) >>  0) & 0xFFFF;
+            end_y     = (m_command_fifo.at(2) >> 16) & 0xFFFF;
+        }
+
+        do_line_render(LineRenderArguments
+        {
+            .start_x     = m_drawing_offset_x + extend_sign<s32, 11>(start_x),
+            .start_y     = m_drawing_offset_y + extend_sign<s32, 11>(start_y),
+            .end_x       = m_drawing_offset_x + extend_sign<s32, 11>(end_x),
+            .end_y       = m_drawing_offset_y + extend_sign<s32, 11>(end_y),
+            .start_color = start_color,
+            .end_color   = end_color,
+            .is_semi_transparent = command.is_semi_transparent,
+            .is_gouraud_shaded   = command.is_gouraud_shaded
+        });
+
+        if(!command.is_poly_line)
+        {
+            // reset command queue
+            m_current_command = GPUCommand::Nop;
+        }
+        else
+        {
+            // shift arguments in command fifo
+            TODO();
+        }
+    }
+
+    /**
+     * @brief Perform Render Line GPU Command 
+     */
+    void GPU::do_line_render(LineRenderArguments args)
+    {
+        s32 delta_x = (args.end_x - args.start_x);
+        s32 delta_y = (args.end_y - args.start_y);
+
+        if(std::abs(delta_y) > std::abs(delta_x))
+        {
+            std::swap(delta_x,      delta_y);
+            std::swap(args.start_x, args.start_y);
+            std::swap(args.end_x,   args.end_y);
+        }
+
+        if(args.start_x > args.end_x)
+        {
+            std::swap(args.start_x, args.end_x);
+        }
+
+        s32 y = args.start_y << 8;
+        s32 k = (delta_y << 8) / delta_x;
+
+        for(s32 x = args.start_x; x <= args.end_x; x++)
+        {
+            auto original_color = Color15Bit(vram_read(x, y >> 8));
+
+            if(m_mask_bit_setting.check_mask_before_draw)
+            {
+                // skip masked fragments
+                if(original_color.mask)
+                {
+                    y += k;
+                    continue;
+                }
+            }
+
+            //TODO: line interpolation
+            auto new_color_from_interpolation = Color24Bit(args.start_color);
+
+            if(m_draw_mode.dither_24_to_15)
+            {
+                new_color_from_interpolation = dither(new_color_from_interpolation, x, y);
+            }
+
+            auto new_color = Color15Bit();
+            if(args.is_gouraud_shaded)
+            {
+                new_color = Color15Bit::create_from_24bit(new_color_from_interpolation);
+            }
+            else
+            {
+                new_color = Color15Bit::create_from_24bit(args.start_color);
+            }
+
+            // blend if transparent
+            if(args.is_semi_transparent)
+            {
+                if(new_color.mask)
+                {
+                    new_color = Color15Bit::create_blended(original_color, new_color, m_draw_mode.semi_transparency);
+                }
+            }
+            
+            // update vram
+            new_color.mask |= m_mask_bit_setting.set_mask_while_drawing;
+            m_vram[(y >> 8) * VRamWidth + x] = new_color.raw;
+            y += k;
+        }
     }
 
     /**
