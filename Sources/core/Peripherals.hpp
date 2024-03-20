@@ -52,7 +52,7 @@ namespace PSX
     public:
 
         static constexpr const u32 ControllerInterruptRequestDelay = 376; 
-        static constexpr const u32 MemoryCardInterruptRequestDelay = 541;
+        static constexpr const u32 MemoryCardInterruptRequestDelay = 125;
 
         Peripherals(const std::shared_ptr<Bus>& bus, 
                     const std::shared_ptr<PeripheralsInput>& input,
