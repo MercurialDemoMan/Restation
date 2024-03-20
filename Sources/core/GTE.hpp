@@ -135,6 +135,16 @@ namespace PSX
         void ncds_impl(u32 general_purpose_vector_index);
 
         /**
+         * @brief general implementation for the NCCS/NCCT commands 
+         */
+        void nccs_impl(u32 general_purpose_vector_index);
+
+        /**
+         * @brief general implementation for the DPCS/DPCT commands 
+         */
+        void dpcs_impl(bool rgb_register_selector);
+
+        /**
          * @brief divide two values using the UNR division algorithm 
          */
         u32 unr_division(u32 numerator, u32 denominator);
@@ -224,7 +234,8 @@ namespace PSX
         Register<u32>  m_rgbc;    /// Color/Code Value
         Register<u16>  m_otz;     /// Average Z Value (For Ordering Table)
         Register<s16>  m_ir[4];   /// 16bit Accumulator For Interpolation And Vector
-        GTEVector<s16> m_sxyz[4]; /// Screen XY-Coordinate 3-slot Queue and Z-Coordinate 4-slot Queue TODO: z is unsigned
+        GTEVector<s16> m_sxy[3];  /// Screen XY-Coordinate 3-slot Queue
+        Register<u16>  m_sz[4];   /// Z-Coordinate 4-slot Queue
         Register<u32>  m_crgb[3]; /// Color CRGM-Code/Color 3-slot Queue
         Register<u32>  m_res1;    /// Prohibited???
         Register<s32>  m_mac[4];  /// Math Accumulators

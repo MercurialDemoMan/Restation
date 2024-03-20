@@ -59,14 +59,14 @@ namespace PSX
             case  9: return s32(m_ir[1].raw()); // extend sign
             case 10: return s32(m_ir[2].raw()); // extend sign
             case 11: return s32(m_ir[3].raw()); // extend sign
-            case 12: return (u16(m_sxyz[0].y) << 16) | u16(m_sxyz[0].x); // prevent sign extension
-            case 13: return (u16(m_sxyz[1].y) << 16) | u16(m_sxyz[1].x); // prevent sign extension
+            case 12: return (u16(m_sxy[0].y) << 16) | u16(m_sxy[0].x); // prevent sign extension
+            case 13: return (u16(m_sxy[1].y) << 16) | u16(m_sxy[1].x); // prevent sign extension
             case 14: 
-            case 15: return (u16(m_sxyz[2].y) << 16) | u16(m_sxyz[2].x); // prevent sign extension
-            case 16: return u16(m_sxyz[0].z); // prevent sign extesion
-            case 17: return u16(m_sxyz[1].z); // prevent sign extesion
-            case 18: return u16(m_sxyz[2].z); // prevent sign extesion
-            case 19: return u16(m_sxyz[3].z); // prevent sign extesion
+            case 15: return (u16(m_sxy[2].y) << 16) | u16(m_sxy[2].x); // prevent sign extension
+            case 16: return u16(m_sz[0].raw()); // prevent sign extesion
+            case 17: return u16(m_sz[1].raw()); // prevent sign extesion
+            case 18: return u16(m_sz[2].raw()); // prevent sign extesion
+            case 19: return u16(m_sz[3].raw()); // prevent sign extesion
             case 20: return m_crgb[0].raw();
             case 21: return m_crgb[1].raw();
             case 22: return m_crgb[2].raw();
@@ -155,35 +155,35 @@ namespace PSX
             case 11: { m_ir[3].raw() = value; } break;
             case 12:
             { 
-                m_sxyz[0].x = value; 
-                m_sxyz[0].y = value >> 16; 
+                m_sxy[0].x = value; 
+                m_sxy[0].y = value >> 16; 
             } break;
             case 13:
             { 
-                m_sxyz[1].x = value; 
-                m_sxyz[1].y = value >> 16; 
+                m_sxy[1].x = value; 
+                m_sxy[1].y = value >> 16; 
             } break;
             case 14: 
             { 
-                m_sxyz[2].x = value; 
-                m_sxyz[2].y = value >> 16; 
+                m_sxy[2].x = value; 
+                m_sxy[2].y = value >> 16; 
             } break;
             case 15:
             {
                 //TODO: replace by queue? but then it will always be of size 3...
-                m_sxyz[0].x = m_sxyz[1].x;
-                m_sxyz[0].y = m_sxyz[1].y;
+                m_sxy[0].x = m_sxy[1].x;
+                m_sxy[0].y = m_sxy[1].y;
 
-                m_sxyz[1].x = m_sxyz[2].x;
-                m_sxyz[1].y = m_sxyz[2].y;
+                m_sxy[1].x = m_sxy[2].x;
+                m_sxy[1].y = m_sxy[2].y;
 
-                m_sxyz[2].x = value;
-                m_sxyz[2].y = value >> 16;
+                m_sxy[2].x = value;
+                m_sxy[2].y = value >> 16;
             } break;
-            case 16: { m_sxyz[0].z = value; } break;
-            case 17: { m_sxyz[1].z = value; } break;
-            case 18: { m_sxyz[2].z = value; } break;
-            case 19: { m_sxyz[3].z = value; } break;
+            case 16: { m_sz[0].raw() = value; } break;
+            case 17: { m_sz[1].raw() = value; } break;
+            case 18: { m_sz[2].raw() = value; } break;
+            case 19: { m_sz[3].raw() = value; } break;
             case 20: { m_crgb[0].raw() = value; } break;
             case 21: { m_crgb[1].raw() = value; } break;
             case 22: { m_crgb[2].raw() = value; } break;
@@ -304,10 +304,13 @@ namespace PSX
         m_ir[1] = 0;
         m_ir[2] = 0;
         m_ir[3] = 0;
-        m_sxyz[0].reset();
-        m_sxyz[1].reset();
-        m_sxyz[2].reset();
-        m_sxyz[3].reset();
+        m_sxy[0].reset();
+        m_sxy[1].reset();
+        m_sxy[2].reset();
+        m_sz[0].raw() = 0;
+        m_sz[1].raw() = 0;
+        m_sz[2].raw() = 0;
+        m_sz[3].raw() = 0;
         m_crgb[0].raw() = 0;
         m_crgb[1].raw() = 0;
         m_crgb[2].raw() = 0;
@@ -346,10 +349,13 @@ namespace PSX
         save_state->serialize_from(m_ir[1]);
         save_state->serialize_from(m_ir[2]);
         save_state->serialize_from(m_ir[3]);
-        save_state->serialize_from(m_sxyz[0]);
-        save_state->serialize_from(m_sxyz[1]);
-        save_state->serialize_from(m_sxyz[2]);
-        save_state->serialize_from(m_sxyz[3]);
+        save_state->serialize_from(m_sxy[0]);
+        save_state->serialize_from(m_sxy[1]);
+        save_state->serialize_from(m_sxy[2]);
+        save_state->serialize_from(m_sz[0]);
+        save_state->serialize_from(m_sz[1]);
+        save_state->serialize_from(m_sz[2]);
+        save_state->serialize_from(m_sz[3]);
         save_state->serialize_from(m_res1);
         save_state->serialize_from(m_mac[0]);
         save_state->serialize_from(m_mac[1]);
@@ -386,10 +392,13 @@ namespace PSX
         save_state->deserialize_to(m_ir[1]);
         save_state->deserialize_to(m_ir[2]);
         save_state->deserialize_to(m_ir[3]);
-        save_state->deserialize_to(m_sxyz[0]);
-        save_state->deserialize_to(m_sxyz[1]);
-        save_state->deserialize_to(m_sxyz[2]);
-        save_state->deserialize_to(m_sxyz[3]);
+        save_state->deserialize_to(m_sxy[0]);
+        save_state->deserialize_to(m_sxy[1]);
+        save_state->deserialize_to(m_sxy[2]);
+        save_state->deserialize_to(m_sz[0]);
+        save_state->deserialize_to(m_sz[1]);
+        save_state->deserialize_to(m_sz[2]);
+        save_state->deserialize_to(m_sz[3]);
         save_state->deserialize_to(m_res1);
         save_state->deserialize_to(m_mac[0]);
         save_state->deserialize_to(m_mac[1]);
@@ -431,9 +440,9 @@ namespace PSX
      */
     void GTE::multiply_and_translate(const GTEVector<s16>& a, const GTEVector<s16>& b, const GTEVector<s32>& translate)
     {
-        check_and_assign_result((translate.x << 12) + a.x * b.x, 1, !m_current_instruction.lm);
-        check_and_assign_result((translate.y << 12) + a.y * b.y, 2, !m_current_instruction.lm);
-        check_and_assign_result((translate.z << 12) + a.z * b.z, 3, !m_current_instruction.lm);
+        check_and_assign_result((s64(translate.x) << 12) + a.x * b.x, 1, !m_current_instruction.lm);
+        check_and_assign_result((s64(translate.y) << 12) + a.y * b.y, 2, !m_current_instruction.lm);
+        check_and_assign_result((s64(translate.z) << 12) + a.z * b.z, 3, !m_current_instruction.lm);
     }
 
     /**
@@ -487,7 +496,7 @@ namespace PSX
             (
                 check_and_extend_from_mac
                 (
-                    (translate.x << 12) + a.at(0, 0) * b.x, 1
+                    (s64(translate.x) << 12) + a.at(0, 0) * b.x, 1
                 ) + 
                 a.at(1, 0) * b.y, 1
             ) + 
@@ -501,7 +510,7 @@ namespace PSX
             (
                 check_and_extend_from_mac
                 (
-                    (translate.y << 12) + a.at(0, 1) * b.x, 2
+                    (s64(translate.y) << 12) + a.at(0, 1) * b.x, 2
                 ) + 
                 a.at(1, 1) * b.y, 2
             ) + 
@@ -515,7 +524,7 @@ namespace PSX
             (
                 check_and_extend_from_mac
                 (
-                    (translate.z << 12) + a.at(0, 2) * b.x, 3
+                    (s64(translate.z) << 12) + a.at(0, 2) * b.x, 3
                 ) + 
                 a.at(1, 2) * b.y, 3
             ) + 
@@ -683,12 +692,12 @@ namespace PSX
      */
     void GTE::push_to_screen_z_fifo(s32 z)
     {
-        m_sxyz[0].z = m_sxyz[1].z;
-        m_sxyz[1].z = m_sxyz[2].z;
-        m_sxyz[2].z = m_sxyz[3].z;
-        m_sxyz[3].z = u16(std::clamp(z, 0x0000, 0xFFFF));
+        m_sz[0].raw() = m_sz[1].raw();
+        m_sz[1].raw() = m_sz[2].raw();
+        m_sz[2].raw() = m_sz[3].raw();
+        m_sz[3].raw() = u16(std::clamp<s32>(z, 0x0000, 0xFFFF));
 
-        m_error_flags.sz3_or_otz_saturated = m_sxyz[3].z != z;
+        m_error_flags.sz3_or_otz_saturated = m_sz[3].raw() != z;
     }
 
     /**
@@ -696,15 +705,15 @@ namespace PSX
      */
     void GTE::push_to_screen_xy_fifo(s32 x, s32 y)
     {
-        m_sxyz[0].x = m_sxyz[1].x;
-        m_sxyz[0].y = m_sxyz[1].y;
-        m_sxyz[1].x = m_sxyz[2].x;
-        m_sxyz[1].y = m_sxyz[2].y;
-        m_sxyz[2].x = u16(std::clamp(x, -0x0400, 0x03FF));
-        m_sxyz[2].y = u16(std::clamp(y, -0x0400, 0x03FF));
+        m_sxy[0].x = m_sxy[1].x;
+        m_sxy[0].y = m_sxy[1].y;
+        m_sxy[1].x = m_sxy[2].x;
+        m_sxy[1].y = m_sxy[2].y;
+        m_sxy[2].x = u16(std::clamp(x, -0x0400, 0x03FF));
+        m_sxy[2].y = u16(std::clamp(y, -0x0400, 0x03FF));
 
-        m_error_flags.sx2_saturated = m_sxyz[2].x != x;
-        m_error_flags.sy2_saturated = m_sxyz[2].y != y;
+        m_error_flags.sx2_saturated = m_sxy[2].x != x;
+        m_error_flags.sy2_saturated = m_sxy[2].y != y;
     }
 
     /**
@@ -723,9 +732,7 @@ namespace PSX
 
         push_to_screen_z_fifo(s32(result >> 12));
 
-        // TODO: test the unr division
-        //result = unr_division(m_projection_plane_distance.raw(), m_sxyz[3].z);
-        result = ((m_projection_plane_distance.raw() * 0x0001'0000 + m_sxyz[3].z / 2) / m_sxyz[3].z);
+        result = unr_division(m_projection_plane_distance.raw(), m_sz[3].raw());
 
         s32 x = check_and_assign_to_mac(result * m_ir[1].raw() + m_screen_offset[0].raw(), 0) >> 16;
         s32 y = check_and_assign_to_mac(result * m_ir[2].raw() + m_screen_offset[1].raw(), 0) >> 16;
@@ -789,11 +796,135 @@ namespace PSX
     }
 
     /**
-     * @brief divide two values using the UNR division algorithm 
-     * @todo this super doesn't work
+     * @brief general implementation for the NCCS/NCCT commands 
+     */
+    void GTE::nccs_impl(u32 general_purpose_vector_index)
+    {
+        switch(general_purpose_vector_index)
+        {
+            case 0: { multiply_and_translate(m_light_source_matrix, m_vxyz0, GTEVector<s32> { .x = 0, .y = 0, .z = 0 }); } break;
+            case 1: { multiply_and_translate(m_light_source_matrix, m_vxyz1, GTEVector<s32> { .x = 0, .y = 0, .z = 0 }); } break;
+            case 2: { multiply_and_translate(m_light_source_matrix, m_vxyz2, GTEVector<s32> { .x = 0, .y = 0, .z = 0 }); } break;
+            default: { UNREACHABLE(); } break;
+        }
+
+        multiply_and_translate
+        (
+            m_light_color_matrix, 
+            GTEVector<s16>
+            {
+                .x = m_ir[1].raw(),
+                .y = m_ir[2].raw(),
+                .z = m_ir[3].raw()
+            },
+            m_background_color
+        );
+        
+        multiply_and_translate
+        (
+            GTEVector<s16>
+            {
+                .x = s16(m_rgbc.read(0) << 4),
+                .y = s16(m_rgbc.read(1) << 4),
+                .z = s16(m_rgbc.read(2) << 4)
+            },
+            GTEVector<s16>
+            {
+                .x = m_ir[1].raw(),
+                .y = m_ir[2].raw(),
+                .z = m_ir[3].raw()
+            },
+            GTEVector<s32>
+            {
+                .x = 0,
+                .y = 0,
+                .z = 0
+            }
+        );
+
+        push_to_crgb_fifo(GTEVector<s32>
+        {
+            .r = m_mac[1].raw() >> 4,
+            .g = m_mac[2].raw() >> 4,
+            .b = m_mac[3].raw() >> 4
+        });
+    }
+
+    /**
+     * @brief general implementation for the DPCS/DPCT commands 
+     */
+    void GTE::dpcs_impl(bool rgb_register_selector)
+    {
+        GTEVector<s16> color;
+        switch(rgb_register_selector)
+        {
+            case 1: 
+            {  
+                color = GTEVector<s16>
+                {
+                    .r = s16(m_crgb[0].read(0) << 4),
+                    .g = s16(m_crgb[0].read(1) << 4),
+                    .b = s16(m_crgb[0].read(2) << 4)
+                };
+            } break;
+            case 0:
+            {
+                color = GTEVector<s16>
+                {
+                    .r = s16(m_rgbc.read(0) << 4),
+                    .g = s16(m_rgbc.read(1) << 4),
+                    .b = s16(m_rgbc.read(2) << 4)  
+                };
+            } break;
+        }
+
+        check_and_assign_result((s64(m_far_color.r) << 12) - (color.r << 12), 1, true);
+        check_and_assign_result((s64(m_far_color.g) << 12) - (color.g << 12), 2, true);
+        check_and_assign_result((s64(m_far_color.b) << 12) - (color.b << 12), 3, true);
+
+        multiply_and_translate
+        (
+            GTEVector<s16>
+            {
+                .r = m_ir[0].raw(),
+                .g = m_ir[0].raw(),
+                .b = m_ir[0].raw()
+            },
+            GTEVector<s16>
+            {
+                .r = m_ir[1].raw(),
+                .g = m_ir[2].raw(),
+                .b = m_ir[3].raw()
+            },
+            GTEVector<s32>
+            {
+                .r = color.r,
+                .g = color.g,
+                .b = color.b
+            }
+        );
+
+        push_to_crgb_fifo(GTEVector<s32>
+        {
+            .r = m_mac[1].raw() >> 4,
+            .g = m_mac[2].raw() >> 4,
+            .b = m_mac[3].raw() >> 4
+        });
+    }
+
+    /**
+     * @brief divide two values using the UNR division algorithm
      */
     u32 GTE::unr_division(u32 numerator, u32 denominator)
-    {
+    {        
+#if 1
+        if(denominator == 0)
+            return 0x0001'FFFF;
+
+        u32 result = ((numerator * 0x0001'0000 + denominator / 2) / denominator);
+
+        return std::min(result, u32(0x0001'FFFF));
+#else
         static constexpr const std::array<u8, 0x101> UNRTable =
         {
             0xFF, 0xFD, 0xFB, 0xF9, 0xF7, 0xF5, 0xF3, 0xF1, 0xEF, 0xEE, 0xEC, 0xEA, 0xE8, 0xE6, 0xE4, 0xE3,
@@ -815,22 +946,22 @@ namespace PSX
             0x00
         };
 
-        if(denominator * 2 <= numerator)
+        if(numerator < denominator * 2)
+        {
+            auto zeros = std::countl_zero(u16(denominator));
+            u32 n      = numerator   << zeros;
+            u32 d      = denominator << zeros;
+            u32 u      = 0x101 + UNRTable.at((d - 0x7FC0) >> 7);
+            d          = ((0x0200'0080 - (d * u)) >> 8);
+            d          = ((0x0000'0080 + (d * u)) >> 8);
+            return std::min(u32(0x0001'FFFF), (((n * d) + 0x8000) >> 16));
+        }
+        else
         {
             m_error_flags.divide_overflow = 1;
             return 0x0001'FFFF;
         }
-
-        u32 zeros = std::countl_zero(u16(denominator));
-        numerator   <<= zeros;
-        denominator <<= zeros;
-
-        u32 u = 0x101 + UNRTable[(denominator - 0x7FC0) >> 7];
-
-        denominator = ((0x0020'0080 - (denominator * u)) >> 8);
-        denominator = ((0x0000'0080 + (denominator * u)) >> 8);
-
-        return std::min(u32(0x0001'FFFF), (((numerator * denominator) + 0x8000) >> 16));
+#endif
     }
 
     /**
@@ -854,10 +985,13 @@ namespace PSX
      */
     void GTE::NCLIP(const GTEInstruction&)
     {
-        auto result = m_sxyz[0].x * m_sxyz[1].y + m_sxyz[1].x * m_sxyz[2].y +
-                      m_sxyz[2].x * m_sxyz[0].y - m_sxyz[0].x * m_sxyz[2].y -
-                      m_sxyz[1].x * m_sxyz[0].y - m_sxyz[2].x * m_sxyz[1].y;
-
+        auto result = s64(m_sxy[0].x) * s64(m_sxy[1].y) + 
+                      s64(m_sxy[1].x) * s64(m_sxy[2].y) +
+                      s64(m_sxy[2].x) * s64(m_sxy[0].y) - 
+                      s64(m_sxy[0].x) * s64(m_sxy[2].y) -
+                      s64(m_sxy[1].x) * s64(m_sxy[0].y) - 
+                      s64(m_sxy[2].x) * s64(m_sxy[1].y);
+        
         MARK_UNUSED(check_and_assign_to_mac(result, 0));
     }
 
@@ -866,17 +1000,20 @@ namespace PSX
      */
     void GTE::OP(const GTEInstruction& ins)
     {
-        check_and_assign_result(m_rotation_matrix.at(1, 1) * m_ir[3].raw() - m_rotation_matrix.at(2, 2) * m_ir[2].raw(), 1, !ins.lm);
-        check_and_assign_result(m_rotation_matrix.at(2, 2) * m_ir[1].raw() - m_rotation_matrix.at(0, 0) * m_ir[3].raw(), 2, !ins.lm);
-        check_and_assign_result(m_rotation_matrix.at(0, 0) * m_ir[2].raw() - m_rotation_matrix.at(1, 1) * m_ir[1].raw(), 3, !ins.lm);
-    }  
+        MARK_UNUSED(check_and_assign_to_mac(m_rotation_matrix.at(1, 1) * m_ir[3].raw() - m_rotation_matrix.at(2, 2) * m_ir[2].raw(), 1));
+        MARK_UNUSED(check_and_assign_to_mac(m_rotation_matrix.at(2, 2) * m_ir[1].raw() - m_rotation_matrix.at(0, 0) * m_ir[3].raw(), 2));
+        MARK_UNUSED(check_and_assign_to_mac(m_rotation_matrix.at(0, 0) * m_ir[2].raw() - m_rotation_matrix.at(1, 1) * m_ir[1].raw(), 3));
+        check_and_assign_to_ir(m_mac[1].raw(), 1, !ins.lm);
+        check_and_assign_to_ir(m_mac[2].raw(), 2, !ins.lm);
+        check_and_assign_to_ir(m_mac[3].raw(), 3, !ins.lm);
+    } 
 
     /**
-     *  @brief
+     *  @brief depth cueing single
      */
     void GTE::DPCS(const GTEInstruction&)
     {
-        TODO();
+        dpcs_impl(0);
     }  
 
     /**
@@ -888,11 +1025,101 @@ namespace PSX
     } 
 
     /**
-     * @brief 
+     * @brief multiply vector by matrix and add vector
      */
-    void GTE::MVMVA(const GTEInstruction&)
+    void GTE::MVMVA(const GTEInstruction& ins)
     {
-        TODO();
+        GTEMatrix<s16> matrix_mult_operand;
+        switch(ins.mul_matrix)
+        {
+            case 0: 
+            {
+                matrix_mult_operand = m_rotation_matrix;
+            } break;
+            case 1:
+            {
+                matrix_mult_operand = m_light_source_matrix;
+            } break;
+            case 2:
+            {
+                matrix_mult_operand = m_light_color_matrix;
+            } break;
+            case 3:
+            {
+                TODO();
+            } break;
+            default:
+            {
+                UNREACHABLE();
+            } break;
+        }
+
+        GTEVector<s16> vector_mult_operand = GTEVector<s16>
+        {
+            .x = 0,
+            .y = 0,
+            .z = 0
+        };
+        switch(ins.mul_vector)
+        {
+            case 0:
+            {
+                vector_mult_operand = m_vxyz0;
+            } break;
+            case 1:
+            {
+                vector_mult_operand = m_vxyz1;
+            } break;
+            case 2:
+            {
+                vector_mult_operand = m_vxyz2;
+            } break;
+            case 3:
+            {
+                vector_mult_operand = GTEVector<s16>
+                {
+                    .x = m_ir[1].raw(), 
+                    .y = m_ir[2].raw(), 
+                    .z = m_ir[3].raw()
+                };
+            } break;
+            default:
+            {
+                UNREACHABLE();
+            } break;
+        }
+
+        GTEVector<s32> vector_add_operand = GTEVector<s32>
+        {
+            .x = 0,
+            .y = 0,
+            .z = 0
+        };
+        switch(ins.trans_vector)
+        {
+            case 0:
+            {
+                vector_add_operand = m_translation_vector;
+            } break;
+            case 1:
+            {
+                vector_add_operand = m_background_color;
+            } break;
+            case 2:
+            {
+                TODO();
+            } break;
+            case 3:
+            {
+                // None == (.x = 0, .y = 0, .z = 0) ???
+            } break;
+            default:
+            {
+                UNREACHABLE();
+            } break;
+        }
+
+        multiply_and_translate(matrix_mult_operand, vector_mult_operand, vector_add_operand);
     } 
 
     /**
@@ -920,11 +1147,11 @@ namespace PSX
     }  
 
     /**
-     * @brief 
+     * @brief normal color color single vector
      */
     void GTE::NCCS(const GTEInstruction&)
     {
-        TODO();
+        nccs_impl(0);
     }  
 
     /**
@@ -974,11 +1201,13 @@ namespace PSX
     }  
 
     /**
-     * @brief 
+     * @brief depth cueing triple
      */
     void GTE::DPCT(const GTEInstruction&)
     {
-        TODO();
+        dpcs_impl(1);
+        dpcs_impl(1);
+        dpcs_impl(1);
     }  
 
     /**
@@ -986,17 +1215,19 @@ namespace PSX
      */
     void GTE::AVSZ3(const GTEInstruction&)
     {
-        auto result = check_and_assign_to_mac(s64(m_zsf3.raw()) * (m_sxyz[1].z + m_sxyz[2].z + m_sxyz[3].z), 0);
+        auto result = check_and_assign_to_mac(s64(m_zsf3.raw()) * (m_sz[1].raw() + m_sz[2].raw() + m_sz[3].raw()), 0);
         m_otz.raw() = std::clamp(result >> 12, s64(0x0000), s64(0xFFFF));
         m_error_flags.sz3_or_otz_saturated = m_otz.raw() != (result >> 12);
     } 
 
     /**
-     * @brief 
+     * @brief average of four z values
      */
     void GTE::AVSZ4(const GTEInstruction&)
     {
-        TODO();
+        auto result = check_and_assign_to_mac(s64(m_zsf4.raw()) * (m_sz[0].raw() + m_sz[1].raw() + m_sz[2].raw() + m_sz[3].raw()), 0);
+        m_otz.raw() = std::clamp(result >> 12, s64(0x0000), s64(0xFFFF));
+        m_error_flags.sz3_or_otz_saturated = m_otz.raw() != (result >> 12);
     } 
 
     /**
@@ -1030,7 +1261,9 @@ namespace PSX
             },
             GTEVector<s32> 
             {
-                .x = 0, .y = 0, .z = 0
+                .x = 0, 
+                .y = 0, 
+                .z = 0
             }
         );
 
@@ -1043,11 +1276,20 @@ namespace PSX
     }   
 
     /**
-     * @brief 
+     * @brief general purpose interpolation with base
      */
-    void GTE::GPL(const GTEInstruction&)
+    void GTE::GPL(const GTEInstruction& ins)
     {
-        TODO();
+        check_and_assign_result((s64(m_mac[1].raw()) << (ins.shift_fraction * 12)) + m_ir[0].raw() * m_ir[1].raw(), 1, !ins.lm);
+        check_and_assign_result((s64(m_mac[2].raw()) << (ins.shift_fraction * 12)) + m_ir[0].raw() * m_ir[2].raw(), 2, !ins.lm);
+        check_and_assign_result((s64(m_mac[3].raw()) << (ins.shift_fraction * 12)) + m_ir[0].raw() * m_ir[3].raw(), 3, !ins.lm);
+
+        push_to_crgb_fifo(GTEVector<s32>
+        {
+            .r = m_mac[1].raw() >> 4,
+            .g = m_mac[2].raw() >> 4,
+            .b = m_mac[3].raw() >> 4
+        });
     }   
 
     /**
