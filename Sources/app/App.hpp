@@ -104,14 +104,9 @@ private:
     void emulator_thread();
 
     /**
-     * @brief copy the vram contents into the 15bit framebuffer  
+     * @brief copy the vram contents into a framebuffer  
      */
-    void update_framebuffer_15bit();
-
-    /**
-     * @brief copy the vram contents into the 24bit framebuffer  
-     */
-    void update_framebuffer_24bit();
+    void update_framebuffer(SDL_Texture* framebuffer);
 
     static std::shared_ptr<App> m_singleton_instance; /// Manage singleton instance
 
@@ -125,8 +120,7 @@ private:
     std::shared_ptr<Input>     m_input;                                     /// SDL2 Input Manager
     std::shared_ptr<PSX::Bus>  m_emulator_core;                             /// Store Actual Emulator State
     std::array<PSX::u16, PSX::VRamWidth * PSX::VRamHeight> m_emulator_vram; /// Store Copy of Emulator VRAM
-    glm::ivec4                 m_emulator_framebuffer_view;                 /// Cutout of VRAM
-    PSX::DisplayAreaColorDepth m_emulator_display_area_color_depth;         /// Current GPU VRAM color depth
+    PSX::DisplayInfo           m_emulator_display_info;                     /// Cutout of VRAM
 
     std::thread             m_emulator_thread;      /// Manage Emulator Thread
     std::mutex              m_vram_mutex;           /// v

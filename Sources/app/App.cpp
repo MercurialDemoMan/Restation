@@ -239,31 +239,10 @@ void App::run()
         }
 
         // obtain current display area color depth
-        PSX::DisplayAreaColorDepth current_display_area_color_depth = PSX::DisplayAreaColorDepth::Depth15Bit;
+        PSX::DisplayInfo current_display_info;
         {
             std::lock_guard lock(m_vram_mutex);
-            current_display_area_color_depth = m_emulator_display_area_color_depth;
-        }
-        
-        // copy gpu vram content to SDL texture
-        {
-            switch(current_display_area_color_depth)
-            {
-                case PSX::DisplayAreaColorDepth::Depth15Bit:
-                {
-                    update_framebuffer_15bit();
-                } break;
-
-                case PSX::DisplayAreaColorDepth::Depth24Bit:
-                {
-                    update_framebuffer_24bit();
-                } break;
-
-                default:
-                {
-                    UNREACHABLE();
-                } break;
-            }
+            current_display_info = m_emulator_display_info;
         }
         
         // clear framebuffers
@@ -276,36 +255,35 @@ void App::run()
 
         // render vram
         {
-            switch(current_display_area_color_depth)
+            if(current_display_info.enabled)
             {
-                case PSX::DisplayAreaColorDepth::Depth15Bit:
-                {
-                    if(m_menu.show_vram())
-                    {
-                        SDL_RenderCopy(m_renderer, m_framebuffer_15bit, NULL, NULL);
-                    }
-                    else
-                    {
-                        SDL_RenderCopy(m_renderer, m_framebuffer_15bit, &m_framebuffer_view, NULL);
-                    }
-                } break;
+                SDL_Texture* current_framebuffer = nullptr;
 
-                case PSX::DisplayAreaColorDepth::Depth24Bit:
+                switch(current_display_info.color_depth)
                 {
-                    if(m_menu.show_vram())
+                    case PSX::DisplayAreaColorDepth::Depth15Bit:
                     {
-                        SDL_RenderCopy(m_renderer, m_framebuffer_24bit, NULL, NULL);
-                    }
-                    else
+                        current_framebuffer = m_framebuffer_15bit;
+                    } break;
+                    case PSX::DisplayAreaColorDepth::Depth24Bit:
                     {
-                        SDL_RenderCopy(m_renderer, m_framebuffer_24bit, &m_framebuffer_view, NULL);
-                    }
-                } break;
+                        current_framebuffer = m_framebuffer_24bit;
+                    } break;
+                    default:
+                    {
+                        UNREACHABLE();
+                    } break;
+                }
 
-                default:
+                update_framebuffer(current_framebuffer);
+                if(m_menu.show_vram())
                 {
-                    UNREACHABLE();
-                } break;
+                    SDL_RenderCopy(m_renderer, current_framebuffer, NULL, NULL);
+                }
+                else
+                {
+                    SDL_RenderCopy(m_renderer, current_framebuffer, &m_framebuffer_view, NULL);
+                }
             }
         }
 
@@ -339,35 +317,43 @@ void App::emulator_thread()
             m_menu.set_emulator_reset(false);
         }
 
+        // TODO: make game specific save states
         if(m_menu.emulator_save_state())
         {
             auto save_state = PSX::SaveState::create();
             m_emulator_core->serialize(save_state);
-            save_state->write_to_file("0.bin");
+            save_state->write_to_file("global_state.bin");
             m_menu.set_emulator_save_state(false);
         }
 
+        // TODO: make game specific save states
         if(m_menu.emulator_load_state())
         {
             auto save_state = PSX::SaveState::create();
-            save_state->read_from_file("0.bin");
+            save_state->read_from_file("global_state.bin");
             m_emulator_core->deserialize(save_state);
             m_menu.set_emulator_load_state(false);
         }
 
         // start timing frame
         auto start_timestamp = std::chrono::high_resolution_clock::now();
-
+        
         // emulate system until gpu finishes rendering a frame
-        while(!m_emulator_core->meta_vblank())
-        {
-            m_emulator_core->execute(PSX::Bus::OptimalSimulationStep);
-        }
+        m_emulator_core->meta_run_until_vblank();
 
         // end timing frame
         auto end_timestamp  = std::chrono::high_resolution_clock::now();
         PSX::s64 frame_time = std::chrono::duration_cast<std::chrono::microseconds>(end_timestamp - start_timestamp).count();
-        PSX::s64 desired_frame_time = 1'000'000.0 / m_emulator_core->meta_refresh_rate(); 
+
+        PSX::s64 desired_frame_time = 1'000'000.0 / (m_emulator_core->meta_refresh_rate());
+        
+        switch(m_menu.emulator_speed())
+        {
+            case EmulatorSpeed::_25Percent:  { desired_frame_time *= 4; } break;
+            case EmulatorSpeed::_50Percent:  { desired_frame_time *= 2; } break;
+            case EmulatorSpeed::_100Percent: { desired_frame_time *= 1; } break;
+            case EmulatorSpeed::Unlimited:   { desired_frame_time *= 0; } break;
+        }
 
         // limit frame time based on the gpu mode
         if(frame_time < desired_frame_time)
@@ -378,9 +364,8 @@ void App::emulator_thread()
         // copy vram to rendering thread
         {
             std::lock_guard lock(m_vram_mutex);
-            m_emulator_vram                     = m_emulator_core->meta_get_vram_buffer();
-            m_emulator_framebuffer_view         = m_emulator_core->meta_get_framebuffer_view();
-            m_emulator_display_area_color_depth = m_emulator_core->meta_get_display_area_color_depth();
+            m_emulator_vram         = m_emulator_core->meta_get_vram_buffer();
+            m_emulator_display_info = m_emulator_core->meta_get_display_info();
         }
 
         // inform rendering thread about finished frame
@@ -389,14 +374,14 @@ void App::emulator_thread()
 }
 
 /**
- * @brief copy the vram contents into the 15bit framebuffer  
+ * @brief copy the vram contents into a framebuffer  
  */
-void App::update_framebuffer_15bit()
+void App::update_framebuffer(SDL_Texture* framebuffer)
 {
     void* framebuffer_pixels = nullptr;
     int   framebuffer_pitch  = 0;
     
-    if(SDL_LockTexture(m_framebuffer_15bit, NULL, &framebuffer_pixels, &framebuffer_pitch) != 0)
+    if(SDL_LockTexture(framebuffer, NULL, &framebuffer_pixels, &framebuffer_pitch) != 0)
     {
         LOG(fmt::format("failed to lock framebuffer texture: {}", SDL_GetError()));
     }
@@ -408,7 +393,7 @@ void App::update_framebuffer_15bit()
             (
                 fmt::format
                 (
-                    "the 15bit framebuffer texture format doesn't match with the internal size of vram [{} * {}] != [{} * {} * {}]", 
+                    "framebuffer texture format doesn't match with the internal size of vram [{} * {}] != [{} * {} * {}]", 
                     framebuffer_pitch, 
                     PSX::VRamHeight,
                     PSX::VRamWidth,
@@ -420,52 +405,11 @@ void App::update_framebuffer_15bit()
 
         std::lock_guard lock(m_vram_mutex);
         std::memcpy(framebuffer_pixels, m_emulator_vram.data(), framebuffer_pitch * PSX::VRamHeight);
-        m_framebuffer_view.x = m_emulator_framebuffer_view.x;
-        m_framebuffer_view.y = m_emulator_framebuffer_view.y;
-        m_framebuffer_view.w = m_emulator_framebuffer_view.z;
-        m_framebuffer_view.h = m_emulator_framebuffer_view.w;
+        m_framebuffer_view.x = m_emulator_display_info.start_x;
+        m_framebuffer_view.y = m_emulator_display_info.start_y;
+        m_framebuffer_view.w = m_emulator_display_info.width;
+        m_framebuffer_view.h = m_emulator_display_info.height;
     }
 
-    SDL_UnlockTexture(m_framebuffer_15bit);
-}
-
-/**
- * @brief copy the vram contents into the 24bit framebuffer  
- */
-void App::update_framebuffer_24bit()
-{
-    void* framebuffer_pixels = nullptr;
-    int   framebuffer_pitch  = 0;
-    
-    if(SDL_LockTexture(m_framebuffer_24bit, NULL, &framebuffer_pixels, &framebuffer_pitch) != 0)
-    {
-        LOG(fmt::format("failed to lock framebuffer texture: {}", SDL_GetError()));
-    }
-    else
-    {
-        if(framebuffer_pitch * PSX::VRamHeight != PSX::VRamWidth * PSX::VRamHeight * sizeof(PSX::u16))
-        {
-            ABORT_WITH_MESSAGE
-            (
-                fmt::format
-                (
-                    "the 24bit framebuffer texture format doesn't match with the internal size of vram [{} * {}] != [{} * {} * {}]", 
-                    framebuffer_pitch, 
-                    PSX::VRamHeight,
-                    PSX::VRamWidth,
-                    PSX::VRamHeight,
-                    sizeof(PSX::u16)
-                )
-            );
-        }
-
-        std::lock_guard lock(m_vram_mutex);
-        std::memcpy(framebuffer_pixels, m_emulator_vram.data(), framebuffer_pitch * PSX::VRamHeight);
-        m_framebuffer_view.x = m_emulator_framebuffer_view.x;
-        m_framebuffer_view.y = m_emulator_framebuffer_view.y;
-        m_framebuffer_view.w = m_emulator_framebuffer_view.z;
-        m_framebuffer_view.h = m_emulator_framebuffer_view.w;
-    }
-    
-    SDL_UnlockTexture(m_framebuffer_24bit);
+    SDL_UnlockTexture(framebuffer);
 }
