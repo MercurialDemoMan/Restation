@@ -6,7 +6,7 @@ project(emu)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED On)
 # set optimization level
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ggdb")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 # set verbose compilers warnings
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 # set debug logging verbosity
@@ -18,6 +18,8 @@ include_directories(${CMAKE_SOURCE_DIR}/deps/stb)
 include_directories(${CMAKE_SOURCE_DIR}/deps/glm-0.9.9.8)
 # include imgui headers to the project
 include_directories(${CMAKE_SOURCE_DIR}/deps/imgui-1.90.3/ ${CMAKE_SOURCE_DIR}/deps/imgui-1.90.3/backends)
+# add fmt to the project
+include_directories(${CMAKE_SOURCE_DIR}/deps/fmt-10.1.1/include)
 
 # add fmt to the project
 add_subdirectory(${CMAKE_SOURCE_DIR}/deps/fmt-10.1.1)
