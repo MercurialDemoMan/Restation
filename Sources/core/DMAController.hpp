@@ -112,6 +112,8 @@ namespace PSX
             u8  bytes[sizeof(u32)];
         };
 
+        static_assert(sizeof(DMAControl) == sizeof(u32));
+
         /**
          * @brief DMA Interrupt register 
          */
@@ -143,6 +145,8 @@ namespace PSX
             u32 raw;
             u8  bytes[sizeof(u32)];
         };
+
+        static_assert(sizeof(DMAInterrupt) == sizeof(u32));
 
         DMAControl   m_control;
         DMAInterrupt m_interrupt;

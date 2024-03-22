@@ -35,6 +35,7 @@
 #define GTEINSTRUCTION_HPP
 
 #include "Types.hpp"
+#include "Macros.hpp"
 
 namespace PSX
 {

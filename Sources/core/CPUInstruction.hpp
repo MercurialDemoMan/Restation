@@ -35,6 +35,7 @@
 #define CPU_INSTRUCTION_HPP
 
 #include "Types.hpp"
+#include "Macros.hpp"
 
 namespace PSX
 {

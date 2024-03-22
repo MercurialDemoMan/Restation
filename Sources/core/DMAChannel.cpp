@@ -155,7 +155,7 @@ namespace PSX
 
         u32 start_address  = m_base_address.address;
         u32 num_words      = m_block_control.sync_mode_0.num_words;
-        s32 step_direction = m_channel_control.memory_address_step ? -sizeof(u32) : sizeof(u32);
+        s32 step_direction = m_channel_control.memory_address_step ? -s32(sizeof(u32)) : s32(sizeof(u32));
 
         // be able to specify max amount of words
         if(num_words == 0)
@@ -202,7 +202,7 @@ namespace PSX
         u32 start_address = m_base_address.address;
         u32 block_size    = m_block_control.sync_mode_1.block_size;
         u32 num_blocks    = m_block_control.sync_mode_1.num_blocks;
-        s32 step_direction = m_channel_control.memory_address_step ? -sizeof(u32) : sizeof(u32);
+        s32 step_direction = m_channel_control.memory_address_step ? -s32(sizeof(u32)) : s32(sizeof(u32));
         
         do
         {
@@ -253,7 +253,7 @@ namespace PSX
         m_channel_control.start_trigger = 0;
 
         u32 start_address  = m_base_address.address;
-        s32 step_direction = m_channel_control.memory_address_step ? -sizeof(u32) : sizeof(u32);
+        s32 step_direction = m_channel_control.memory_address_step ? -s32(sizeof(u32)) : s32(sizeof(u32));
 
         while(true)
         {
