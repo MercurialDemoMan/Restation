@@ -81,19 +81,14 @@ namespace PSX
         float meta_refresh_rate() const;
 
         /**
-         * @brief get the current rendering cutout of the vram
+         * @brief get the current rendering information about the display
          */
-        glm::ivec4 meta_get_framebuffer_view() const;
+        DisplayInfo meta_get_display_info() const;
 
         /**
          * @brief obtain the state of vram from gpu
          */
         const std::array<u16, VRamWidth * VRamHeight>& meta_get_vram_buffer() const;
-
-        /**
-         * @brief obtain current display area color depth 
-         */
-        DisplayAreaColorDepth meta_get_display_area_color_depth() const;
 
     private:
 

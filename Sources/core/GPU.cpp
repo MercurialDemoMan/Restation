@@ -58,9 +58,9 @@ namespace PSX
         if(new_lines == 0)
             return;
 
-        m_meta_lines  += m_meta_cycles / line_cycles;
+        m_meta_lines  += new_lines;
         m_meta_cycles %= line_cycles;
-
+        
         // did we render whole frame?
         if(m_meta_lines >= num_lines)
         {
@@ -166,6 +166,8 @@ namespace PSX
         m_meta_cycles                = 0;
         m_meta_lines                 = 0;
         m_meta_frames                = 0;
+        m_vram.fill(0);
+        m_clut_cache.fill(0);
     }
 
     void GPU::serialize(std::shared_ptr<SaveState>& save_state)
@@ -588,7 +590,7 @@ namespace PSX
                 case 5:
                 {
                     m_read_register = ((m_drawing_offset_y & 0b111'1111'1111) << 11) |
-                                        ( m_drawing_offset_x & 0b111'1111'1111);
+                                       (m_drawing_offset_x & 0b111'1111'1111);
                 } break;
 
                 // Read GPU Type (only available on the New 208pin GPU)
@@ -694,11 +696,11 @@ namespace PSX
         // perform the filling
         do_vram_fill(VRamFillArguments
         {
-                .start_x = start_x,
-                .start_y = start_y,
-                .size_x  = size_x,
-                .size_y  = size_y,
-                .color   = Color15Bit::create_from_24bit(color)
+            .start_x = start_x,
+            .start_y = start_y,
+            .size_x  = size_x,
+            .size_y  = size_y,
+            .color   = Color15Bit::create_from_24bit(color)
         });
 
         // reset command queue
@@ -866,13 +868,13 @@ namespace PSX
          * @brief calculate vertex argument interpolation
          */
         auto fragment_attribute = [cross](s32 area, glm::ivec2 vertices[3], s32 biases[3], s32 atrributes[3])
-        -> fixed<s32, 16>
+        -> fixed_point
         {
             float attr_a = cross(vertices[1], vertices[2]) * atrributes[0] - biases[0];
             float attr_b = cross(vertices[2], vertices[0]) * atrributes[1] - biases[1];
             float attr_c = cross(vertices[0], vertices[1]) * atrributes[2] - biases[2];
 
-            return fixed<s32, 16>((attr_a + attr_b + attr_c) / area + 0.5f);
+            return fixed_point((attr_a + attr_b + attr_c) / area + 0.5f);
         };
 
         /**
@@ -883,12 +885,12 @@ namespace PSX
         {
             return
             {
-                fixed<s32, 16>(((vertices[1].y - vertices[2].y) * attributes[0] + 
-                                (vertices[2].y - vertices[0].y) * attributes[1] + 
-                                (vertices[0].y - vertices[1].y) * attributes[2]) / float(area)),
-                fixed<s32, 16>(((vertices[2].x - vertices[1].x) * attributes[0] + 
-                                (vertices[0].x - vertices[2].x) * attributes[1] + 
-                                (vertices[1].x - vertices[0].x) * attributes[2]) / float(area)),
+                fixed_point(((vertices[1].y - vertices[2].y) * attributes[0] + 
+                             (vertices[2].y - vertices[0].y) * attributes[1] + 
+                             (vertices[0].y - vertices[1].y) * attributes[2]) / float(area)),
+                fixed_point(((vertices[2].x - vertices[1].x) * attributes[0] + 
+                             (vertices[0].x - vertices[2].x) * attributes[1] + 
+                             (vertices[1].x - vertices[0].x) * attributes[2]) / float(area)),
             };
         };
 
@@ -900,15 +902,15 @@ namespace PSX
         {
             if(args.is_gouraud_shaded)
             {
-                attributes.r = fixed<s32, 16>(attributes.r.to_float() + deltas.r.x.to_float() * delta);
-                attributes.g = fixed<s32, 16>(attributes.g.to_float() + deltas.g.x.to_float() * delta);
-                attributes.b = fixed<s32, 16>(attributes.b.to_float() + deltas.b.x.to_float() * delta);
+                attributes.r = fixed_point(attributes.r.to_float() + deltas.r.x.to_float() * delta);
+                attributes.g = fixed_point(attributes.g.to_float() + deltas.g.x.to_float() * delta);
+                attributes.b = fixed_point(attributes.b.to_float() + deltas.b.x.to_float() * delta);
             }
 
             if(args.color_depth != 0)
             {
-                attributes.u = fixed<s32, 16>(attributes.u.to_float() + deltas.u.x.to_float() * delta);
-                attributes.v = fixed<s32, 16>(attributes.v.to_float() + deltas.v.x.to_float() * delta);
+                attributes.u = fixed_point(attributes.u.to_float() + deltas.u.x.to_float() * delta);
+                attributes.v = fixed_point(attributes.v.to_float() + deltas.v.x.to_float() * delta);
             }
         };
 
@@ -920,15 +922,15 @@ namespace PSX
         {
             if(args.is_gouraud_shaded)
             {
-                attributes.r = fixed<s32, 16>(attributes.r.to_float() + deltas.r.y.to_float() * delta);
-                attributes.g = fixed<s32, 16>(attributes.g.to_float() + deltas.g.y.to_float() * delta);
-                attributes.b = fixed<s32, 16>(attributes.b.to_float() + deltas.b.y.to_float() * delta);
+                attributes.r = fixed_point(attributes.r.to_float() + deltas.r.y.to_float() * delta);
+                attributes.g = fixed_point(attributes.g.to_float() + deltas.g.y.to_float() * delta);
+                attributes.b = fixed_point(attributes.b.to_float() + deltas.b.y.to_float() * delta);
             }
 
             if(args.color_depth != 0)
             {
-                attributes.u = fixed<s32, 16>(attributes.u.to_float() + deltas.u.y.to_float() * delta);
-                attributes.v = fixed<s32, 16>(attributes.v.to_float() + deltas.v.y.to_float() * delta);
+                attributes.u = fixed_point(attributes.u.to_float() + deltas.u.y.to_float() * delta);
+                attributes.v = fixed_point(attributes.v.to_float() + deltas.v.y.to_float() * delta);
             }
         };
 
@@ -1395,20 +1397,20 @@ namespace PSX
         s32 min_x = clamp_drawing_area_left(args.start_x);
         s32 min_y = clamp_drawing_area_top(args.start_y);
 
-        s32 max_x = clamp_drawing_area_right(args.start_x + args.width);
-        s32 max_y = clamp_drawing_area_bottom(args.start_y + args.height);
+        s32 max_x = clamp_drawing_area_right(args.start_x + args.width - 1);
+        s32 max_y = clamp_drawing_area_bottom(args.start_y + args.height - 1);
 
         s32 uv_x = args.uv_x + (min_x - args.start_x) + m_draw_mode.texture_rect_x_flip;
-        s32 uv_y = args.uv_y + (min_y - args.start_y) + m_draw_mode.texture_rect_y_flip;
+        s32 uv_y = args.uv_y + (min_y - args.start_y);// + m_draw_mode.texture_rect_y_flip;
 
         s32 dir_x = m_draw_mode.texture_rect_x_flip ? -1 : 1;
         s32 dir_y = m_draw_mode.texture_rect_y_flip ? -1 : 1;
 
         Color15Bit color_15_bit = Color15Bit::create_from_24bit(args.color);
 
-        for(s32 y = min_y, v = uv_y; y < max_y; y++, v += dir_y)
+        for(s32 y = min_y, v = uv_y; y <= max_y; y++, v += dir_y)
         {
-            for(s32 x = min_x, u = uv_x; x < max_x; x++, u += dir_x)
+            for(s32 x = min_x, u = uv_x; x <= max_x; x++, u += dir_x)
             {
                 // get original color for blending
                 Color15Bit original_color = Color15Bit(vram_read(x, y));
@@ -1790,9 +1792,9 @@ namespace PSX
         x &= 0b11;
         y &= 0b11;
 
-        color.r = std::clamp(color.r + dither_table[y * 4 + x], 0, 255);
-        color.g = std::clamp(color.g + dither_table[y * 4 + x], 0, 255);
-        color.b = std::clamp(color.b + dither_table[y * 4 + x], 0, 255);
+        color.r = std::clamp<s32>(color.r + dither_table[y * 4 + x], 0, 255);
+        color.g = std::clamp<s32>(color.g + dither_table[y * 4 + x], 0, 255);
+        color.b = std::clamp<s32>(color.b + dither_table[y * 4 + x], 0, 255);
 
         return color;
     }
@@ -1856,12 +1858,11 @@ namespace PSX
     }
 
     /**
-     * @brief get the current rendering cutout of the vram
-     *        TODO: this is wrong
+     * @brief get the current rendering information about the display
      */
-    glm::ivec4 GPU::meta_get_framebuffer_view() const
+    DisplayInfo GPU::meta_get_display_info() const
     {
-        s32 width = 0, height = 0;
+        u32 width = 0, height = 0;
 
         switch(m_display_mode.vertical_resolution)
         {
@@ -1886,20 +1887,17 @@ namespace PSX
             }
         }
 
-        return glm::ivec4
+        // TODO: calculate right chop-off
+        float height_fraction = (m_display_range_y_2 - m_display_range_y_1) / float(m_display_mode.video_mode == 0 ? NTSCVerticalResolution : PALVerticalResolution);
+        
+        return DisplayInfo
         {
-            m_display_area_start_x,
-            m_display_area_start_y,
-            width,
-            height
+            .start_x = m_display_area_start_x,
+            .start_y = m_display_area_start_y,
+            .width = width,
+            .height = u32(height * height_fraction),
+            .enabled = !m_display_disable,
+            .color_depth = DisplayAreaColorDepth(m_display_mode.display_area_color_depth)
         };
-    }
-
-    /**
-     * @brief obtain current display area color depth 
-     */
-    DisplayAreaColorDepth GPU::meta_get_display_area_color_depth() const
-    {
-        return DisplayAreaColorDepth(m_display_mode.display_area_color_depth);
     }
 }

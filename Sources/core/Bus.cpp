@@ -47,6 +47,7 @@
 #include "ExecutableFile.hpp"
 #include "CacheController.hpp"
 #include "InterruptController.hpp"
+#include "PeripheralsDigitalController.hpp"
 #include "PeripheralsInput.hpp"
 #include "Macros.hpp"
 
@@ -337,7 +338,15 @@ namespace PSX
             component_write<T>(m_cache_controller, physical_address - CacheControlBase, value); return;
         }
 
-        ABORT_WITH_MESSAGE(fmt::format("unknown bus address while dispatching write: 0x{:08x}", physical_address));
+        ABORT_WITH_MESSAGE(fmt::format("unknown bus address while dispatching write: 0x{:08x} 0x{:08x}", address, physical_address));
+    }
+    
+    void Bus::meta_run_until_vblank()
+    {
+        while(!meta_vblank() && !m_cpu->meta_did_hit_breakpoint())
+        {
+            execute(PSX::Bus::OptimalSimulationStep);
+        }
     }
 
     /**
@@ -355,7 +364,7 @@ namespace PSX
         m_timer_hblank->execute(num_steps);
         m_timer_systemclock->execute(num_steps);
         m_cdrom->execute(num_steps / OptimalSimulationStep);
-        m_gpu->execute(num_steps * (11.0/7.0) * 3);
+        m_gpu->execute(num_steps * (11.0/7.0) * 2);
         m_peripherals->execute(num_steps);
     }
 
@@ -468,17 +477,9 @@ namespace PSX
     /**
      * @brief get the current rendering cutout of the vram
      */
-    glm::ivec4 Bus::meta_get_framebuffer_view() const
+    DisplayInfo Bus::meta_get_display_info() const
     {
-        return m_gpu->meta_get_framebuffer_view();
-    }
-
-    /**
-     * @brief obtain current display area color depth 
-     */
-    DisplayAreaColorDepth Bus::meta_get_display_area_color_depth() const
-    {
-        return m_gpu->meta_get_display_area_color_depth();
+        return m_gpu->meta_get_display_info();
     }
 
     /**
@@ -489,7 +490,7 @@ namespace PSX
         m_cpu->meta_add_breakpoint(program_counter);
         while(!m_cpu->meta_did_hit_breakpoint())
         {
-            execute(OptimalSimulationStep);
+            meta_run_until_vblank();
         }
         m_cpu->meta_acknowledge_breakpoint();
     }

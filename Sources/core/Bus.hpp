@@ -64,7 +64,7 @@ namespace PSX
         /**
          * @brief best simulation step quantum 
          */
-        static constexpr const u32 OptimalSimulationStep = 112;
+        static constexpr const u32 OptimalSimulationStep = 105;
 
         /**
          * @brief allocate bus and initialize all psx components
@@ -110,12 +110,7 @@ namespace PSX
         /**
          * @brief get the current rendering cutout of the vram
          */
-        glm::ivec4 meta_get_framebuffer_view() const;
-
-        /**
-         * @brief obtain current display area color depth 
-         */
-        DisplayAreaColorDepth meta_get_display_area_color_depth() const;
+        DisplayInfo meta_get_display_info() const;
 
         /**
          * @brief execute all components for num_steps clock cycles
@@ -145,6 +140,11 @@ namespace PSX
         void meta_run_until(u32 program_counter);
 
         /**
+         * @brief run the emulator until GPU fires a vblank interrupt
+         */
+        void meta_run_until_vblank();
+
+        /**
          * @brief append breakpoint to the list of breakpoints
          *        bus will halt execution of all components and hit breakpoint 
          *        can be checked using the `m_cpu->meta_did_hit_breakpoint`
@@ -170,7 +170,7 @@ namespace PSX
          * @brief load state from a file and restore all components as they were
          */
         void deserialize(std::shared_ptr<SaveState>&);
-        
+
     private:
 
         /**
