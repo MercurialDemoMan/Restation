@@ -34,9 +34,10 @@
 #ifndef MENU_HPP
 #define MENU_HPP
 
-#include <mutex>
+#include <atomic>
 #include <string>
 #include "../core/PeripheralsInput.hpp"
+#include "MenuTypes.hpp"
 
 class Menu
 {
@@ -73,6 +74,11 @@ public:
     bool show_vram();
 
     /**
+     * @brief obtain current desired emulator speed scale
+     */
+    EmulatorSpeed emulator_speed();
+
+    /**
      * @brief set emulator reset status 
      */
     void set_emulator_reset(bool);
@@ -87,6 +93,11 @@ public:
      */
     void set_emulator_load_state(bool);
 
+    /**
+     * @brief set current desired emulator speed scale
+     */
+    void set_emulator_speed(EmulatorSpeed);
+
 private:
 
     /**
@@ -94,14 +105,12 @@ private:
      */
     void render_button_mapping(PSX::PeripheralsInput::DigitalButton);
 
-    bool m_emulator_reset;
-    bool m_emulator_save_state;
-    bool m_emulator_load_state;
-    bool m_show_controls;
-    bool m_show_vram;
-    std::string m_test;
-    
-    std::mutex m_menu_state_mutex;
+    std::atomic<bool>          m_emulator_reset;
+    std::atomic<bool>          m_emulator_save_state;
+    std::atomic<bool>          m_emulator_load_state;
+    std::atomic<EmulatorSpeed> m_emulator_speed;
+    bool                       m_show_controls;
+    bool                       m_show_vram;
 };
 
 #endif // MENU_HPP

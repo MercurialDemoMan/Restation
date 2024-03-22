@@ -42,11 +42,12 @@
  */
 void Menu::reset()
 {
-    std::scoped_lock lock(m_menu_state_mutex);
     m_emulator_reset = false;
     m_emulator_save_state = false;
+    m_emulator_load_state = false;
     m_show_controls = false;
-    m_show_vram = true;
+    m_show_vram = false;
+    m_emulator_speed = EmulatorSpeed::_100Percent;
 }
 
 /**
@@ -55,7 +56,7 @@ void Menu::reset()
 void Menu::render_and_update()
 {
     ImGui::BeginMainMenuBar();
-    if(ImGui::BeginMenu("State..."))
+    if(ImGui::BeginMenu("Console State..."))
     {
         if(ImGui::MenuItem("Reset"))
         {
@@ -71,15 +72,35 @@ void Menu::render_and_update()
         }
         ImGui::EndMenu();
     }
-    if(ImGui::MenuItem("Show/Hide Controls"))
+    if(ImGui::MenuItem("Controls"))
     {
         m_show_controls = !m_show_controls;
     }
-    if(ImGui::MenuItem("Toggle VRAM"))
+    if(ImGui::BeginMenu("Debug..."))
     {
-        m_show_vram = !m_show_vram;
+        if(ImGui::MenuItem("Toggle VRAM"))
+        {
+            m_show_vram = !m_show_vram;
+        }
+        if(ImGui::MenuItem("25% Speed"))
+        {
+            m_emulator_speed = EmulatorSpeed::_25Percent;
+        }
+        if(ImGui::MenuItem("50% Speed"))
+        {
+            m_emulator_speed = EmulatorSpeed::_50Percent;
+        }
+        if(ImGui::MenuItem("100% Speed"))
+        {
+            m_emulator_speed = EmulatorSpeed::_100Percent;
+        }
+        if(ImGui::MenuItem("Unlimited Speed"))
+        {
+            m_emulator_speed = EmulatorSpeed::Unlimited;
+        }
+        ImGui::EndMenu();
     }
-    if(ImGui::MenuItem("Hide"))
+    if(ImGui::MenuItem("Hide Menu"))
     {
         LOG("TODO...");
     }
@@ -122,7 +143,6 @@ void Menu::render_and_update()
  */
 bool Menu::emulator_reset()
 {
-    std::scoped_lock lock(m_menu_state_mutex);
     return m_emulator_reset;
 }
 
@@ -131,7 +151,6 @@ bool Menu::emulator_reset()
  */
 bool Menu::emulator_save_state()
 {
-    std::scoped_lock lock(m_menu_state_mutex);
     return m_emulator_save_state;
 }
 
@@ -140,35 +159,7 @@ bool Menu::emulator_save_state()
  */
 bool Menu::emulator_load_state()
 {
-    std::scoped_lock lock(m_menu_state_mutex);
     return m_emulator_load_state;
-}
-
-/**
- * @brief set emulator reset status 
- */
-void Menu::set_emulator_reset(bool value)
-{
-    std::scoped_lock lock(m_menu_state_mutex);
-    m_emulator_reset = value;
-}
-
-/**
- * @brief set emulator save state status 
- */
-void Menu::set_emulator_save_state(bool value)
-{
-    std::scoped_lock lock(m_menu_state_mutex);
-    m_emulator_save_state = value;
-}
-
-/**
- * @brief set emulator load state status 
- */
-void Menu::set_emulator_load_state(bool value)
-{
-    std::scoped_lock lock(m_menu_state_mutex);
-    m_emulator_load_state = value;
 }
 
 /**
@@ -177,6 +168,46 @@ void Menu::set_emulator_load_state(bool value)
 bool Menu::show_vram()
 {
     return m_show_vram;
+}
+
+/**
+ * @brief obtain current desired emulator speed scale
+ */
+EmulatorSpeed Menu::emulator_speed()
+{
+    return m_emulator_speed;
+}
+
+/**
+ * @brief set emulator reset status 
+ */
+void Menu::set_emulator_reset(bool value)
+{
+    m_emulator_reset = value;
+}
+
+/**
+ * @brief set emulator save state status 
+ */
+void Menu::set_emulator_save_state(bool value)
+{
+    m_emulator_save_state = value;
+}
+
+/**
+ * @brief set emulator load state status 
+ */
+void Menu::set_emulator_load_state(bool value)
+{
+    m_emulator_load_state = value;
+}
+
+/**
+ * @brief set current desired emulator speed scale
+ */
+void Menu::set_emulator_speed(EmulatorSpeed value)
+{
+    m_emulator_speed = value;
 }
 
 /**
