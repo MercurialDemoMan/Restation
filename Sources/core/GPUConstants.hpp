@@ -43,6 +43,8 @@ namespace PSX
      */
     constexpr const u32 PALScanlines  = 314;
     constexpr const u32 NTSCScanlines = 263;
+    constexpr const u32 PALVerticalResolution  = 256;
+    constexpr const u32 NTSCVerticalResolution = 240;
     constexpr const u32 PALScanlineCycles  = 3406;
     constexpr const u32 NTSCScanlineCycles = 3413;
 

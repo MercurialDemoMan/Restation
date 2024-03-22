@@ -255,9 +255,9 @@ namespace PSX
         {
             return Color15Bit
             (
-                static_cast<u8>(std::min(31, (source.r * destination.r) >> 7)),
-                static_cast<u8>(std::min(31, (source.g * destination.g) >> 7)),
-                static_cast<u8>(std::min(31, (source.b * destination.b) >> 7)),
+                static_cast<u8>(std::min<u32>(31, (source.r * destination.r) >> 7)),
+                static_cast<u8>(std::min<u32>(31, (source.g * destination.g) >> 7)),
+                static_cast<u8>(std::min<u32>(31, (source.b * destination.b) >> 7)),
                 static_cast<u8>(destination.mask)
             );
         }
@@ -285,16 +285,18 @@ namespace PSX
         u16 uv_y;
     };
 
+    using fixed_point = fixed<s32, 12>;
+
     /**
      * @brief Per-fragment attributes
      */
     struct FragmentAttributes
     {
-        fixed<s32, 16> r;
-        fixed<s32, 16> g;
-        fixed<s32, 16> b;
-        fixed<s32, 16> u;
-        fixed<s32, 16> v;
+        fixed_point r;
+        fixed_point g;
+        fixed_point b;
+        fixed_point u;
+        fixed_point v;
     };
 
     /**
@@ -302,8 +304,8 @@ namespace PSX
      */
     struct FragmentAttributeDelta
     {
-        fixed<s32, 16> x;
-        fixed<s32, 16> y;
+        fixed_point x;
+        fixed_point y;
     };
 
     /**
@@ -540,6 +542,19 @@ namespace PSX
         Color24Bit end_color;
         u32 is_semi_transparent;
         u32 is_gouraud_shaded;
+    };
+
+    /**
+     * @brief information about the current state of the GPU display region
+     */
+    struct DisplayInfo
+    {
+        u32 start_x;
+        u32 start_y;
+        u32 width;
+        u32 height;
+        bool enabled;
+        DisplayAreaColorDepth color_depth;
     };
 }
 
