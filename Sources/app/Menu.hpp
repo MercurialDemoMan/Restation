@@ -34,10 +34,12 @@
 #ifndef MENU_HPP
 #define MENU_HPP
 
+#include "MenuTypes.hpp"
+
+#include "../core/PeripheralsInput.hpp"
+
 #include <atomic>
 #include <string>
-#include "../core/PeripheralsInput.hpp"
-#include "MenuTypes.hpp"
 
 class Menu
 {

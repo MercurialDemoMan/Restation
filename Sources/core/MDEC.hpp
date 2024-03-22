@@ -34,13 +34,14 @@
 #ifndef MDEC_HPP
 #define MDEC_HPP
 
-#include <memory>
-#include <queue>
-#include <vector>
-#include <array>
-#include "Component.hpp"
 #include "Forward.hpp"
+#include "Component.hpp"
 #include "MDECInstruction.hpp"
+
+#include <queue>
+#include <array>
+#include <memory>
+#include <vector>
 
 namespace PSX
 {

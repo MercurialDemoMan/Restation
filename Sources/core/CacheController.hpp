@@ -34,8 +34,8 @@
 #ifndef CACHECONTROLLER_HPP
 #define CACHECONTROLLER_HPP
 
-#include "Component.hpp"
 #include "Utils.hpp"
+#include "Component.hpp"
 
 namespace PSX
 {

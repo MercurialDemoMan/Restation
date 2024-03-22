@@ -34,8 +34,8 @@
 #ifndef RAMCONTROLLER_HPP
 #define RAMCONTROLLER_HPP
 
-#include "Component.hpp"
 #include "Utils.hpp"
+#include "Component.hpp"
 
 namespace PSX
 {

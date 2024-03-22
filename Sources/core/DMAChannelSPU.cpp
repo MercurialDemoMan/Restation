@@ -31,6 +31,7 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 #include "DMAChannelSPU.hpp"
+
 #include "Bus.hpp"
 #include "SPU.hpp"
 

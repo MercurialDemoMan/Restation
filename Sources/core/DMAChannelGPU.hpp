@@ -34,11 +34,12 @@
 #ifndef DMACHANNELGPU_HPP
 #define DMACHANNELGPU_HPP
 
-#include <memory>
-#include "Component.hpp"
 #include "Forward.hpp"
-#include "DMAChannel.hpp"
 #include "DMATypes.hpp"
+#include "Component.hpp"
+#include "DMAChannel.hpp"
+
+#include <memory>
 
 namespace PSX
 {

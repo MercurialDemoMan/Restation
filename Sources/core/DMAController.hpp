@@ -34,10 +34,11 @@
 #ifndef DMACONTROLLER_HPP
 #define DMACONTROLLER_HPP
 
-#include <memory>
-#include "Component.hpp"
 #include "Forward.hpp"
 #include "DMATypes.hpp"
+#include "Component.hpp"
+
+#include <memory>
 
 namespace PSX
 {

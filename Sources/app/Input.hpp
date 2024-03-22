@@ -34,12 +34,14 @@
 #ifndef INPUT_HPP
 #define INPUT_HPP
 
+#include "../core/Types.hpp"
+#include "../core/PeripheralsInput.hpp"
+
 #include <memory>
 #include <vector>
 #include <unordered_map>
+
 #include <SDL.h>
-#include "../core/PeripheralsInput.hpp"
-#include "../core/Types.hpp"
 
 /**
  * @brief Emulator input manager for the SDL2 library 

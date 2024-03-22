@@ -32,6 +32,7 @@
  */
 
 #include "CPU.hpp"
+
 #include "Bus.hpp"
 #include "Utils.hpp"
 #include "GTEInstruction.hpp"

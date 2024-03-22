@@ -32,8 +32,9 @@
  */
 
 #include "CPUDisassembler.hpp"
+
 #include "Macros.hpp"
-#include <cmath>
+
 #include <fmt/core.h>
 
 namespace PSX

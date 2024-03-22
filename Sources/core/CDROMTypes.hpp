@@ -34,6 +34,8 @@
 #ifndef CDROMTYPES_HPP
 #define CDROMTYPES_HPP
 
+#include "Types.hpp"
+
 namespace PSX
 {
     /**

@@ -34,14 +34,15 @@
 #ifndef CDROM_HPP
 #define CDROM_HPP
 
-#include <memory>
-#include "Component.hpp"
-#include "Forward.hpp"
 #include "Disc.hpp"
+#include "Utils.hpp"
+#include "Forward.hpp"
+#include "Component.hpp"
+#include "CDROMTypes.hpp"
 #include "CDROMConstants.hpp"
 #include "CDROMInstruction.hpp"
-#include "CDROMTypes.hpp"
-#include "Utils.hpp"
+
+#include <memory>
 
 namespace PSX
 {

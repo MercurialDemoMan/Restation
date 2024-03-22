@@ -32,10 +32,12 @@
  */
 
 #include "Timer.hpp"
-#include "InterruptController.hpp"
-#include "GPUConstants.hpp"
-#include "Macros.hpp"
+
 #include "Utils.hpp"
+#include "Macros.hpp"
+#include "GPUConstants.hpp"
+#include "InterruptController.hpp"
+
 #include <cmath>
 
 namespace PSX

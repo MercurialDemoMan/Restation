@@ -34,16 +34,19 @@
 #ifndef APP_HPP
 #define APP_HPP
 
-#include <SDL.h>
+#include "Menu.hpp"
+#include "Input.hpp"
+
+#include "../core/Bus.hpp"
+#include "../core/Macros.hpp"
+#include "../core/GPUTypes.hpp"
+
 #include <mutex>
 #include <memory>
 #include <thread>
 #include <condition_variable>
-#include "../core/Bus.hpp"
-#include "../core/Macros.hpp"
-#include "../core/GPUTypes.hpp"
-#include "Menu.hpp"
-#include "Input.hpp"
+
+#include <SDL.h>
 
 /**
  * @brief Frontend for the PSX Emulator

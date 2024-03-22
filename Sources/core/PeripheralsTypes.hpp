@@ -34,6 +34,8 @@
 #ifndef PERIPHERALSTYPES_HPP
 #define PERIPHERALSTYPES_HPP
 
+#include "Types.hpp"
+
 namespace PSX
 {
     /**

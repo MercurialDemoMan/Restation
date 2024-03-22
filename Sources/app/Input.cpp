@@ -32,6 +32,7 @@
  */
 
 #include "Input.hpp"
+
 #include "../core/Macros.hpp"
 
 /**

@@ -32,6 +32,7 @@
  */
 
 #include "PeripheralsDigitalController.hpp"
+
 #include "Macros.hpp"
 
 namespace PSX

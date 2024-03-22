@@ -34,6 +34,8 @@
 #ifndef GTETYPES_HPP
 #define GTETYPES_HPP
 
+#include "Types.hpp"
+
 namespace PSX
 {
     /**

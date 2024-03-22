@@ -32,6 +32,7 @@
  */
 
 #include "Peripherals.hpp"
+
 #include "Bus.hpp"
 #include "InterruptController.hpp"
 #include "PeripheralsController.hpp"

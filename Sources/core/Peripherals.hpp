@@ -34,13 +34,14 @@
 #ifndef PERIPHERALS_HPP
 #define PERIPHERALS_HPP
 
-#include <memory>
-#include <array>
-#include "Component.hpp"
 #include "Forward.hpp"
+#include "Component.hpp"
+#include "PeripheralsTypes.hpp"
 #include "PeripheralsInput.hpp"
 #include "PeripheralsController.hpp"
-#include "PeripheralsTypes.hpp"
+
+#include <array>
+#include <memory>
 
 namespace PSX
 {

@@ -34,13 +34,17 @@
 #ifndef PERIPHERALSCONTROLLER_HPP
 #define PERIPHERALSCONTROLLER_HPP
 
-#include <memory>
 #include "Types.hpp"
-#include "PeripheralsInput.hpp"
 #include "SaveState.hpp"
+#include "PeripheralsInput.hpp"
+
+#include <memory>
 
 namespace PSX
 {
+    /**
+     * @brief interface for psx peripheral controller
+     */
     class PeripheralsController
     {
     public:

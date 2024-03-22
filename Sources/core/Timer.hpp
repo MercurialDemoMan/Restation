@@ -34,10 +34,11 @@
 #ifndef TIMER_HPP
 #define TIMER_HPP
 
-#include <memory>
-#include "Component.hpp"
 #include "Forward.hpp"
+#include "Component.hpp"
 #include "TimerTypes.hpp"
+
+#include <memory>
 
 namespace PSX
 {

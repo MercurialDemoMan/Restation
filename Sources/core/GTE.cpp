@@ -32,7 +32,9 @@
  */
 
 #include "GTE.hpp"
+
 #include "Utils.hpp"
+
 #include <bit>
 #include <algorithm>
 

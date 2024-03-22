@@ -34,10 +34,11 @@
 #ifndef DISCTYPES_HPP
 #define DISCTYPES_HPP
 
-#include <vector>
-#include <fstream>
 #include "Types.hpp"
 #include "DiscConstants.hpp"
+
+#include <vector>
+#include <fstream>
 
 namespace PSX
 {

@@ -32,6 +32,7 @@
  */
 
 #include "SPU.hpp"
+
 #include "Bus.hpp"
 #include "Macros.hpp"
 

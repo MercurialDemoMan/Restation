@@ -35,11 +35,12 @@
 #ifndef DISC_HPP
 #define DISC_HPP
 
+#include "DiscTypes.hpp"
+#include "SaveState.hpp"
+
 #include <vector>
 #include <memory>
 #include <optional>
-#include "DiscTypes.hpp"
-#include "SaveState.hpp"
 
 namespace PSX
 {

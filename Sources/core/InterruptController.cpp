@@ -32,8 +32,9 @@
  */
 
 #include "InterruptController.hpp"
-#include "ExceptionController.hpp"
+
 #include "Utils.hpp"
+#include "ExceptionController.hpp"
 
 namespace PSX
 {

@@ -32,9 +32,11 @@
  */
 
 #include "MDEC.hpp"
-#include "GPUTypes.hpp"
+
 #include "Bus.hpp"
 #include "Utils.hpp"
+#include "GPUTypes.hpp"
+
 #include <algorithm>
 
 namespace PSX

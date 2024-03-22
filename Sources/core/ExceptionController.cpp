@@ -32,6 +32,7 @@
  */
 
 #include "ExceptionController.hpp"
+
 #include "CPUInstruction.hpp"
 
 namespace PSX

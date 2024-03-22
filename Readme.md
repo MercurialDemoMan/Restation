@@ -36,7 +36,7 @@ make
 ## For Windows
 
 *Warning!* Do not try to compile this project using MSVC, because it sucks.
-Instead, install a [WSL linux subsystem](https://learn.microsoft.com/en-us/windows/wsl/install) and setup a cross-compilation environment.
+Instead, install a [WSL linux subsystem](https://learn.microsoft.com/en-us/windows/wsl/install) and setup a [cross-compilation](https://en.wikipedia.org/wiki/Cross_compiler) environment.
 Depending on your linux distribution, you will need to install MinGW cross-compiler and appropriately configure the cmake toolchain file.
 
 ### Debian
@@ -96,6 +96,10 @@ make
 ```
 
 ## Usage instruction
+
+For now, only single data disc are supported. If you try to run a game that contains audio tracks (.cue format), the emulator will not work.
+
+You also need to provide PlayStation `BIOS` as a first argument, otherwise the emulator will not work.
 
 ```bash
 ./emu [bios.bin] [game.bin]

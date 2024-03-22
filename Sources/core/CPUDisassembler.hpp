@@ -34,8 +34,9 @@
 #ifndef CPUDISASSEMBLER_HPP
 #define CPUDISASSEMBLER_HPP
 
-#include <string>
 #include "CPUInstruction.hpp"
+
+#include <string>
 
 namespace PSX
 {

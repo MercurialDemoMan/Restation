@@ -31,6 +31,7 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 #include "DMAChannelCDROM.hpp"
+
 #include "Bus.hpp"
 #include "CDROM.hpp"
 

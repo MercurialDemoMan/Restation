@@ -34,10 +34,11 @@
 #ifndef COMPONENT_HPP
 #define COMPONENT_HPP
 
-#include <memory>
 #include "Types.hpp"
 #include "Macros.hpp"
 #include "SaveState.hpp"
+
+#include <memory>
 
 namespace PSX
 {

@@ -34,23 +34,25 @@
 #ifndef BUS_HPP
 #define BUS_HPP
 
+#include "Types.hpp"
+#include "Macros.hpp"
+#include "Forward.hpp"
+#include "GPUTypes.hpp"
+#include "Constants.hpp"
+#include "Component.hpp"
+#include "CDROMTypes.hpp"
+#include "TimerTypes.hpp"
+#include "GPUConstants.hpp"
+#include "MemoryRegion.hpp"
+
 #include <set>
 #include <array>
 #include <string>
 #include <memory>
 #include <vector>
 #include <iostream>
+
 #include <glm/glm.hpp>
-#include "Types.hpp"
-#include "Macros.hpp"
-#include "Constants.hpp"
-#include "Component.hpp"
-#include "MemoryRegion.hpp"
-#include "Forward.hpp"
-#include "TimerTypes.hpp"
-#include "GPUConstants.hpp"
-#include "CDROMTypes.hpp"
-#include "GPUTypes.hpp"
 
 namespace PSX
 {

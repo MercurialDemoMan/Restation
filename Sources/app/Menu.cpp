@@ -32,8 +32,10 @@
  */
 
 #include "Menu.hpp"
+
 #include "../core/Macros.hpp"
 #include "../core/Types.hpp"
+
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
 

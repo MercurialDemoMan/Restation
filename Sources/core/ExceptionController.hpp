@@ -34,9 +34,10 @@
 #ifndef EXCEPTIONCONTROLLER_HPP
 #define EXCEPTIONCONTROLLER_HPP
 
-#include <memory>
-#include "Component.hpp"
 #include "Forward.hpp"
+#include "Component.hpp"
+
+#include <memory>
 
 namespace PSX
 {

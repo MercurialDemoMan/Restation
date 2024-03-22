@@ -31,13 +31,15 @@
  * TODO: project. If not, see http://www.gnu.org/licenses/.
  */
 
-#include <filesystem>
-#include <cmath>
 #include "Disc.hpp"
-#include "Macros.hpp"
-#include "DiscConstants.hpp"
-#include "DiscTypes.hpp"
+
 #include "Utils.hpp"
+#include "Macros.hpp"
+#include "DiscTypes.hpp"
+#include "DiscConstants.hpp"
+
+#include <cmath>
+#include <filesystem>
 
 namespace PSX
 {

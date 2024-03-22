@@ -32,17 +32,16 @@
  */
 
 #include "GPU.hpp"
+
 #include "Bus.hpp"
+#include "Utils.hpp"
 #include "GPUTypes.hpp"
 #include "InterruptController.hpp"
-#include "Utils.hpp"
-#include <algorithm>
-#include <glm/glm.hpp>
 
-extern "C"
-{
-    #include <stb_image_write.h>
-}
+#include <algorithm>
+
+#include <glm/glm.hpp>
+#include <stb_image_write.h>
 
 namespace PSX
 {
@@ -1244,6 +1243,9 @@ namespace PSX
         {
             std::swap(args.start_x, args.end_x);
         }
+
+        if(delta_x == 0)
+            return;
 
         s32 y = args.start_y << 8;
         s32 k = (delta_y << 8) / delta_x;

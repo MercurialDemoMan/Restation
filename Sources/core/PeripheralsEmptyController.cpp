@@ -32,6 +32,7 @@
  */
 
 #include "PeripheralsEmptyController.hpp"
+
 #include "Macros.hpp"
 
 namespace PSX

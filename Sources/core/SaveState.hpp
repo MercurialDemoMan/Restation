@@ -34,27 +34,28 @@
 #ifndef SAVESTATE_HPP
 #define SAVESTATE_HPP
 
-#include <set>
-#include <vector>
-#include <array>
-#include <memory>
-#include <queue>
-#include <optional>
 #include "Types.hpp"
 #include "Utils.hpp"
-#include "CDROMTypes.hpp"
-#include "DiscTypes.hpp"
-#include "CPUInstruction.hpp"
+#include "Macros.hpp"
 #include "DMATypes.hpp"
 #include "GPUTypes.hpp"
 #include "GTETypes.hpp"
+#include "CPUTypes.hpp"
+#include "DiscTypes.hpp"
+#include "CDROMTypes.hpp"
+#include "TimerTypes.hpp"
+#include "MemoryRegion.hpp"
+#include "CPUInstruction.hpp"
 #include "GTEInstruction.hpp"
 #include "MDECInstruction.hpp"
-#include "TimerTypes.hpp"
-#include "CPUTypes.hpp"
-#include "MemoryRegion.hpp"
-#include "Macros.hpp"
 #include "PeripheralsTypes.hpp"
+
+#include <set>
+#include <array>
+#include <queue>
+#include <vector>
+#include <memory>
+#include <optional>
 
 namespace PSX
 {

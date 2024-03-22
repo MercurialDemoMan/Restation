@@ -34,9 +34,10 @@
 #ifndef GPUTYPES_HPP
 #define GPUTYPES_HPP
 
+#include "Utils.hpp"
 #include "Types.hpp"
 #include "Macros.hpp"
-#include "Utils.hpp"
+
 #include <algorithm>
 
 namespace PSX

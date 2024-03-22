@@ -34,10 +34,11 @@
 #ifndef GTE_HPP
 #define GTE_HPP
 
-#include <memory>
+#include "GTETypes.hpp"
 #include "Component.hpp"
 #include "GTEInstruction.hpp"
-#include "GTETypes.hpp"
+
+#include <memory>
 
 namespace PSX
 {

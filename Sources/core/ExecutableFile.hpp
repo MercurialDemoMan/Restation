@@ -31,12 +31,13 @@
 #ifndef EXECUTABLEFILE_HPP
 #define EXECUTABLEFILE_HPP
 
-#include <memory>
-#include <string>
-#include <vector>
 #include "Types.hpp"
 #include "Macros.hpp"
 #include "CPUInstruction.hpp"
+
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace PSX
 {

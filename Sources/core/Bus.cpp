@@ -32,12 +32,14 @@
  */
 
 #include "Bus.hpp"
+
 #include "CPU.hpp"
 #include "GPU.hpp"
 #include "SPU.hpp"
 #include "MDEC.hpp"
 #include "CDROM.hpp"
 #include "Timer.hpp"
+#include "Macros.hpp"
 #include "IOPorts.hpp"
 #include "SerialPort.hpp"
 #include "Peripherals.hpp"
@@ -46,15 +48,14 @@
 #include "DMAController.hpp"
 #include "ExecutableFile.hpp"
 #include "CacheController.hpp"
+#include "PeripheralsInput.hpp"
 #include "InterruptController.hpp"
 #include "PeripheralsDigitalController.hpp"
-#include "PeripheralsInput.hpp"
-#include "Macros.hpp"
 
 #include <vector>
 #include <fstream>
-#include <iterator>
 #include <cstring>
+#include <iterator>
 
 namespace PSX
 {

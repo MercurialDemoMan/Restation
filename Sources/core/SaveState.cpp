@@ -32,7 +32,9 @@
  */
 
 #include "SaveState.hpp"
+
 #include "Utils.hpp"
+
 #include <fstream>
 
 namespace PSX

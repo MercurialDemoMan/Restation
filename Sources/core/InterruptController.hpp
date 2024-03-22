@@ -34,9 +34,10 @@
 #ifndef INTERRUPTCONTROLLER_HPP
 #define INTERRUPTCONTROLLER_HPP
 
-#include <memory>
-#include "Component.hpp"
 #include "Forward.hpp"
+#include "Component.hpp"
+
+#include <memory>
 
 namespace PSX
 {

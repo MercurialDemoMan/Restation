@@ -34,15 +34,16 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
+#include "Types.hpp"
+#include "Macros.hpp"
+#include "Constants.hpp"
+
 #include <array>
 #include <string>
 #include <cstring>
 #include <climits>
 #include <optional>
 #include <type_traits>
-#include "Types.hpp"
-#include "Constants.hpp"
-#include "Macros.hpp"
 
 namespace PSX
 {

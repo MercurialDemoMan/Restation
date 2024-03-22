@@ -34,10 +34,11 @@
 #ifndef MEMORY_REGION_HPP
 #define MEMORY_REGION_HPP
 
-#include <array>
-#include <cstring>
 #include "Types.hpp"
 #include "Macros.hpp"
+
+#include <array>
+#include <cstring>
 
 namespace PSX
 {

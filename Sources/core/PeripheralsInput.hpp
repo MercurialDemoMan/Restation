@@ -37,7 +37,7 @@
 namespace PSX
 {
     /**
-     * @brief Interface used by peripherals component to receive input from host system
+     * @brief Interface used by peripherals to receive input from the host system
      */
     class PeripheralsInput
     {

@@ -34,9 +34,10 @@
  */
 
 #include "DMAChannel.hpp"
+
 #include "Bus.hpp"
-#include "Macros.hpp"
 #include "Utils.hpp"
+#include "Macros.hpp"
 
 namespace PSX
 {

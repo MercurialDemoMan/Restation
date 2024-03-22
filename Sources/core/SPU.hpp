@@ -34,12 +34,13 @@
 #ifndef SPU_HPP
 #define SPU_HPP
 
-#include <memory>
-#include "Component.hpp"
 #include "Forward.hpp"
+#include "Component.hpp"
 #include "Constants.hpp"
 #include "MemoryRegion.hpp"
 #include "SPUConstants.hpp"
+
+#include <memory>
 
 namespace PSX
 {

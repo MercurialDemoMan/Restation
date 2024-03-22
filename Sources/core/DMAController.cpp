@@ -32,18 +32,20 @@
  */
 
 #include "DMAController.hpp"
+
 #include "Bus.hpp"
+#include "Utils.hpp"
+#include "Macros.hpp"
 #include "DMAChannel.hpp"
-#include "DMAChannelMDECIN.hpp"
-#include "DMAChannelMDECOUT.hpp"
 #include "DMAChannelGPU.hpp"
 #include "DMAChannelSPU.hpp"
-#include "DMAChannelCDROM.hpp"
 #include "DMAChannelOTC.hpp"
 #include "DMAChannelPIO.hpp"
+#include "DMAChannelCDROM.hpp"
+#include "DMAChannelMDECIN.hpp"
+#include "DMAChannelMDECOUT.hpp"
 #include "InterruptController.hpp"
-#include "Macros.hpp"
-#include "Utils.hpp"
+
 #include <queue>
 
 namespace PSX

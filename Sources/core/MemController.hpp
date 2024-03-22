@@ -34,8 +34,8 @@
 #ifndef MEMCONTROLLER_HPP
 #define MEMCONTROLLER_HPP
 
-#include "Component.hpp"
 #include "Utils.hpp"
+#include "Component.hpp"
 
 namespace PSX
 {

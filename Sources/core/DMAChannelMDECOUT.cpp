@@ -34,6 +34,7 @@
  */
 
 #include "DMAChannelMDECOUT.hpp"
+
 #include "Bus.hpp"
 #include "MDEC.hpp"
 

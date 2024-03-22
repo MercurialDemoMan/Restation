@@ -34,15 +34,17 @@
 #ifndef GPU_HPP
 #define GPU_HPP
 
-#include <memory>
+#include "Forward.hpp"
+#include "GPUTypes.hpp"
+#include "Component.hpp"
+#include "GPUConstants.hpp"
+
+#include <glm/glm.hpp>
+
 #include <array>
 #include <queue>
+#include <memory>
 #include <optional>
-#include "Component.hpp"
-#include "Forward.hpp"
-#include "GPUConstants.hpp"
-#include "GPUTypes.hpp"
-#include <glm/glm.hpp>
 
 namespace PSX
 {

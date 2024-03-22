@@ -34,9 +34,10 @@
 #ifndef SERIALPORT_HPP
 #define SERIALPORT_HPP
 
-#include <memory>
-#include "Component.hpp"
 #include "Forward.hpp"
+#include "Component.hpp"
+
+#include <memory>
 
 namespace PSX
 {

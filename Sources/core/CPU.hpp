@@ -34,17 +34,18 @@
 #ifndef CPU_HPP
 #define CPU_HPP
 
-#include <array>
-#include <memory>
-#include <optional>
-#include <set>
-#include "Component.hpp"
+#include "GTE.hpp"
 #include "Forward.hpp"
+#include "CPUTypes.hpp"
+#include "Component.hpp"
 #include "ExecutableFile.hpp"
 #include "CPUInstruction.hpp"
 #include "ExceptionController.hpp"
-#include "CPUTypes.hpp"
-#include "GTE.hpp"
+
+#include <set>
+#include <array>
+#include <memory>
+#include <optional>
 
 namespace PSX
 {
