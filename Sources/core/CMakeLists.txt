@@ -1,0 +1,35 @@
+add_library(core
+    Bus.cpp
+    CPU.cpp
+    GPU.cpp
+    SPU.cpp
+    GTE.cpp
+    MDEC.cpp
+    Disc.cpp
+    Utils.cpp
+    CDROM.cpp
+    Timer.cpp
+    IOPorts.cpp
+    SaveState.cpp
+    SerialPort.cpp
+    DMAChannel.cpp
+    Peripherals.cpp
+    DMAChannelSPU.cpp
+    DMAChannelPIO.cpp
+    DMAChannelOTC.cpp
+    DMAChannelGPU.cpp
+    RamController.cpp
+    MemController.cpp
+    DMAController.cpp
+    ExecutableFile.cpp
+    CacheController.cpp
+    CPUDisassembler.cpp
+    DMAChannelCDROM.cpp
+    DMAChannelMDECIN.cpp
+    DMAChannelMDECOUT.cpp
+    ExceptionController.cpp
+    InterruptController.cpp
+    PeripheralsEmptyController.cpp
+    PeripheralsDigitalController.cpp
+    PeripheralsMemoryCardController.cpp
+)
