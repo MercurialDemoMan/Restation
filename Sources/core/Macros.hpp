@@ -47,6 +47,17 @@
 #define MARK_UNUSED(x) ((void)(x))
 
 /**
+ * ansi terminal color strings
+ */
+#define TERMINAL_INFO_COLOR        "\e[0;36m"
+#define TERMINAL_DEBUG_COLOR       "\e[0;35m"
+#define TERMINAL_WARNING_COLOR     "\e[0;33m"
+#define TERMINAL_ERROR_COLOR       "\e[0;31m"
+#define TERMINAL_COLOR_UNREACHABLE "\e[1;91m"
+#define TERMINAL_COLOR_TODO        "\e[1;95m"
+#define TERMINAL_COLOR_END         "\e[0m"
+
+/**
  * @brief abort and print information where the abort occured
  */
 #ifdef __FILE_NAME__ /// prints only basename of the source file instead of the full path (supported in clang and gcc)
@@ -63,8 +74,8 @@
 } while(0)
 #endif
 
-#define UNREACHABLE() ABORT_WITH_MESSAGE("\e[1;91munreachable code\e[0m")
-#define TODO()        ABORT_WITH_MESSAGE("\e[1;95mtodo\e[0m")
+#define UNREACHABLE() ABORT_WITH_MESSAGE(TERMINAL_COLOR_UNREACHABLE "unreachable code" TERMINAL_COLOR_END)
+#define TODO()        ABORT_WITH_MESSAGE(TERMINAL_COLOR_TODO "todo" TERMINAL_COLOR_END)
 
 /**
  * class manipulation utilities 
@@ -75,14 +86,12 @@
 #define DELETE_MOVE_ASSIGNMENT(class_name) class_name operator=(const class_name&&) = delete
 
 /**
- * packing 
+ * struct packing 
  */
 #if defined(__GNUC__)
     #define PACKED(structure) structure __attribute__((packed))
-#elif defined(_MSC_VER)
-    #define PACKED(structure) __pragma(pack(push, 1)) structure __pragma(pack(pop))
 #else
-#error "Unsupported compiler, please specify struct packing in Macros.hpp for your compiler"
+    #error "Unsupported compiler, please specify struct packing in Macros.hpp for your compiler"
 #endif
 
 /**
@@ -90,13 +99,13 @@
  */
 #define LOG(message) do \
 { \
-    std::fprintf(stdout, "[\e[0;36minfo\e[0m]: %s\n", std::string(message).c_str()); \
+    std::fprintf(stdout, "[" TERMINAL_INFO_COLOR "info" TERMINAL_COLOR_END "]: %s\n", std::string(message).c_str()); \
 } while(0)
 #define LOG_IF(value, message) do \
 { \
     if(value) \
     { \
-        std::fprintf(stdout, "[\e[0;36minfo\e[0m]: %s\n", std::string(message).c_str()); \
+        LOG(message) \
     } \
 } while(0)
 
@@ -109,16 +118,16 @@
 { \
     if((level) <= LOG_DEBUG_LEVEL) \
     { \
-        std::fprintf(stdout, "[\e[0;35mdebug\e[0m]: %s\n", std::string(message).c_str()); \
+        std::fprintf(stdout, "[" TERMINAL_DEBUG_COLOR "debug" TERMINAL_COLOR_END "]: %s\n", std::string(message).c_str()); \
     } \
 } while(0)
 #define LOG_WARNING(message) do \
 { \
-    std::fprintf(stdout, "[\e[0;33mwarning\e[0m]: %s\n", std::string(message).c_str()); \
+    std::fprintf(stdout, "[" TERMINAL_WARNING_COLOR "warning" TERMINAL_COLOR_END "]: %s\n", std::string(message).c_str()); \
 } while(0)
 #define LOG_ERROR(message) do \
 { \
-    std::fprintf(stderr, "[\e[1;31merror\e[0m]: %s\n", std::string(message).c_str()); \
+    std::fprintf(stderr, "[" TERMINAL_ERROR_COLOR "error" TERMINAL_COLOR_END "]: %s\n", std::string(message).c_str()); \
 } while(0)
 #endif
 
