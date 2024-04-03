@@ -158,7 +158,7 @@ void App::init_frontend()
     ImGui_ImplSDL2_InitForSDLRenderer(m_window, m_renderer);
     ImGui_ImplSDLRenderer2_Init(m_renderer);
 
-    m_menu.reset();
+    m_menu = Menu::create();
 }
 
 /**
@@ -214,6 +214,7 @@ void App::run()
             {
                 ImGui_ImplSDL2_ProcessEvent(&event);
                 m_input->process_event(&event);
+                m_menu->process_event(&event);
 
                 switch(event.type)
                 {
@@ -277,7 +278,7 @@ void App::run()
                 }
 
                 update_framebuffer(current_framebuffer);
-                if(m_menu.show_vram())
+                if(m_menu->show_vram())
                 {
                     SDL_RenderCopy(m_renderer, current_framebuffer, NULL, NULL);
                 }
@@ -290,7 +291,7 @@ void App::run()
 
         // render menu
         {
-            m_menu.render_and_update();
+            m_menu->render_and_update();
         }
 
         // send to screen
@@ -312,28 +313,28 @@ void App::emulator_thread()
 {
     while(m_run)
     {
-        if(m_menu.emulator_reset())
+        if(m_menu->emulator_reset())
         {
             m_emulator_core->reset();
-            m_menu.set_emulator_reset(false);
+            m_menu->set_emulator_reset(false);
         }
 
         // TODO: make game specific save states
-        if(m_menu.emulator_save_state())
+        if(m_menu->emulator_save_state())
         {
             auto save_state = PSX::SaveState::create();
             m_emulator_core->serialize(save_state);
             save_state->write_to_file("global_state.bin");
-            m_menu.set_emulator_save_state(false);
+            m_menu->set_emulator_save_state(false);
         }
 
         // TODO: make game specific save states
-        if(m_menu.emulator_load_state())
+        if(m_menu->emulator_load_state())
         {
             auto save_state = PSX::SaveState::create();
             save_state->read_from_file("global_state.bin");
             m_emulator_core->deserialize(save_state);
-            m_menu.set_emulator_load_state(false);
+            m_menu->set_emulator_load_state(false);
         }
 
         // start timing frame
@@ -348,7 +349,7 @@ void App::emulator_thread()
 
         PSX::s64 desired_frame_time = 1'000'000.0 / (m_emulator_core->meta_refresh_rate());
         
-        switch(m_menu.emulator_speed())
+        switch(m_menu->emulator_speed())
         {
             case EmulatorSpeed::_25Percent:  { desired_frame_time *= 4; } break;
             case EmulatorSpeed::_50Percent:  { desired_frame_time *= 2; } break;

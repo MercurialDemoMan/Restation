@@ -39,6 +39,13 @@
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
 
+std::shared_ptr<Menu> Menu::create()
+{
+    auto menu = std::shared_ptr<Menu>(new Menu());
+    menu->reset();
+    return menu;
+}
+
 /**
  * @brief reset the configuration 
  */
@@ -49,6 +56,7 @@ void Menu::reset()
     m_emulator_load_state = false;
     m_show_controls = false;
     m_show_vram = false;
+    m_show_menu = true;
     m_emulator_speed = EmulatorSpeed::_100Percent;
 }
 
@@ -57,56 +65,89 @@ void Menu::reset()
  */
 void Menu::render_and_update()
 {
-    ImGui::BeginMainMenuBar();
-    if(ImGui::BeginMenu("Console State..."))
+    bool show_reset_popup = false;
+
+    if(m_show_menu)
     {
-        if(ImGui::MenuItem("Reset"))
+        ImGui::BeginMainMenuBar();
+        if(ImGui::BeginMenu("State..."))
+        {
+            if(ImGui::MenuItem("Save State (F1)"))
+            {
+                set_emulator_save_state(true);
+            }
+            if(ImGui::MenuItem("Load State (F2)"))
+            {
+                set_emulator_load_state(true);
+            }
+            ImGui::Separator();
+            if(ImGui::MenuItem("Reset"))
+            {
+                show_reset_popup = true;
+            }
+            ImGui::EndMenu();
+        }
+        if(ImGui::MenuItem("Controls..."))
+        {
+            m_show_controls = !m_show_controls;
+        }
+        if(ImGui::BeginMenu("Debug..."))
+        {
+            if(ImGui::MenuItem("Toggle VRAM"))
+            {
+                m_show_vram = !m_show_vram;
+            }
+            switch(m_emulator_speed)
+            {
+                case EmulatorSpeed::_25Percent:  { ImGui::SeparatorText("Curr. speed: 25%"); } break;
+                case EmulatorSpeed::_50Percent:  { ImGui::SeparatorText("Curr. speed: 50%"); } break;
+                case EmulatorSpeed::_100Percent: { ImGui::SeparatorText("Curr. speed: 100%"); } break;
+                case EmulatorSpeed::Unlimited:   { ImGui::SeparatorText("Curr. speed: Unlimited"); } break;
+            }
+            if(ImGui::MenuItem("25% Speed"))
+            {
+                m_emulator_speed = EmulatorSpeed::_25Percent;
+            }
+            if(ImGui::MenuItem("50% Speed"))
+            {
+                m_emulator_speed = EmulatorSpeed::_50Percent;
+            }
+            if(ImGui::MenuItem("100% Speed"))
+            {
+                m_emulator_speed = EmulatorSpeed::_100Percent;
+            }
+            if(ImGui::MenuItem("Unlimited Speed"))
+            {
+                m_emulator_speed = EmulatorSpeed::Unlimited;
+            }
+            ImGui::EndMenu();
+        }
+        if(ImGui::MenuItem("Hide (esc)"))
+        {
+            m_show_menu = false;
+        }
+        ImGui::EndMainMenuBar();
+    }
+
+    if(show_reset_popup)
+        ImGui::OpenPopup("Reset Console?");
+
+    if(ImGui::BeginPopupModal("Reset Console?"))
+    {
+        ImGui::Text("Are you really want to reset?");
+        ImGui::Text("All unsaved progress will be lost");
+        if(ImGui::Button("Yes"))
         {
             set_emulator_reset(true);
+            ImGui::CloseCurrentPopup();
         }
-        if(ImGui::MenuItem("Save State"))
+        ImGui::SameLine(250);
+        if(ImGui::Button("No"))
         {
-            set_emulator_save_state(true);
+            ImGui::CloseCurrentPopup();
         }
-        if(ImGui::MenuItem("Load State"))
-        {
-            set_emulator_load_state(true);
-        }
-        ImGui::EndMenu();
+        ImGui::EndPopup();
     }
-    if(ImGui::MenuItem("Controls"))
-    {
-        m_show_controls = !m_show_controls;
-    }
-    if(ImGui::BeginMenu("Debug..."))
-    {
-        if(ImGui::MenuItem("Toggle VRAM"))
-        {
-            m_show_vram = !m_show_vram;
-        }
-        if(ImGui::MenuItem("25% Speed"))
-        {
-            m_emulator_speed = EmulatorSpeed::_25Percent;
-        }
-        if(ImGui::MenuItem("50% Speed"))
-        {
-            m_emulator_speed = EmulatorSpeed::_50Percent;
-        }
-        if(ImGui::MenuItem("100% Speed"))
-        {
-            m_emulator_speed = EmulatorSpeed::_100Percent;
-        }
-        if(ImGui::MenuItem("Unlimited Speed"))
-        {
-            m_emulator_speed = EmulatorSpeed::Unlimited;
-        }
-        ImGui::EndMenu();
-    }
-    if(ImGui::MenuItem("Hide Menu"))
-    {
-        LOG("TODO...");
-    }
-    ImGui::EndMainMenuBar();
     
     if(m_show_controls)
     {
@@ -210,6 +251,36 @@ void Menu::set_emulator_load_state(bool value)
 void Menu::set_emulator_speed(EmulatorSpeed value)
 {
     m_emulator_speed = value;
+}
+
+/**
+ * @brief Process event from SDL2 to update key state and to manage menu
+ */
+void Menu::process_event(SDL_Event* event)
+{
+    if(event == nullptr)
+    {
+        UNREACHABLE();
+    }
+
+    switch(event->type)
+    {
+        case SDL_KEYDOWN:
+        {
+            if(event->key.keysym.sym == SDLK_ESCAPE)
+            {
+                m_show_menu = !m_show_menu;
+            }
+            if(event->key.keysym.sym == SDLK_F1)
+            {
+                set_emulator_save_state(true);
+            }
+            if(event->key.keysym.sym == SDLK_F2)
+            {
+                set_emulator_load_state(true);
+            }
+        } break;
+    }
 }
 
 /**

@@ -130,7 +130,7 @@ private:
                                                     /// Manage Copying of Emulator VRAM
     std::condition_variable m_vblank_notifier;      /// ^
 
-    Menu m_menu; /// Manage Menu/Emulator State
+    std::shared_ptr<Menu> m_menu; /// Manage Menu/Emulator State
 };
 
 #endif // APP_HPP

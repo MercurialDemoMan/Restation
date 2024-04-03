@@ -40,10 +40,18 @@
 
 #include <atomic>
 #include <string>
+#include <memory>
+
+#include <SDL.h>
 
 class Menu
 {
 public:
+
+    /**
+     * @brief Allocate menu manager and set default configuration
+     */
+    static std::shared_ptr<Menu> create();
 
     /**
      * @brief reset the configuration 
@@ -100,7 +108,14 @@ public:
      */
     void set_emulator_speed(EmulatorSpeed);
 
+    /**
+     * @brief Process event from SDL2 to update key state and to manage menu
+     */
+    void process_event(SDL_Event*);
+
 private:
+
+    explicit Menu() {}
 
     /**
      * @brief  
@@ -113,6 +128,7 @@ private:
     std::atomic<EmulatorSpeed> m_emulator_speed;
     bool                       m_show_controls;
     bool                       m_show_vram;
+    bool                       m_show_menu;
 };
 
 #endif // MENU_HPP
