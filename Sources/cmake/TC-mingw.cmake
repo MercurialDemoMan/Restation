@@ -4,11 +4,11 @@
 set(CMAKE_SYSTEM_NAME Windows)
 
 # which compilers to use for C and C++
-set(CMAKE_C_COMPILER   x86_64-w64-mingw32-gcc)
-set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
+set(CMAKE_C_COMPILER   i686-w64-mingw32-gcc)
+set(CMAKE_CXX_COMPILER i686-w64-mingw32-g++)
 
 # where is the target environment located
-set(CMAKE_FIND_ROOT_PATH /usr/x86_64-w64-mingw32)
+set(CMAKE_FIND_ROOT_PATH /usr/i686-w64-mingw32)
 
 # adjust the default behavior of the FIND_XXX() commands:
 # search programs in the host environment
