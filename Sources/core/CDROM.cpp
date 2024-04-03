@@ -217,6 +217,7 @@ namespace PSX
         save_state->serialize_from(m_filter);
         save_state->serialize_from(m_current_subchannelq);
         save_state->serialize_from(m_meta_console_region);
+        //TODO: don't serialize disc, instead, tie the save state with the file name of the game
         m_disc->serialize(save_state);
     }
 

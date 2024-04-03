@@ -37,6 +37,7 @@
 #include "Types.hpp"
 #include "DiscConstants.hpp"
 
+#include <memory>
 #include <vector>
 #include <fstream>
 

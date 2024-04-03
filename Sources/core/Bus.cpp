@@ -409,6 +409,8 @@ namespace PSX
      */
     void Bus::meta_load_game(const std::string& game_path)
     {
+        LOG_DEBUG(1, fmt::format("loading game from {}", game_path));
+
         auto game_path_lower = game_path;
         std::transform(game_path_lower.begin(), game_path_lower.end(), game_path_lower.begin(), [](u8 ascii_char)
         {
@@ -431,6 +433,8 @@ namespace PSX
         {
             ABORT_WITH_MESSAGE(fmt::format("trying to load unsupported game format {}", game_path));
         }
+
+        LOG_DEBUG(1, fmt::format("game loaded"));
     }
 
     /**
