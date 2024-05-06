@@ -36,6 +36,8 @@
 #include <chrono>
 #include <thread>
 
+#include "../core/GPU.hpp"
+
 #include <imgui.h>
 #include <backends/imgui_impl_sdl2.h>
 #include <backends/imgui_impl_sdlrenderer2.h>
@@ -158,7 +160,8 @@ void App::init_frontend()
     ImGui_ImplSDL2_InitForSDLRenderer(m_window, m_renderer);
     ImGui_ImplSDLRenderer2_Init(m_renderer);
 
-    m_menu = Menu::create();
+    m_input = Input::create();
+    m_menu = Menu::create(m_input);
 }
 
 /**
@@ -166,7 +169,6 @@ void App::init_frontend()
  */
 void App::init_backend()
 {
-    m_input = Input::create();
     m_emulator_core = PSX::Bus::create(m_input);
 }
 
@@ -339,7 +341,7 @@ void App::emulator_thread()
 
         // start timing frame
         auto start_timestamp = std::chrono::high_resolution_clock::now();
-        
+
         // emulate system until gpu finishes rendering a frame
         m_emulator_core->meta_run_until_vblank();
 

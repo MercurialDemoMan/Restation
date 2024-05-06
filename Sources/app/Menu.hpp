@@ -37,6 +37,7 @@
 #include "MenuTypes.hpp"
 
 #include "../core/PeripheralsInput.hpp"
+#include "Input.hpp"
 
 #include <atomic>
 #include <string>
@@ -51,7 +52,7 @@ public:
     /**
      * @brief Allocate menu manager and set default configuration
      */
-    static std::shared_ptr<Menu> create();
+    static std::shared_ptr<Menu> create(const std::shared_ptr<Input>&);
 
     /**
      * @brief reset the configuration 
@@ -115,13 +116,18 @@ public:
 
 private:
 
-    explicit Menu() {}
+    explicit Menu(const std::shared_ptr<Input>& input):
+        m_input(input)
+    {
+
+    }
 
     /**
      * @brief  
      */
     void render_button_mapping(PSX::PeripheralsInput::DigitalButton);
 
+    std::shared_ptr<Input>     m_input;
     std::atomic<bool>          m_emulator_reset;
     std::atomic<bool>          m_emulator_save_state;
     std::atomic<bool>          m_emulator_load_state;
@@ -129,6 +135,7 @@ private:
     bool                       m_show_controls;
     bool                       m_show_vram;
     bool                       m_show_menu;
+    std::optional<SDL_Keycode> m_last_pressed_keyboard_button;
 };
 
 #endif // MENU_HPP

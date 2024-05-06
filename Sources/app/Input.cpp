@@ -41,20 +41,20 @@
 std::shared_ptr<Input> Input::create()
 {
     auto result = std::shared_ptr<Input>(new Input());
-    result->keyboard_to_button_mapping(SDLK_l,     PSX::PeripheralsInput::DigitalButton::Select);
-    result->keyboard_to_button_mapping(SDLK_k,     PSX::PeripheralsInput::DigitalButton::Start);
-    result->keyboard_to_button_mapping(SDLK_w,     PSX::PeripheralsInput::DigitalButton::Up);
-    result->keyboard_to_button_mapping(SDLK_d,     PSX::PeripheralsInput::DigitalButton::Right);
-    result->keyboard_to_button_mapping(SDLK_s,     PSX::PeripheralsInput::DigitalButton::Down);
-    result->keyboard_to_button_mapping(SDLK_a,     PSX::PeripheralsInput::DigitalButton::Left);
-    result->keyboard_to_button_mapping(SDLK_n,     PSX::PeripheralsInput::DigitalButton::L2);
-    result->keyboard_to_button_mapping(SDLK_m,     PSX::PeripheralsInput::DigitalButton::R2);
-    result->keyboard_to_button_mapping(SDLK_q,     PSX::PeripheralsInput::DigitalButton::L1);
-    result->keyboard_to_button_mapping(SDLK_e,     PSX::PeripheralsInput::DigitalButton::R1);
-    result->keyboard_to_button_mapping(SDLK_UP,    PSX::PeripheralsInput::DigitalButton::Triangle);
-    result->keyboard_to_button_mapping(SDLK_RIGHT, PSX::PeripheralsInput::DigitalButton::Circle);
-    result->keyboard_to_button_mapping(SDLK_DOWN,  PSX::PeripheralsInput::DigitalButton::Cross);
-    result->keyboard_to_button_mapping(SDLK_LEFT,  PSX::PeripheralsInput::DigitalButton::Square);
+    result->keyboard_button_to_button_mapping(SDLK_l,     PSX::PeripheralsInput::DigitalButton::Select);
+    result->keyboard_button_to_button_mapping(SDLK_k,     PSX::PeripheralsInput::DigitalButton::Start);
+    result->keyboard_button_to_button_mapping(SDLK_w,     PSX::PeripheralsInput::DigitalButton::Up);
+    result->keyboard_button_to_button_mapping(SDLK_d,     PSX::PeripheralsInput::DigitalButton::Right);
+    result->keyboard_button_to_button_mapping(SDLK_s,     PSX::PeripheralsInput::DigitalButton::Down);
+    result->keyboard_button_to_button_mapping(SDLK_a,     PSX::PeripheralsInput::DigitalButton::Left);
+    result->keyboard_button_to_button_mapping(SDLK_n,     PSX::PeripheralsInput::DigitalButton::L2);
+    result->keyboard_button_to_button_mapping(SDLK_m,     PSX::PeripheralsInput::DigitalButton::R2);
+    result->keyboard_button_to_button_mapping(SDLK_q,     PSX::PeripheralsInput::DigitalButton::L1);
+    result->keyboard_button_to_button_mapping(SDLK_e,     PSX::PeripheralsInput::DigitalButton::R1);
+    result->keyboard_button_to_button_mapping(SDLK_UP,    PSX::PeripheralsInput::DigitalButton::Triangle);
+    result->keyboard_button_to_button_mapping(SDLK_RIGHT, PSX::PeripheralsInput::DigitalButton::Circle);
+    result->keyboard_button_to_button_mapping(SDLK_DOWN,  PSX::PeripheralsInput::DigitalButton::Cross);
+    result->keyboard_button_to_button_mapping(SDLK_LEFT,  PSX::PeripheralsInput::DigitalButton::Square);
 
     result->joystick_button_to_button_mapping(0, PSX::PeripheralsInput::DigitalButton::Cross);
     result->joystick_button_to_button_mapping(1, PSX::PeripheralsInput::DigitalButton::Circle);
@@ -163,8 +163,17 @@ bool Input::is_digital_button_down(PSX::PeripheralsInput::DigitalButton emulator
 /**
  * @brief Setup button mapping between emulator keyboard input and host input
  */
-void Input::keyboard_to_button_mapping(SDL_Keycode host_key, PSX::PeripheralsInput::DigitalButton emulator_button)
+void Input::keyboard_button_to_button_mapping(SDL_Keycode host_key, PSX::PeripheralsInput::DigitalButton emulator_button)
 {
+    for(auto& it: m_keyboard_button_mapping)
+    {
+        if(it.second == emulator_button)
+        {
+            m_keyboard_button_mapping.erase(it.first);
+            break;
+        }
+    }
+
     m_keyboard_button_mapping[host_key] = emulator_button;
     m_button_state[emulator_button] = 0;
 }
@@ -174,8 +183,31 @@ void Input::keyboard_to_button_mapping(SDL_Keycode host_key, PSX::PeripheralsInp
  */
 void Input::joystick_button_to_button_mapping(PSX::u8 host_button, PSX::PeripheralsInput::DigitalButton emulator_button)
 {
+    for(auto& it: m_joystick_button_mapping)
+    {
+        if(it.second == emulator_button)
+        {
+            m_joystick_button_mapping.erase(it.first);
+            break;
+        }
+    }
+
     m_joystick_button_mapping[host_button] = emulator_button;
     m_button_state[emulator_button] = 0;
+}
+
+/**
+ * @brief obtain host key name, which maps onto a specific digital button
+ */
+std::tuple<SDL_Keycode, std::string> Input::get_keyboard_button_mapping_key(PSX::PeripheralsInput::DigitalButton button)
+{
+    for(auto& it: m_keyboard_button_mapping)
+    {
+        if(it.second == button)
+            return std::tuple(it.first, SDL_GetKeyName(it.first));
+    }
+
+    return std::tuple(-1, "Unmapped");
 }
 
 /**

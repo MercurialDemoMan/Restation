@@ -37,8 +37,10 @@
 #include "../core/Types.hpp"
 #include "../core/PeripheralsInput.hpp"
 
+#include <tuple>
 #include <memory>
 #include <vector>
+#include <optional>
 #include <unordered_map>
 
 #include <SDL.h>
@@ -68,12 +70,17 @@ public:
     /**
      * @brief Setup button mapping between emulator keyboard input and host input
      */
-    void keyboard_to_button_mapping(SDL_Keycode, PSX::PeripheralsInput::DigitalButton);
+    void keyboard_button_to_button_mapping(SDL_Keycode, PSX::PeripheralsInput::DigitalButton);
 
     /**
      * @brief Setup button mapping between emulator joystick button input and host input
      */
     void joystick_button_to_button_mapping(PSX::u8, PSX::PeripheralsInput::DigitalButton);
+
+    /**
+     * @brief obtain host key name, which maps onto a specific digital button
+     */
+    std::tuple<SDL_Keycode, std::string> get_keyboard_button_mapping_key(PSX::PeripheralsInput::DigitalButton);
 
     /**
      * @brief Process event from SDL2 to update key state and to manage gamepads 
@@ -103,7 +110,7 @@ private:
 
     std::unordered_map<PSX::u8, PSX::PeripheralsInput::DigitalButton>     m_joystick_button_mapping;
     std::unordered_map<SDL_Keycode, PSX::PeripheralsInput::DigitalButton> m_keyboard_button_mapping;
-    std::unordered_map<PSX::PeripheralsInput::DigitalButton, PSX::u32> m_button_state;
+    std::unordered_map<PSX::PeripheralsInput::DigitalButton, PSX::u32>    m_button_state;
 };
 
 #endif // INPUT_HPP

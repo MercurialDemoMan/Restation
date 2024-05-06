@@ -39,9 +39,9 @@
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
 
-std::shared_ptr<Menu> Menu::create()
+std::shared_ptr<Menu> Menu::create(const std::shared_ptr<Input>& input)
 {
-    auto menu = std::shared_ptr<Menu>(new Menu());
+    auto menu = std::shared_ptr<Menu>(new Menu(input));
     menu->reset();
     return menu;
 }
@@ -267,6 +267,7 @@ void Menu::process_event(SDL_Event* event)
     {
         case SDL_KEYDOWN:
         {
+            m_last_pressed_keyboard_button = event->key.keysym.sym;
             if(event->key.keysym.sym == SDLK_ESCAPE)
             {
                 m_show_menu = !m_show_menu;
@@ -280,6 +281,10 @@ void Menu::process_event(SDL_Event* event)
                 set_emulator_load_state(true);
             }
         } break;
+        case SDL_KEYUP:
+        {
+            m_last_pressed_keyboard_button = {};
+        } break;
     }
 }
 
@@ -288,6 +293,10 @@ void Menu::process_event(SDL_Event* event)
  */
 void Menu::render_button_mapping(PSX::PeripheralsInput::DigitalButton button)
 {
+    auto [host_key, host_key_name] = m_input->get_keyboard_button_mapping_key(button);
+    bool remap_popup               = false;
+    auto remap_popup_name          = fmt::format("Remap {}", PSX::PeripheralsInput::DigitalButtonName[PSX::u32(button)]); 
+
     ImGui::NewLine();
     ImGui::SameLine(0.0f);
     ImGui::BeginDisabled();
@@ -298,8 +307,26 @@ void Menu::render_button_mapping(PSX::PeripheralsInput::DigitalButton button)
     ImGui::EndDisabled();
 
     ImGui::SameLine(0.0f);
-    if(ImGui::Button(fmt::format("TODO: show host mapping of {}", PSX::PeripheralsInput::DigitalButtonName[PSX::u32(button)]).c_str()))
+    if(ImGui::Button(fmt::format("keyboard: {}", host_key_name).c_str()))
     {
-        LOG("TODO: remap buttons");
+        remap_popup = true;
+    }
+
+    if(remap_popup)
+        ImGui::OpenPopup(remap_popup_name.c_str());
+
+    if(ImGui::BeginPopupModal(remap_popup_name.c_str()))
+    {
+        ImGui::Text("Press any key...");
+        if(ImGui::Button("Cancel"))
+        {
+            ImGui::CloseCurrentPopup();
+        }
+        if(m_last_pressed_keyboard_button.has_value())
+        {
+            m_input->keyboard_button_to_button_mapping(m_last_pressed_keyboard_button.value(), button);
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
     }
 }
