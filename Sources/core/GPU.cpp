@@ -700,7 +700,7 @@ namespace PSX
             .size_x  = size_x,
             .size_y  = size_y,
             .color   = Color15Bit::create_from_24bit(color)
-        });
+        }, RenderTarget::VRam1x);
 
         // reset command queue
         m_current_command = GPUCommand::Nop;
@@ -709,7 +709,7 @@ namespace PSX
     /**
      * @brief Perform Quick VRAM rectangle fill GPU Command
      */
-    void GPU::do_vram_fill(VRamFillArguments args)
+    void GPU::do_vram_fill(VRamFillArguments args, RenderTarget target)
     {
         // fill vram with a color value
         // final row and column is not filled
@@ -834,15 +834,15 @@ namespace PSX
 
         if(command.is_quad)
         {
-            do_polygon_render(args);
+            do_polygon_render(args, RenderTarget::VRam1x);
             args.vertex_a = vertices[1];
             args.vertex_b = vertices[2];
             args.vertex_c = vertices[3];
-            do_polygon_render(args);
+            do_polygon_render(args, RenderTarget::VRam1x);
         }
         else
         {
-            do_polygon_render(args);
+            do_polygon_render(args, RenderTarget::VRam1x);
         }
 
         // reset command queue
@@ -852,7 +852,23 @@ namespace PSX
     /**
      * @brief Perform Render Polygon GPU Command
      */
-    void GPU::do_polygon_render(PolygonRenderArguments args)
+    void GPU::do_polygon_render(PolygonRenderArguments args, RenderTarget target)
+    {
+        switch(target)
+        {
+            case RenderTarget::VRam1x: { do_polygon_render_normal(args); } break;
+            case RenderTarget::VRam2x: { do_polygon_render_hires(args); } break;
+            default:
+            {
+                UNREACHABLE();
+            } break;
+        }
+    }
+
+    /**
+     * @brief Depending on the GPU::VRamHiresScale constant render polygon in different resolutions
+     */
+    void GPU::do_polygon_render_normal(PolygonRenderArguments args)
     {
         /**
          * @brief calculate 2D cector cross product 
@@ -1056,7 +1072,7 @@ namespace PSX
         update_attributes_x(frag_attrs_init, frag_attrs_deltas, min.x);
         
         // begin rasterization
-        for(s32 y = min.y; y < max.y; y++)
+        for(s32 y = min.y; y <= max.y; y++)
         {
             // start interpolating vertex attributes
             FragmentAttributes current_attributes = frag_attrs_init;
@@ -1066,11 +1082,11 @@ namespace PSX
                 half_space_y.y,
                 half_space_y.z
             };
-            for(s32 x = min.x; x < max.x; x++)
+            for(s32 x = min.x; x <= max.x; x++)
             {
                 // if we are inside the triangle
                 if( (half_space_x.x >= 0 || half_space_x.y >= 0 || half_space_x.z >= 0) &&
-                   !(half_space_x.x < 0 || half_space_x.y < 0 || half_space_x.z < 0))
+                   !(half_space_x.x <  0 || half_space_x.y <  0 || half_space_x.z <  0))
                 {
                     auto original_color = Color15Bit(vram_read(x, y));
 
@@ -1174,6 +1190,11 @@ namespace PSX
         }
     }
 
+    void GPU::do_polygon_render_hires(PolygonRenderArguments)
+    {
+        
+    }
+
     /**
      * @brief Render Line GPU Command 
      */
@@ -1210,7 +1231,7 @@ namespace PSX
             .end_color   = end_color,
             .is_semi_transparent = command.is_semi_transparent,
             .is_gouraud_shaded   = command.is_gouraud_shaded
-        });
+        }, RenderTarget::VRam1x);
 
         if(!command.is_poly_line)
         {
@@ -1227,7 +1248,7 @@ namespace PSX
     /**
      * @brief Perform Render Line GPU Command 
      */
-    void GPU::do_line_render(LineRenderArguments args)
+    void GPU::do_line_render(LineRenderArguments args, RenderTarget target)
     {
         s32 delta_x = (args.end_x - args.start_x);
         s32 delta_y = (args.end_y - args.start_y);
@@ -1380,7 +1401,7 @@ namespace PSX
             .texpage_y   = texpage_y,
             .is_semi_transparent = command.is_semi_transparent,
             .is_raw_texture      = command.is_raw_texture
-        });
+        }, RenderTarget::VRam1x);
 
         // reset command queue
         m_current_command = GPUCommand::Nop;
@@ -1389,7 +1410,7 @@ namespace PSX
     /**
      * @brief Perform Render Rectangle GPU Command 
      */
-    void GPU::do_rectangle_render(RectangleRenderArguments args)
+    void GPU::do_rectangle_render(RectangleRenderArguments args, RenderTarget)
     {
         if(args.width > 1023 || args.height > 511)
             return;
@@ -1403,7 +1424,7 @@ namespace PSX
         s32 max_y = clamp_drawing_area_bottom(args.start_y + args.height - 1);
 
         s32 uv_x = args.uv_x + (min_x - args.start_x) + m_draw_mode.texture_rect_x_flip;
-        s32 uv_y = args.uv_y + (min_y - args.start_y);// + m_draw_mode.texture_rect_y_flip;
+        s32 uv_y = args.uv_y + (min_y - args.start_y) + m_draw_mode.texture_rect_y_flip;
 
         s32 dir_x = m_draw_mode.texture_rect_x_flip ? -1 : 1;
         s32 dir_y = m_draw_mode.texture_rect_y_flip ? -1 : 1;
@@ -1828,6 +1849,14 @@ namespace PSX
     const std::array<u16, VRamWidth * VRamHeight>& GPU::meta_get_vram_buffer() const
     {
         return m_vram;
+    }
+
+    /**
+     * @brief obtain the state of high resolution vram from gpu
+     */
+    const std::array<u16, VRamWidth * VRamHiresScale * VRamHeight * VRamHiresScale>& GPU::meta_get_vram_hires_buffer() const
+    {
+        return m_vram_hires;
     }
 
     /**

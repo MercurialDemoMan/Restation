@@ -91,6 +91,11 @@ namespace PSX
          * @brief obtain the state of vram from gpu
          */
         const std::array<u16, VRamWidth * VRamHeight>& meta_get_vram_buffer() const;
+            
+        /**
+        * @brief obtain the state of high resolution vram from gpu
+        */
+        const std::array<u16, VRamWidth * VRamHiresScale * VRamHeight * VRamHiresScale>& meta_get_vram_hires_buffer() const;
 
     private:
 
@@ -132,7 +137,7 @@ namespace PSX
         /**
          * @brief Perform Quick VRAM rectangle fill GPU Command
          */
-        void do_vram_fill(VRamFillArguments);
+        void do_vram_fill(VRamFillArguments, RenderTarget);
 
         /**
          * @brief Render Polygon GPU Command 
@@ -142,7 +147,13 @@ namespace PSX
         /**
          * @brief Perform Render Polygon GPU Command
          */
-        void do_polygon_render(PolygonRenderArguments);
+        void do_polygon_render(PolygonRenderArguments, RenderTarget);
+
+        /**
+         * @brief Depending on the GPU::VRamHiresScale constant render polygon in different resolutions
+         */
+        void do_polygon_render_normal(PolygonRenderArguments);
+        void do_polygon_render_hires(PolygonRenderArguments);
 
         /**
          * @brief Render Line GPU Command 
@@ -152,7 +163,7 @@ namespace PSX
         /**
          * @brief Perform Render Line GPU Command 
          */
-        void do_line_render(LineRenderArguments);
+        void do_line_render(LineRenderArguments, RenderTarget);
 
         /**
          * @brief Render Rectangle GPU Command parsing
@@ -162,7 +173,7 @@ namespace PSX
         /**
          * @brief Perform Render Rectangle GPU Command 
          */
-        void do_rectangle_render(RectangleRenderArguments);
+        void do_rectangle_render(RectangleRenderArguments, RenderTarget);
 
         /**
          * @brief Copy RAM to VRAM GPU Command 
@@ -412,6 +423,7 @@ namespace PSX
          * GPU memory regions 
          */
         std::array<u16, VRamWidth * VRamHeight> m_vram;
+        std::array<u16, VRamWidth * VRamHiresScale * VRamHeight * VRamHiresScale> m_vram_hires;
         std::array<u16, ClutCacheSize>          m_clut_cache;
     };
 }

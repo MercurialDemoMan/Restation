@@ -63,7 +63,8 @@ namespace PSX
             Triangle = 12,
             Circle   = 13,
             Cross    = 14,
-            Square   = 15
+            Square   = 15,
+            Size     = 16
         };
 
         static constexpr const char* DigitalButtonName[] =

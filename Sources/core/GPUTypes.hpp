@@ -557,6 +557,15 @@ namespace PSX
         bool enabled;
         DisplayAreaColorDepth color_depth;
     };
+
+    /**
+     * @brief enumeration used to decide to which vram we need to render
+     */
+    enum class RenderTarget
+    {
+        VRam1x,
+        VRam2x
+    };
 }
 
 #endif // GPUTYPES_HPP

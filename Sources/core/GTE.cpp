@@ -1019,11 +1019,43 @@ namespace PSX
     }  
 
     /**
-     * @brief 
+     * @brief interpolation of a vector and far color vector
      */
     void GTE::INTPL(const GTEInstruction&)
     {
-        TODO();
+        auto current_ir = GTEVector<s32>
+        {
+            .x = m_ir[1].raw(),
+            .y = m_ir[2].raw(),
+            .z = m_ir[3].raw()
+        };
+
+        check_and_assign_result(((s64(m_far_color.r << 12) - s64(current_ir.r << 12))), 1, true);
+        check_and_assign_result(((s64(m_far_color.g << 12) - s64(current_ir.g << 12))), 2, true);
+        check_and_assign_result(((s64(m_far_color.b << 12) - s64(current_ir.b << 12))), 3, true);
+        multiply_and_translate
+        (
+            GTEVector<s16>
+            {
+                .x = m_ir[0].raw(),
+                .y = m_ir[0].raw(),
+                .z = m_ir[0].raw()
+            },
+            GTEVector<s16>
+            {
+                .x = m_ir[1].raw(),
+                .y = m_ir[2].raw(),
+                .z = m_ir[3].raw()
+            },
+            current_ir
+        );
+
+        push_to_crgb_fifo(GTEVector<s32>
+        {
+            .r = m_mac[1].raw() >> 4,
+            .g = m_mac[2].raw() >> 4,
+            .b = m_mac[3].raw() >> 4
+        });
     } 
 
     /**
@@ -1157,11 +1189,49 @@ namespace PSX
     }  
 
     /**
-     * @brief 
+     * @brief color color
      */
     void GTE::CC(const GTEInstruction&)
     {
-        TODO();
+        multiply_and_translate
+        (
+            m_light_color_matrix,
+            GTEVector<s16>
+            {
+                .x = m_ir[1].raw(),
+                .y = m_ir[2].raw(),
+                .z = m_ir[3].raw()
+            },
+            m_background_color
+        );
+        multiply_and_translate
+        (
+            GTEVector<s16>
+            {
+                .x = s16(m_rgbc.read(0) << 4),
+                .y = s16(m_rgbc.read(1) << 4),
+                .z = s16(m_rgbc.read(2) << 4)
+            },
+            GTEVector<s16>
+            {
+                .x = m_ir[1].raw(),
+                .y = m_ir[2].raw(),
+                .z = m_ir[3].raw()
+            },
+            GTEVector<s32>
+            {
+                .x = 0,
+                .y = 0,
+                .z = 0
+            }
+        );
+
+        push_to_crgb_fifo(GTEVector<s32>
+        {
+            .r = m_mac[1].raw() >> 4,
+            .g = m_mac[2].raw() >> 4,
+            .b = m_mac[3].raw() >> 4
+        });
     }   
 
     /**
@@ -1195,11 +1265,30 @@ namespace PSX
     }   
 
     /**
-     * @brief 
+     * @brief depth cue color light
      */
-    void GTE::DCPL(const GTEInstruction&)
+    void GTE::DCPL(const GTEInstruction& ins)
     {
-        TODO();
+        auto current_ir = GTEVector<s16>
+        {
+            .x = m_ir[1].raw(),
+            .y = m_ir[2].raw(),
+            .z = m_ir[3].raw()
+        };
+
+        check_and_assign_result((s64(m_far_color.r << 12) - s64((m_rgbc.read(0) << 4) * current_ir.r)), 1, true);
+        check_and_assign_result((s64(m_far_color.g << 12) - s64((m_rgbc.read(1) << 4) * current_ir.g)), 2, true);
+        check_and_assign_result((s64(m_far_color.b << 12) - s64((m_rgbc.read(2) << 4) * current_ir.b)), 3, true);
+        check_and_assign_result((m_rgbc.read(0) << 4) * current_ir.r + m_ir[0].raw() * m_ir[1].raw(), 1, !ins.lm);
+        check_and_assign_result((m_rgbc.read(1) << 4) * current_ir.g + m_ir[0].raw() * m_ir[2].raw(), 2, !ins.lm);
+        check_and_assign_result((m_rgbc.read(2) << 4) * current_ir.b + m_ir[0].raw() * m_ir[3].raw(), 3, !ins.lm);
+
+        push_to_crgb_fifo(GTEVector<s32>
+        {
+            .r = m_mac[1].raw() >> 4,
+            .g = m_mac[2].raw() >> 4,
+            .b = m_mac[3].raw() >> 4
+        });
     }  
 
     /**
