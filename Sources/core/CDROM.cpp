@@ -760,7 +760,10 @@ namespace PSX
      */
     void CDROM::GETTN()
     {
-        TODO();
+        push_to_interrupt_fifo(3);
+        push_to_response_fifo(m_status.raw);
+        push_to_response_fifo(binary_to_bcd(0x01));
+        push_to_response_fifo(binary_to_bcd(m_disc->num_tracks()));
     }      
     
     /**
