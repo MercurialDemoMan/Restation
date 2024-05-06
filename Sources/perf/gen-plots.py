@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib
 import math
 import sys
 import os
@@ -27,7 +28,11 @@ def main(args):
 
     data = read_data("../../Data")
     data_len = len(data.keys())
-    ax_width = int(math.ceil(math.sqrt(data_len)))
+    font = {'family' : 'normal',
+        'weight' : 'bold',
+        'size'   : 18}
+
+    matplotlib.rc('font', **font)
 
     fig, axs = plt.subplots(2, 3)
     
@@ -36,6 +41,10 @@ def main(args):
         axs[i // 3, i % 3].plot([1] * len(data[key]), color='blue', linestyle='dashed')
         axs[i // 3, i % 3].plot(data[key], color='red' if i < 3 else 'green')
 
+    fig.text(0.5, 0.02, "1 unit = average of 100 drawn frames", ha="center", va="center")
+    fig.text(0.04, 0.5, "Multiple of the ideal speed", ha="center", va="center", rotation="vertical")
+
+    plt.tight_layout()
     plt.show()
 
 
