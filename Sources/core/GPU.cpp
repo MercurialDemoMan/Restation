@@ -10,25 +10,22 @@
  *
  * @date      26. 10. 2023, 16:20 (created)
  *
- * @section   TODO: replace with actual documentation
- * TODO: documentation text
- *
  * @section License
- * This file is part of the TODO: project \n
+ * This file is part of the Restation \n
  *
  * Copyright (C) 2023
  *
- * This file is part of TODO: project. TODO: project is free software: you can redistribute
+ * This file is part of Restation. Restation is free software: you can redistribute
  * it and/or modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * TODO: project is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * Restation is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  * PURPOSE. See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along with
- * TODO: project. If not, see http://www.gnu.org/licenses/.
+ * Restation. If not, see http://www.gnu.org/licenses/.
  */
 
 #include "GPU.hpp"
@@ -1343,7 +1340,7 @@ namespace PSX
         // limit triangle size
         glm::ivec2 size = max - min;
 
-        if(size.x > 1023 * VRamHiresScale || size.y > 511 * VRamHiresScale)
+        if(size.x > 1023 * static_cast<s32>(VRamHiresScale) || size.y > 511 * static_cast<s32>(VRamHiresScale))
             return;
 
         //update_clut_cache(args.color_depth, args.clut_x, args.clut_y);
@@ -2014,9 +2011,9 @@ namespace PSX
         {
             for(s32 x = min_x, u = uv_x; x <= max_x; x++, u += dir_x)
             {
-                for(s32 res_y = 0; res_y < VRamHiresScale; res_y++)
+                for(s32 res_y = 0; res_y < static_cast<s32>(VRamHiresScale); res_y++)
                 {
-                    for(s32 res_x = 0; res_x < VRamHiresScale; res_x++)
+                    for(s32 res_x = 0; res_x < static_cast<s32>(VRamHiresScale); res_x++)
                     {
                         // get original color for blending
                         Color15Bit original_color = Color15Bit(vram_read_hires(x * VRamHiresScale + res_x, y * VRamHiresScale + res_y));

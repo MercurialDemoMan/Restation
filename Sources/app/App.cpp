@@ -10,25 +10,22 @@
  *
  * @date      16. 2. 2024 (created)
  *
- * @section   TODO: replace with actual documentation
- * TODO: documentation text
- *
  * @section License
- * This file is part of the TODO: project \n
+ * This file is part of the Restation \n
  *
  * Copyright (C) 2023
  *
- * This file is part of TODO: project. TODO: project is free software: you can redistribute
+ * This file is part of Restation. Restation is free software: you can redistribute
  * it and/or modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * TODO: project is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * Restation is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  * PURPOSE. See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along with
- * TODO: project. If not, see http://www.gnu.org/licenses/.
+ * Restation. If not, see http://www.gnu.org/licenses/.
  */
 
 #include "App.hpp"
@@ -335,10 +332,6 @@ void App::run()
  */
 void App::emulator_thread()
 {
-    bool start_measuring  = false;
-    PSX::u32  num_samples = 0;
-    double accumulator    = 0;
-
     while(m_run)
     {
         if(m_menu->emulator_reset())
