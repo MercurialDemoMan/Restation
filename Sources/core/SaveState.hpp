@@ -273,11 +273,13 @@ namespace PSX
          * @brief serialize gpu specific types 
          */
         void serialize_from(GPUCommand);
+        void serialize_from(RenderTarget);
 
         /**
          * @brief de-serialize gpu specific types 
          */
         void deserialize_to(GPUCommand&);
+        void deserialize_to(RenderTarget&);
 
         /**
          * @brief serialize gte specific types 

@@ -546,6 +546,28 @@ namespace PSX
     };
 
     /**
+     * @brief helper for passing arguments to the  Copy VRAM to VRAM GPU Command
+     */
+    struct CopyVRAMToVRAMArguments
+    {
+        u32 source_x;
+        u32 source_y;
+        u32 destination_x;
+        u32 destination_y;
+        u32 width;
+        u32 height;
+    };
+
+    /**
+     * @brief enumeration used to decide to which vram we need to render
+     */
+    enum class RenderTarget : u8
+    {
+        VRam1x,
+        VRam2x
+    };
+
+    /**
      * @brief information about the current state of the GPU display region
      */
     struct DisplayInfo
@@ -556,15 +578,7 @@ namespace PSX
         u32 height;
         bool enabled;
         DisplayAreaColorDepth color_depth;
-    };
-
-    /**
-     * @brief enumeration used to decide to which vram we need to render
-     */
-    enum class RenderTarget
-    {
-        VRam1x,
-        VRam2x
+        RenderTarget resolution;
     };
 }
 

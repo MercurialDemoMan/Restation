@@ -454,6 +454,14 @@ namespace PSX
     }
 
     /**
+     * @brief obtain the state of hi-res VRAM from GPU
+     */
+    const std::array<u16, VRamWidth * VRamHiresScale * VRamHeight * VRamHiresScale>& Bus::meta_get_vram_hires_buffer() const
+    {
+        return m_gpu->meta_get_vram_hires_buffer();
+    }
+
+    /**
      * @brief check whether GPU finished rendering a frame 
      */
     bool Bus::meta_vblank()
@@ -588,6 +596,14 @@ namespace PSX
         save_state->deserialize_to(m_scratchpad);
         save_state->deserialize_to(m_expansion);
         save_state->deserialize_to(m_meta_vblank_flag);
+    }
+
+    /**
+     * @brief select the GPU rendering target resolution 
+     */
+    void Bus::meta_set_resolution(RenderTarget resolution)
+    {
+        m_gpu->meta_set_resolution(resolution);
     }
 
     /**

@@ -89,9 +89,14 @@ namespace PSX
         void meta_set_console_region(ConsoleRegion);
 
         /**
-         * @brief obtain the state of vram from gpu
+         * @brief obtain the state of VRAM from GPU
          */
         const std::array<u16, VRamWidth * VRamHeight>& meta_get_vram_buffer() const;
+
+        /**
+         * @brief obtain the state of hi-res VRAM from GPU
+         */
+        const std::array<u16, VRamWidth * VRamHiresScale * VRamHeight * VRamHiresScale>& meta_get_vram_hires_buffer() const;
 
         /**
          * @brief check whether GPU finished rendering a frame by using a vblank flag
@@ -172,6 +177,11 @@ namespace PSX
          * @brief load state from a file and restore all components as they were
          */
         void deserialize(std::shared_ptr<SaveState>&);
+
+        /**
+         * @brief select the GPU rendering target resolution 
+         */
+        void meta_set_resolution(RenderTarget);
 
     private:
 

@@ -311,11 +311,19 @@ namespace PSX
     {
         serialize_from(static_cast<u8>(value));
     }
+    void SaveState::serialize_from(RenderTarget value)
+    {
+        serialize_from(static_cast<u8>(value));
+    }
 
     /**
      * @brief de-serialize gpu specific types 
      */
     void SaveState::deserialize_to(GPUCommand& value)
+    {
+        deserialize_to(reinterpret_cast<u8&>(value));
+    }
+    void SaveState::deserialize_to(RenderTarget& value)
     {
         deserialize_to(reinterpret_cast<u8&>(value));
     }
