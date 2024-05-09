@@ -88,6 +88,11 @@ namespace PSX
         DisplayInfo meta_get_display_info() const;
 
         /**
+         * @brief select the rendering target resolution 
+         */
+        void meta_set_resolution(RenderTarget);
+
+        /**
          * @brief obtain the state of vram from gpu
          */
         const std::array<u16, VRamWidth * VRamHeight>& meta_get_vram_buffer() const;
@@ -138,6 +143,8 @@ namespace PSX
          * @brief Perform Quick VRAM rectangle fill GPU Command
          */
         void do_vram_fill(VRamFillArguments, RenderTarget);
+        void do_vram_fill(VRamFillArguments);
+        void do_vram_fill_hires(VRamFillArguments);
 
         /**
          * @brief Render Polygon GPU Command 
@@ -148,11 +155,7 @@ namespace PSX
          * @brief Perform Render Polygon GPU Command
          */
         void do_polygon_render(PolygonRenderArguments, RenderTarget);
-
-        /**
-         * @brief Depending on the GPU::VRamHiresScale constant render polygon in different resolutions
-         */
-        void do_polygon_render_normal(PolygonRenderArguments);
+        void do_polygon_render(PolygonRenderArguments);
         void do_polygon_render_hires(PolygonRenderArguments);
 
         /**
@@ -164,6 +167,8 @@ namespace PSX
          * @brief Perform Render Line GPU Command 
          */
         void do_line_render(LineRenderArguments, RenderTarget);
+        void do_line_render(LineRenderArguments);
+        void do_line_render_hires(LineRenderArguments);
 
         /**
          * @brief Render Rectangle GPU Command parsing
@@ -174,6 +179,8 @@ namespace PSX
          * @brief Perform Render Rectangle GPU Command 
          */
         void do_rectangle_render(RectangleRenderArguments, RenderTarget);
+        void do_rectangle_render(RectangleRenderArguments);
+        void do_rectangle_render_hires(RectangleRenderArguments);
 
         /**
          * @brief Copy RAM to VRAM GPU Command 
@@ -184,6 +191,9 @@ namespace PSX
          * @brief Copy RAM to VRAM GPU Command 
          */
         void copy_cpu_to_vram_data_phase();
+        void do_copy_cpu_to_vram_data_phase(u32, RenderTarget);
+        void do_copy_cpu_to_vram_data_phase(u32);
+        void do_copy_cpu_to_vram_data_phase_hires(u32);
 
         /**
          * @brief Copy VRAM to RAM GPU Command 
@@ -194,26 +204,33 @@ namespace PSX
          * @brief Copy VRAM to VRAM GPU Command 
          */
         void copy_vram_to_vram();
+        void do_copy_vram_to_vram(CopyVRAMToVRAMArguments, RenderTarget);
+        void do_copy_vram_to_vram(CopyVRAMToVRAMArguments);
+        void do_copy_vram_to_vram_hires(CopyVRAMToVRAMArguments);
 
         /**
          * @brief clamp value to the drawing area
          */
         s32 clamp_drawing_area_left(s32 x) const;
+        s32 clamp_drawing_area_left_hires(s32 x) const;
 
         /**
          * @brief clamp value to the drawing area 
          */
         s32 clamp_drawing_area_right(s32 x) const;
+        s32 clamp_drawing_area_right_hires(s32 x) const;
 
         /**
          * @brief clamp value to the drawing area
          */
         s32 clamp_drawing_area_top(s32 y) const;
+        s32 clamp_drawing_area_top_hires(s32 y) const;
 
         /**
          * @brief clamp value to the drawing area
          */
         s32 clamp_drawing_area_bottom(s32 y) const;
+        s32 clamp_drawing_area_bottom_hires(s32 y) const;
 
         /**
          * @brief mask texture coordinate
@@ -261,16 +278,19 @@ namespace PSX
          *        as a mask, whether it is allowed to draw into that specific vram space
          */
         void vram_write_with_mask(u32 x, u32 y, u16 color);
+        void vram_write_with_mask_hires(u32 x, u32 y, u16 color);
 
         /**
          * @brief read color from vram with bounds check
          */
         u16 vram_read(u32 x, u32 y) const;
+        u16 vram_read_hires(u32 x, u32 y) const;
 
         /**
          * @brief write color into vram with bounds check 
          */
         void vram_write(u32 x, u32 y, u16 value);
+        void vram_write_hires(u32 x, u32 y, u16 value);
 
         /**
          * @brief dither color if enabled in texpage attribute
@@ -418,6 +438,7 @@ namespace PSX
         u32 m_meta_cycles;
         u32 m_meta_lines;
         u32 m_meta_frames;
+        RenderTarget m_meta_resolution;
 
         /**
          * GPU memory regions 
