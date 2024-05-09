@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This repository contains a master's thesis focusing on development of a Playstation simulator.
+This repository contains a master's thesis focusing on development of a Playstation emulator.
 
 ## Repository structure
 
@@ -90,22 +90,20 @@ You can find more detailed explanation about the cmake toolchain file [here](htt
 Then configure and compile the project using:
 
 ```bash
-cd Source/build
+cd Sources/build
 cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/TC-mingw.cmake ..
 make
 ```
 
 ## Usage instruction
 
-For now, only single data disc are supported. If you try to run a game that contains audio tracks (.cue format), the emulator will not work.
+For now, only single track disc are supported. If you try to run a game that contains audio tracks (.cue format), the emulator will not work.
 
 You also need to provide PlayStation `BIOS` as a first argument, otherwise the emulator will not work.
 
 ```bash
 ./emu [bios.bin] [game.bin]
 ```
-
-TODO: images, save state, controller config, debug options
 
 ## Author information
 

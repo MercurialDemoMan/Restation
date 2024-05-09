@@ -34,17 +34,17 @@ def main(args):
 
     matplotlib.rc('font', **font)
 
-    fig, axs = plt.subplots(2, 3)
+    fig, axs = plt.subplots(4, 3)
     
     for i, key in enumerate(sorted(data.keys())):
         axs[i // 3, i % 3].set_title(key)
         axs[i // 3, i % 3].plot([1] * len(data[key]), color='blue', linestyle='dashed')
-        axs[i // 3, i % 3].plot(data[key], color='red' if i < 3 else 'green')
+        axs[i // 3, i % 3].plot(data[key], color='red' if (i // 3) % 2 == 0 else 'green')
 
-    fig.text(0.5, 0.02, "1 unit = average of 100 drawn frames", ha="center", va="center")
+    fig.text(0.5, 0.02, "1 unit = average of 10 drawn frames", ha="center", va="center")
     fig.text(0.04, 0.5, "Multiple of the ideal speed", ha="center", va="center", rotation="vertical")
 
-    plt.tight_layout()
+    #plt.tight_layout()
     plt.show()
 
 
