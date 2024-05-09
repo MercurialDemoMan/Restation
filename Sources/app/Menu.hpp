@@ -37,6 +37,7 @@
 #include "MenuTypes.hpp"
 
 #include "../core/PeripheralsInput.hpp"
+#include "../core/GPUTypes.hpp"
 #include "Input.hpp"
 
 #include <atomic>
@@ -90,6 +91,11 @@ public:
     EmulatorSpeed emulator_speed();
 
     /**
+     * @brief obtain current GPU rendering resolution 
+     */
+    PSX::RenderTarget emulator_resolution();
+
+    /**
      * @brief set emulator reset status 
      */
     void set_emulator_reset(bool);
@@ -108,6 +114,11 @@ public:
      * @brief set current desired emulator speed scale
      */
     void set_emulator_speed(EmulatorSpeed);
+
+    /**
+     * @brief set current GPU rendering resolution 
+     */
+    void set_emulator_resolution(PSX::RenderTarget);
 
     /**
      * @brief Process event from SDL2 to update key state and to manage menu
@@ -132,6 +143,7 @@ private:
     std::atomic<bool>          m_emulator_save_state;
     std::atomic<bool>          m_emulator_load_state;
     std::atomic<EmulatorSpeed> m_emulator_speed;
+    std::atomic<PSX::RenderTarget> m_emulator_resolution;
     bool                       m_show_controls;
     bool                       m_show_vram;
     bool                       m_show_menu;

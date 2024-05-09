@@ -109,13 +109,14 @@ private:
     /**
      * @brief copy the vram contents into a framebuffer  
      */
-    void update_framebuffer(SDL_Texture* framebuffer);
+    void update_framebuffer(SDL_Texture* framebuffer, PSX::RenderTarget resolution);
 
     static std::shared_ptr<App> m_singleton_instance; /// Manage singleton instance
 
     SDL_Window*   m_window;            /// Manage Window
     SDL_Renderer* m_renderer;          /// Manage Window Surface Renderer
     SDL_Texture*  m_framebuffer_15bit; /// Manage Window Framebuffer (15bit)
+    SDL_Texture*  m_framebuffer_15bit_hires; /// Manage Window Framebuffer (15bit) 2x
     SDL_Texture*  m_framebuffer_24bit; /// Manage Window Framebuffer (24bit)
     std::atomic<bool> m_run;           /// Manage Main App Emulator/Rendering Loop
     SDL_Rect      m_framebuffer_view;  /// Cutout of VRAM
@@ -123,6 +124,7 @@ private:
     std::shared_ptr<Input>     m_input;                                     /// SDL2 Input Manager
     std::shared_ptr<PSX::Bus>  m_emulator_core;                             /// Store Actual Emulator State
     std::array<PSX::u16, PSX::VRamWidth * PSX::VRamHeight> m_emulator_vram; /// Store Copy of Emulator VRAM
+    std::array<PSX::u16, PSX::VRamWidth * PSX::VRamHiresScale * PSX::VRamHeight * PSX::VRamHiresScale> m_emulator_vram_hires; /// Store Copy of Emulator hi-res VRAM
     PSX::DisplayInfo           m_emulator_display_info;                     /// Cutout of VRAM
 
     std::thread             m_emulator_thread;      /// Manage Emulator Thread

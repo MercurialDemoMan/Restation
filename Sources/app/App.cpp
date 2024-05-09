@@ -123,6 +123,22 @@ void App::init_frontend()
         ABORT_WITH_MESSAGE(fmt::format("couldn't create 15bit framebuffer texture: {}", SDL_GetError()));
     }
 
+    m_framebuffer_15bit_hires = SDL_CreateTexture
+    (
+        m_renderer, 
+        // TODO: The alpha component could be problematic, since psx uses it for masking,
+        //       but for now it will save us manual conversion hurdle. Any form of blending 
+        //       should be disabled by the SDL_SetRenderDrawBlendMode function a bit lower.
+        SDL_PIXELFORMAT_ABGR1555,
+        SDL_TEXTUREACCESS_STREAMING, 
+        PSX::VRamWidth * PSX::VRamHiresScale, 
+        PSX::VRamHeight * PSX::VRamHiresScale
+    );
+    if(m_framebuffer_15bit_hires == nullptr)
+    {
+        ABORT_WITH_MESSAGE(fmt::format("couldn't create 15bit hires framebuffer texture: {}", SDL_GetError()));
+    }
+
     m_framebuffer_24bit = SDL_CreateTexture
     (
         m_renderer,
@@ -267,11 +283,18 @@ void App::run()
                 {
                     case PSX::DisplayAreaColorDepth::Depth15Bit:
                     {
-                        current_framebuffer = m_framebuffer_15bit;
+                        switch(m_menu->emulator_resolution())
+                        {
+                            case PSX::RenderTarget::VRam1x: { current_framebuffer = m_framebuffer_15bit; } break;
+                            case PSX::RenderTarget::VRam2x: { current_framebuffer = m_framebuffer_15bit_hires; } break;
+                        }
+                        
+                        update_framebuffer(current_framebuffer, m_menu->emulator_resolution());
                     } break;
                     case PSX::DisplayAreaColorDepth::Depth24Bit:
                     {
                         current_framebuffer = m_framebuffer_24bit;
+                        update_framebuffer(current_framebuffer, PSX::RenderTarget::VRam1x);
                     } break;
                     default:
                     {
@@ -279,7 +302,6 @@ void App::run()
                     } break;
                 }
 
-                update_framebuffer(current_framebuffer);
                 if(m_menu->show_vram())
                 {
                     SDL_RenderCopy(m_renderer, current_framebuffer, NULL, NULL);
@@ -313,6 +335,10 @@ void App::run()
  */
 void App::emulator_thread()
 {
+    bool start_measuring  = false;
+    PSX::u32  num_samples = 0;
+    double accumulator    = 0;
+
     while(m_run)
     {
         if(m_menu->emulator_reset())
@@ -339,6 +365,8 @@ void App::emulator_thread()
             m_menu->set_emulator_load_state(false);
         }
 
+        m_emulator_core->meta_set_resolution(m_menu->emulator_resolution());
+
         // start timing frame
         auto start_timestamp = std::chrono::high_resolution_clock::now();
 
@@ -350,7 +378,7 @@ void App::emulator_thread()
         PSX::s64 frame_time = std::chrono::duration_cast<std::chrono::microseconds>(end_timestamp - start_timestamp).count();
 
         PSX::s64 desired_frame_time = 1'000'000.0 / (m_emulator_core->meta_refresh_rate());
-        
+
         switch(m_menu->emulator_speed())
         {
             case EmulatorSpeed::_25Percent:  { desired_frame_time *= 4; } break;
@@ -368,7 +396,19 @@ void App::emulator_thread()
         // copy vram to rendering thread
         {
             std::lock_guard lock(m_vram_mutex);
-            m_emulator_vram         = m_emulator_core->meta_get_vram_buffer();
+            switch(m_menu->emulator_resolution())
+            {
+                case PSX::RenderTarget::VRam1x: 
+                { 
+                    m_emulator_vram = m_emulator_core->meta_get_vram_buffer(); 
+                } break;
+                
+                case PSX::RenderTarget::VRam2x: 
+                { 
+                    m_emulator_vram = m_emulator_core->meta_get_vram_buffer();
+                    m_emulator_vram_hires = m_emulator_core->meta_get_vram_hires_buffer(); 
+                } break;
+            }
             m_emulator_display_info = m_emulator_core->meta_get_display_info();
         }
 
@@ -380,7 +420,7 @@ void App::emulator_thread()
 /**
  * @brief copy the vram contents into a framebuffer  
  */
-void App::update_framebuffer(SDL_Texture* framebuffer)
+void App::update_framebuffer(SDL_Texture* framebuffer, PSX::RenderTarget resolution)
 {
     void* framebuffer_pixels = nullptr;
     int   framebuffer_pitch  = 0;
@@ -391,28 +431,60 @@ void App::update_framebuffer(SDL_Texture* framebuffer)
     }
     else
     {
-        if(framebuffer_pitch * PSX::VRamHeight != PSX::VRamWidth * PSX::VRamHeight * sizeof(PSX::u16))
+        switch(resolution)
         {
-            ABORT_WITH_MESSAGE
-            (
-                fmt::format
-                (
-                    "framebuffer texture format doesn't match with the internal size of vram [{} * {}] != [{} * {} * {}]", 
-                    framebuffer_pitch, 
-                    PSX::VRamHeight,
-                    PSX::VRamWidth,
-                    PSX::VRamHeight,
-                    sizeof(PSX::u16)
-                )
-            );
-        }
+            case PSX::RenderTarget::VRam1x: 
+            { 
+                if(framebuffer_pitch * PSX::VRamHeight != PSX::VRamWidth * PSX::VRamHeight * sizeof(PSX::u16))
+                {
+                    ABORT_WITH_MESSAGE
+                    (
+                        fmt::format
+                        (
+                            "framebuffer texture format doesn't match with the internal size of vram [{} * {}] != [{} * {} * {}]", 
+                            framebuffer_pitch, 
+                            PSX::VRamHeight,
+                            PSX::VRamWidth,
+                            PSX::VRamHeight,
+                            sizeof(PSX::u16)
+                        )
+                    );
+                }
 
-        std::lock_guard lock(m_vram_mutex);
-        std::memcpy(framebuffer_pixels, m_emulator_vram.data(), framebuffer_pitch * PSX::VRamHeight);
-        m_framebuffer_view.x = m_emulator_display_info.start_x;
-        m_framebuffer_view.y = m_emulator_display_info.start_y;
-        m_framebuffer_view.w = m_emulator_display_info.width;
-        m_framebuffer_view.h = m_emulator_display_info.height;
+                std::lock_guard lock(m_vram_mutex);
+                std::memcpy(framebuffer_pixels, m_emulator_vram.data(), framebuffer_pitch * PSX::VRamHeight);
+                m_framebuffer_view.x = m_emulator_display_info.start_x;
+                m_framebuffer_view.y = m_emulator_display_info.start_y;
+                m_framebuffer_view.w = m_emulator_display_info.width;
+                m_framebuffer_view.h = m_emulator_display_info.height;
+            } break;
+
+            case PSX::RenderTarget::VRam2x: 
+            { 
+                if(framebuffer_pitch * PSX::VRamHeight * PSX::VRamHiresScale != PSX::VRamWidth * PSX::VRamHiresScale * PSX::VRamHeight * PSX::VRamHiresScale * sizeof(PSX::u16))
+                {
+                    ABORT_WITH_MESSAGE
+                    (
+                        fmt::format
+                        (
+                            "framebuffer texture format doesn't match with the internal size of vram [{} * {}] != [{} * {} * {}]", 
+                            framebuffer_pitch, 
+                            PSX::VRamHeight * PSX::VRamHiresScale,
+                            PSX::VRamWidth * PSX::VRamHiresScale,
+                            PSX::VRamHeight * PSX::VRamHiresScale,
+                            sizeof(PSX::u16)
+                        )
+                    );
+                }
+
+                std::lock_guard lock(m_vram_mutex);
+                std::memcpy(framebuffer_pixels, m_emulator_vram_hires.data(), framebuffer_pitch * PSX::VRamHeight * PSX::VRamHiresScale);
+                m_framebuffer_view.x = m_emulator_display_info.start_x * PSX::VRamHiresScale;
+                m_framebuffer_view.y = m_emulator_display_info.start_y * PSX::VRamHiresScale;
+                m_framebuffer_view.w = m_emulator_display_info.width * PSX::VRamHiresScale;
+                m_framebuffer_view.h = m_emulator_display_info.height * PSX::VRamHiresScale;
+            } break;
+        }
     }
 
     SDL_UnlockTexture(framebuffer);

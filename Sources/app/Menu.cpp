@@ -58,6 +58,7 @@ void Menu::reset()
     m_show_vram = false;
     m_show_menu = true;
     m_emulator_speed = EmulatorSpeed::_100Percent;
+    m_emulator_resolution = PSX::RenderTarget::VRam1x;
 }
 
 /**
@@ -119,6 +120,19 @@ void Menu::render_and_update()
             if(ImGui::MenuItem("Unlimited Speed"))
             {
                 m_emulator_speed = EmulatorSpeed::Unlimited;
+            }
+            switch(m_emulator_resolution)
+            {
+                case PSX::RenderTarget::VRam1x: { ImGui::SeparatorText("Curr. res: 1x"); } break;
+                case PSX::RenderTarget::VRam2x: { ImGui::SeparatorText("Curr. res: 2x"); } break;
+            }
+            if(ImGui::MenuItem("1x resolution"))
+            {
+                m_emulator_resolution = PSX::RenderTarget::VRam1x;
+            }
+            if(ImGui::MenuItem("2x resolution"))
+            {
+                m_emulator_resolution = PSX::RenderTarget::VRam2x;
             }
             ImGui::EndMenu();
         }
@@ -214,6 +228,14 @@ bool Menu::show_vram()
 }
 
 /**
+ * @brief obtain current GPU rendering resolution 
+ */
+PSX::RenderTarget Menu::emulator_resolution()
+{
+    return m_emulator_resolution;
+}
+
+/**
  * @brief obtain current desired emulator speed scale
  */
 EmulatorSpeed Menu::emulator_speed()
@@ -251,6 +273,14 @@ void Menu::set_emulator_load_state(bool value)
 void Menu::set_emulator_speed(EmulatorSpeed value)
 {
     m_emulator_speed = value;
+}
+
+/**
+ * @brief set current GPU rendering resolution 
+ */
+void Menu::set_emulator_resolution(PSX::RenderTarget value)
+{
+    m_emulator_resolution = value;
 }
 
 /**
