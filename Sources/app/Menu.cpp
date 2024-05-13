@@ -145,7 +145,7 @@ void Menu::render_and_update()
 
     if(ImGui::BeginPopupModal("Reset Console?"))
     {
-        ImGui::Text("Are you really want to reset?");
+        ImGui::Text("Do you really want to reset?");
         ImGui::Text("All unsaved progress will be lost");
         if(ImGui::Button("Yes"))
         {
