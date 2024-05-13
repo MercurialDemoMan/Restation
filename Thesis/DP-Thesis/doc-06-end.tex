@@ -1,0 +1,29 @@
+\chapter{Závěr}
+
+Ačkoliv tento emulátor nemá ani vzdáleně 100\% kompatibilitu s celou \textit{PlayStation} knihovnou, rozhodně jsem rád za to, 
+že se mi podařilo dostat emulátor do stavu, kde nejenom tento software je schopen nastartovat originální \textit{PlayStation} hry,
+ale pár z nich bylo i relativně hratelných. V tomto projektu šlo hlavně o to prozkoumat
+komerční a velmi populární systém a pokusit se zpříjemnit jeho používání pro komunitu herních nadšenců milující staré hry, 
+ať už kvůli zvědavosti, nebo kvůli nostalgii.
+
+Implementace takto složitého systému vyžaduje přehlédnutí určitých specifických chování hardwaru, přeskočení logiky fungování
+komponentu, nebo dokonce přeskočení celistvé komponenty. Čili nebudu zastírat, že tu a tam chybí cihla či trám. Tento nedostatek
+je způsoben tím, že mohu čerpat pouze z dokumentů, které jsou výsledkem mnohaleté práce reverzního
+inženýrství mnoha lidí a ačkoliv se jedná o monumentální úsilí, nakonec nikdo (krom \textit{Sony}) nemá přístup k celému originálnímu
+hardwarovému návrhu \textit{PlayStation} konzole. 
+
+Následující výčet popisuje, jak schopné jsou hlavní hardwarové komponenty tohoto emulátoru a poskytuje hrubý procentuální odhad dokončení:
+
+\begin{itemize}
+    \item{\textbf{CPU} \textbf{91\%} - Chybí řádné zpracování výjimek a CPU nepodporuje hardwarové breakpointy}
+    \item{\textbf{GPU} \textbf{80\%} - Ačkoliv samotná funkcionalita je plně pokryta (kromě kreslení polyčar), \textit{GPU} má spoustu chyb a nepřesností (fixed-point aritmetika, či nepřesná rasterizace polygonu).}
+    \item{\textbf{MDEC} \textbf{65\%} - \textit{MDEC} v emulátoru podporuje pouze 16-bitovou a 24-bitovou barevnou hloubku, ale originální hardware umožňuje dekódovat 4-bitovou a 8-bitovou barevnou hloubku (\textit{grayscale}).}
+    \item{\textbf{CDROM} \textbf{42\%} - Z celkových \textbf{38} příkazů, \textbf{20} z nich je implementováno a na zbylých \textbf{18} emulátor padá. \textit{CDROM} také dokáže pouze načítat disky s 1 stopou.}
+    \item{\textbf{GTE} \textbf{70\%} - Ze \textbf{23} příkazů, \textbf{17} z nich funguje. Nicméně je to komponenta, ze které pramenilo nejvíce chyb a implementačních problémů.}
+    \item{\textbf{DMA} \textbf{80\%} - Přenosy mezi komponentami fungují, ale synchronizace je oproti reálnému hardwaru velmi zjednodušená.}
+    \item{\textbf{Časovače} \textbf{95\%} - U časovače typu \textit{DotClock} je jeho rychlost aproximovaná, jinak by vše mělo fungovat.}
+    \item{\textbf{Periférie} \textbf{50\%} - Simulace digitálního ovladače funguje, ale emulátor nemá podporu pro paměťové karty pro uložení postupu ve hře.}
+    \item{\textbf{SPU} \textbf{5\%} - \textit{SPU} implementuje pouze svůj hardwarový interface aby ostatní komponenty s ním mohly komunikovat, ale interně se v něm neděje prakticky nic.}
+\end{itemize}
+
+Samotná změna rozlišení, až na pár artefaktů ohledně adresování textur, funguje relativně dobře. U změny rozlišení je hlavní problém ten, že zásadně zpomaluje chod emulátoru jak bylo popsáno v naměřených datech \ref{cpu-performance}. Nejrychlejší z testovaných strojů zvládal s rezervou emulovat systém s \textbf{2x} násobkem rozlišení, ale při \textbf{4x} násobku již nebyl schopen dosáhnout požadované rychlosti. Jak bylo zmíněno v sekci [\ref{gpu-optimalization}], řešením tohoto zpomalení by bylo přesunout vykreslování na hostovací \textit{GPU}.
