@@ -38,6 +38,7 @@
 
 #include <glm/glm.hpp>
 
+#include <span>
 #include <array>
 #include <queue>
 #include <memory>
@@ -154,6 +155,7 @@ namespace PSX
         void do_polygon_render(PolygonRenderArguments, RenderTarget);
         void do_polygon_render(PolygonRenderArguments);
         void do_polygon_render_hires(PolygonRenderArguments);
+        void do_polygon_render_internal(PolygonRenderArguments, u32 vram_width, u32 vram_height, std::span<u16> vram);
 
         /**
          * @brief Render Line GPU Command 
@@ -166,6 +168,7 @@ namespace PSX
         void do_line_render(LineRenderArguments, RenderTarget);
         void do_line_render(LineRenderArguments);
         void do_line_render_hires(LineRenderArguments);
+        void do_line_render_internal(LineRenderArguments, u32 vram_width, u32 vram_height, std::span<u16> vram);
 
         /**
          * @brief Render Rectangle GPU Command parsing
@@ -178,6 +181,7 @@ namespace PSX
         void do_rectangle_render(RectangleRenderArguments, RenderTarget);
         void do_rectangle_render(RectangleRenderArguments);
         void do_rectangle_render_hires(RectangleRenderArguments);
+        void do_rectangle_render_internal(RectangleRenderArguments, u32 vram_width, u32 vram_height, std::span<u16> vram);
 
         /**
          * @brief Copy RAM to VRAM GPU Command 
@@ -210,24 +214,28 @@ namespace PSX
          */
         s32 clamp_drawing_area_left(s32 x) const;
         s32 clamp_drawing_area_left_hires(s32 x) const;
+        s32 clamp_drawing_area_left_internal(s32 x, u32 vram_width) const;
 
         /**
          * @brief clamp value to the drawing area 
          */
         s32 clamp_drawing_area_right(s32 x) const;
         s32 clamp_drawing_area_right_hires(s32 x) const;
+        s32 clamp_drawing_area_right_internal(s32 x, u32 vram_width) const;
 
         /**
          * @brief clamp value to the drawing area
          */
         s32 clamp_drawing_area_top(s32 y) const;
         s32 clamp_drawing_area_top_hires(s32 y) const;
+        s32 clamp_drawing_area_top_internal(s32 y, u32 vram_height) const;
 
         /**
          * @brief clamp value to the drawing area
          */
         s32 clamp_drawing_area_bottom(s32 y) const;
         s32 clamp_drawing_area_bottom_hires(s32 y) const;
+        s32 clamp_drawing_area_bottom_internal(s32 y, u32 vram_height) const;
 
         /**
          * @brief mask texture coordinate
@@ -282,12 +290,14 @@ namespace PSX
          */
         u16 vram_read(u32 x, u32 y) const;
         u16 vram_read_hires(u32 x, u32 y) const;
+        u16 vram_read_internal(u32 x, u32 y, u32 vram_width, u32 vram_height, std::span<const u16> vram) const;
 
         /**
          * @brief write color into vram with bounds check 
          */
         void vram_write(u32 x, u32 y, u16 value);
         void vram_write_hires(u32 x, u32 y, u16 value);
+        void vram_write_internal(u32 x, u32 y, u16 value, u32 vram_width, u32 vram_height, std::span<u16> vram);
 
         /**
          * @brief dither color if enabled in texpage attribute

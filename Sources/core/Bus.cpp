@@ -414,7 +414,7 @@ namespace PSX
             return std::tolower(ascii_char);
         });
 
-        if(game_path_lower.ends_with(".bin"))
+        if(game_path_lower.ends_with(".bin") || game_path_lower.ends_with(".iso"))
         {
             m_cdrom->meta_load_disc(game_path);
         }

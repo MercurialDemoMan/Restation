@@ -889,9 +889,9 @@ namespace PSX
     }
 
     /**
-     * @brief Depending on the GPU::VRamHiresScale constant render polygon in different resolutions
+     * @brief Perform Render Polygon GPU Command with generic parameters to account for hires vram
      */
-    void GPU::do_polygon_render(PolygonRenderArguments args)
+    void GPU::do_polygon_render_internal(PolygonRenderArguments args, u32 vram_width, u32 vram_height, std::span<u16> vram)
     {
         /**
          * @brief calculate 2D cector cross product 
@@ -991,9 +991,9 @@ namespace PSX
         // "glm" to work with them more efficiently
         glm::ivec2 vertices[3] =
         {
-            { args.vertex_a.pos_x, args.vertex_a.pos_y },
-            { args.vertex_b.pos_x, args.vertex_b.pos_y },
-            { args.vertex_c.pos_x, args.vertex_c.pos_y }
+            { args.vertex_a.pos_x * ((float)vram_width / (float)VRamWidth), args.vertex_a.pos_y * ((float)vram_height / (float)VRamHeight) },
+            { args.vertex_b.pos_x * ((float)vram_width / (float)VRamWidth), args.vertex_b.pos_y * ((float)vram_height / (float)VRamHeight) },
+            { args.vertex_c.pos_x * ((float)vram_width / (float)VRamWidth), args.vertex_c.pos_y * ((float)vram_height / (float)VRamHeight) }
         };
 
         s32 area = cross(vertices[1] - vertices[0], 
@@ -1018,15 +1018,16 @@ namespace PSX
         // limit triangle size
         glm::ivec2 size = max - min;
 
-        if(size.x > 1023 || size.y > 511)
+        if(size.x > vram_width - 1 || size.y > vram_height - 1)
             return;
 
-        update_clut_cache(args.color_depth, args.clut_x, args.clut_y);
+        if(vram_width == VRamWidth && vram_height == VRamHeight)
+            update_clut_cache(args.color_depth, args.clut_x, args.clut_y);
 
-        min.x = clamp_drawing_area_left(min.x);
-        min.y = clamp_drawing_area_top(min.y);
-        max.x = clamp_drawing_area_right(max.x);
-        max.y = clamp_drawing_area_bottom(max.y);
+        min.x = clamp_drawing_area_left_internal(min.x, vram_width);
+        min.y = clamp_drawing_area_top_internal(min.y, vram_height);
+        max.x = clamp_drawing_area_right_internal(max.x, vram_width);
+        max.y = clamp_drawing_area_bottom_internal(max.y, vram_height);
 
         glm::ivec2 delta_ba
         (
@@ -1111,7 +1112,7 @@ namespace PSX
                 if( (half_space_x.x >= 0 || half_space_x.y >= 0 || half_space_x.z >= 0) &&
                    !(half_space_x.x <  0 || half_space_x.y <  0 || half_space_x.z <  0))
                 {
-                    auto original_color = Color15Bit(vram_read(x, y));
+                    auto original_color = Color15Bit(vram_read_internal(x, y, vram_width, vram_height, vram));
 
                     if(m_mask_bit_setting.check_mask_before_draw)
                     {
@@ -1195,7 +1196,7 @@ namespace PSX
                     
                     // update vram
                     new_color.mask |= m_mask_bit_setting.set_mask_while_drawing;
-                    vram_write(x, y, new_color.raw);
+                    vram_write_internal(x, y, new_color.raw, vram_width, vram_height, vram);
                 }
 
                 // update per-fragment attributes in the horizontal direction
@@ -1213,326 +1214,17 @@ namespace PSX
         }
     }
 
+    /**
+     * @brief Depending on the GPU::VRamHiresScale constant render polygon in different resolutions
+     */
+    void GPU::do_polygon_render(PolygonRenderArguments args)
+    {
+        do_polygon_render_internal(args, VRamWidth, VRamHeight, m_vram);
+    }
+
     void GPU::do_polygon_render_hires(PolygonRenderArguments args)
     {
-        /**
-         * @brief calculate 2D cector cross product 
-         */
-        auto cross = [](const glm::ivec2& a, const glm::ivec2& b) 
-        -> s32
-        {
-            return a.x * b.y - a.y * b.x;
-        };
-
-        /**
-         * @brief calculate vertex argument interpolation
-         */
-        auto fragment_attribute = [cross](s32 area, glm::ivec2 vertices[3], s32 biases[3], s32 atrributes[3])
-        -> fixed_point
-        {
-            float attr_a = cross(vertices[1], vertices[2]) * atrributes[0] - biases[0];
-            float attr_b = cross(vertices[2], vertices[0]) * atrributes[1] - biases[1];
-            float attr_c = cross(vertices[0], vertices[1]) * atrributes[2] - biases[2];
-
-            return fixed_point((attr_a + attr_b + attr_c) / area + 0.5f);
-        };
-
-        /**
-         * @brief calculate attribute 2D offset 
-         */
-        auto fragment_attribute_delta = [](s32 area, glm::ivec2 vertices[3], s32 attributes[3])
-        -> FragmentAttributeDelta
-        {
-            return
-            {
-                fixed_point(((vertices[1].y - vertices[2].y) * attributes[0] + 
-                             (vertices[2].y - vertices[0].y) * attributes[1] + 
-                             (vertices[0].y - vertices[1].y) * attributes[2]) / float(area)),
-                fixed_point(((vertices[2].x - vertices[1].x) * attributes[0] + 
-                             (vertices[0].x - vertices[2].x) * attributes[1] + 
-                             (vertices[1].x - vertices[0].x) * attributes[2]) / float(area)),
-            };
-        };
-
-        /**
-         * @brief efficiently update the attributes interpolation when
-         *        moving onto the next pixel in the horizontal direction 
-         */
-        auto update_attributes_x = [args](FragmentAttributes& attributes, const FragmentAttributesDeltas& deltas, s32 delta)
-        {
-            if(args.is_gouraud_shaded)
-            {
-                attributes.r = fixed_point(attributes.r.to_float() + deltas.r.x.to_float() * delta);
-                attributes.g = fixed_point(attributes.g.to_float() + deltas.g.x.to_float() * delta);
-                attributes.b = fixed_point(attributes.b.to_float() + deltas.b.x.to_float() * delta);
-            }
-
-            if(args.color_depth != 0)
-            {
-                attributes.u = fixed_point(attributes.u.to_float() + deltas.u.x.to_float() * delta);
-                attributes.v = fixed_point(attributes.v.to_float() + deltas.v.x.to_float() * delta);
-            }
-        };
-
-        /**
-         * @brief efficiently update the attributes interpolation when
-         *        moving onto the next pixel in the vertical direction 
-         */
-        auto update_attributes_y = [args](FragmentAttributes& attributes, const FragmentAttributesDeltas& deltas, s32 delta)
-        {
-            if(args.is_gouraud_shaded)
-            {
-                attributes.r = fixed_point(attributes.r.to_float() + deltas.r.y.to_float() * delta);
-                attributes.g = fixed_point(attributes.g.to_float() + deltas.g.y.to_float() * delta);
-                attributes.b = fixed_point(attributes.b.to_float() + deltas.b.y.to_float() * delta);
-            }
-
-            if(args.color_depth != 0)
-            {
-                attributes.u = fixed_point(attributes.u.to_float() + deltas.u.y.to_float() * delta);
-                attributes.v = fixed_point(attributes.v.to_float() + deltas.v.y.to_float() * delta);
-            }
-        };
-
-        // assure counter clock wise winding of the rasterized triangle
-        {
-            glm::ivec2 temp_vertex_a = { args.vertex_a.pos_x, args.vertex_a.pos_y };
-            glm::ivec2 temp_vertex_b = { args.vertex_b.pos_x, args.vertex_b.pos_y };
-            glm::ivec2 temp_vertex_c = { args.vertex_c.pos_x, args.vertex_c.pos_y };
-            auto temp_ba = temp_vertex_b - temp_vertex_a;
-            auto temp_ca = temp_vertex_c - temp_vertex_a;
-
-            // if clock-wise windwing -> flip the triangle order
-            if(cross(temp_ba, temp_ca) < 0)
-            {
-                std::swap(args.vertex_b, args.vertex_c);
-            }
-        }
-
-        // collect vertex positions so we can use
-        // "glm" to work with them more efficiently
-        glm::ivec2 vertices[3] =
-        {
-            { args.vertex_a.pos_x * VRamHiresScale, args.vertex_a.pos_y * VRamHiresScale },
-            { args.vertex_b.pos_x * VRamHiresScale, args.vertex_b.pos_y * VRamHiresScale },
-            { args.vertex_c.pos_x * VRamHiresScale, args.vertex_c.pos_y * VRamHiresScale }
-        };
-
-        s32 area = cross(vertices[1] - vertices[0], 
-                         vertices[2] - vertices[0]);
-
-        if(area == 0)
-            return;
-
-        // calculate triangle bounds
-        glm::ivec2 min = 
-        {
-            std::min(std::min(vertices[0].x, vertices[1].x), vertices[2].x),
-            std::min(std::min(vertices[0].y, vertices[1].y), vertices[2].y),
-        };
-
-        glm::ivec2 max = 
-        {
-            std::max(std::max(vertices[0].x, vertices[1].x), vertices[2].x),
-            std::max(std::max(vertices[0].y, vertices[1].y), vertices[2].y),
-        };
-
-        // limit triangle size
-        glm::ivec2 size = max - min;
-
-        if(size.x > 1023 * static_cast<s32>(VRamHiresScale) || size.y > 511 * static_cast<s32>(VRamHiresScale))
-            return;
-
-        //update_clut_cache(args.color_depth, args.clut_x, args.clut_y);
-
-        min.x = clamp_drawing_area_left_hires(min.x);
-        min.y = clamp_drawing_area_top_hires(min.y);
-        max.x = clamp_drawing_area_right_hires(max.x);
-        max.y = clamp_drawing_area_bottom_hires(max.y);
-
-        glm::ivec2 delta_ba
-        (
-            vertices[1].x - vertices[0].x, 
-            vertices[0].y - vertices[1].y
-        );
-
-        glm::ivec2 delta_cb
-        (
-            vertices[2].x - vertices[1].x, 
-            vertices[1].y - vertices[2].y
-        );
-
-        glm::ivec2 delta_ac
-        (
-            vertices[0].x - vertices[2].x, 
-            vertices[2].y - vertices[0].y
-        );
-
-        s32 biases[3] =
-        {
-            (delta_cb.y < 0 || (delta_cb.y == 0 && delta_cb.x < 0)) ? -1 : 0,
-            (delta_ac.y < 0 || (delta_ac.y == 0 && delta_ac.x < 0)) ? -1 : 0,
-            (delta_ba.y < 0 || (delta_ba.y == 0 && delta_ba.x < 0)) ? -1 : 0
-        };
-
-        glm::ivec3 half_space_y =
-        {
-            cross(vertices[2] - vertices[1],
-                  min         - vertices[1]) + biases[0],
-            cross(vertices[0] - vertices[2],
-                  min         - vertices[2]) + biases[1],
-            cross(vertices[1] - vertices[0],
-                  min         - vertices[0]) + biases[2],
-        };
-
-        // calculate per-fragment initial attributes and deltas
-        FragmentAttributes       frag_attrs_init;
-        FragmentAttributesDeltas frag_attrs_deltas;
-
-        if(args.is_gouraud_shaded)
-        {
-            s32 attr_color_r[3] = { s32(args.vertex_a.color.r), s32(args.vertex_b.color.r), s32(args.vertex_c.color.r) };
-            s32 attr_color_g[3] = { s32(args.vertex_a.color.g), s32(args.vertex_b.color.g), s32(args.vertex_c.color.g) };
-            s32 attr_color_b[3] = { s32(args.vertex_a.color.b), s32(args.vertex_b.color.b), s32(args.vertex_c.color.b) };
-
-            frag_attrs_init.r = fragment_attribute(area, vertices, biases, attr_color_r);
-            frag_attrs_init.g = fragment_attribute(area, vertices, biases, attr_color_g);
-            frag_attrs_init.b = fragment_attribute(area, vertices, biases, attr_color_b);
-            frag_attrs_deltas.r = fragment_attribute_delta(area, vertices, attr_color_r);
-            frag_attrs_deltas.g = fragment_attribute_delta(area, vertices, attr_color_g);
-            frag_attrs_deltas.b = fragment_attribute_delta(area, vertices, attr_color_b);
-        }
-
-        if(args.color_depth != 0)
-        {
-            s32 u[3] = { args.vertex_a.uv_x, args.vertex_b.uv_x, args.vertex_c.uv_x };
-            s32 v[3] = { args.vertex_a.uv_y, args.vertex_b.uv_y, args.vertex_c.uv_y };
-            frag_attrs_init.u = fragment_attribute(area, vertices, biases, u);
-            frag_attrs_init.v = fragment_attribute(area, vertices, biases, v);
-            frag_attrs_deltas.u = fragment_attribute_delta(area, vertices, u);
-            frag_attrs_deltas.v = fragment_attribute_delta(area, vertices, v);
-        }
-
-        update_attributes_y(frag_attrs_init, frag_attrs_deltas, min.y);
-        update_attributes_x(frag_attrs_init, frag_attrs_deltas, min.x);
-        
-        // begin rasterization
-        for(s32 y = min.y; y <= max.y; y++)
-        {
-            // start interpolating vertex attributes
-            FragmentAttributes current_attributes = frag_attrs_init;
-            glm::ivec3 half_space_x =
-            {
-                half_space_y.x,
-                half_space_y.y,
-                half_space_y.z
-            };
-            for(s32 x = min.x; x <= max.x; x++)
-            {
-                // if we are inside the triangle
-                if( (half_space_x.x >= 0 || half_space_x.y >= 0 || half_space_x.z >= 0) &&
-                   !(half_space_x.x <  0 || half_space_x.y <  0 || half_space_x.z <  0))
-                {
-                    auto original_color = Color15Bit(vram_read_hires(x, y));
-
-                    if(m_mask_bit_setting.check_mask_before_draw)
-                    {
-                        // skip masked fragments
-                        if(original_color.mask)
-                        {
-                            half_space_x.x += delta_cb.y;
-                            half_space_x.y += delta_ac.y;
-                            half_space_x.z += delta_ba.y;
-                            update_attributes_x(current_attributes, frag_attrs_deltas, 1);
-                            continue;
-                        }
-                    }
-
-                    auto new_color_from_interpolation = Color24Bit
-                    (
-                        current_attributes.r.to_float(),
-                        current_attributes.g.to_float(),
-                        current_attributes.b.to_float()
-                    );
-
-                    if(!args.is_raw_texture && m_draw_mode.dither_24_to_15)
-                    {
-                        new_color_from_interpolation = dither(new_color_from_interpolation, x, y);
-                    }
-
-                    auto new_color = Color15Bit();
-                    if(args.color_depth == 0)
-                    {
-                        if(args.is_gouraud_shaded)
-                        {
-                            new_color = Color15Bit::create_from_24bit(new_color_from_interpolation);
-                        }
-                        else
-                        {
-                            new_color = Color15Bit::create_from_24bit(args.vertex_a.color);
-                        }
-                    }
-                    else
-                    {
-                        new_color = vram_fetch_texture_color
-                        (
-                            args.color_depth, 
-                            mask_texture_u(current_attributes.u.to_float()), 
-                            mask_texture_v(current_attributes.v.to_float()), 
-                            args.texpage_x, 
-                            args.texpage_y
-                        );
-                        
-                        // 16bit texture is fully transparent when the source color is 0
-                        if(new_color.raw == 0x0000)
-                        {
-                            half_space_x.x += delta_cb.y;
-                            half_space_x.y += delta_ac.y;
-                            half_space_x.z += delta_ba.y;
-                            update_attributes_x(current_attributes, frag_attrs_deltas, 1);
-                            continue;
-                        }
-
-                        if(!args.is_raw_texture)
-                        {
-                            if(args.is_gouraud_shaded)
-                            {
-                                new_color = Color15Bit::create_mix(new_color_from_interpolation, new_color);
-                            }
-                            else
-                            {
-                                new_color = Color15Bit::create_mix(args.vertex_a.color, new_color);
-                            }
-                        }
-                    }
-
-                    // blend if transparent
-                    if(args.is_semi_transparent)
-                    {
-                        if(new_color.mask || args.color_depth == 0)
-                        {
-                            new_color = Color15Bit::create_blended(original_color, new_color, args.semi_transparency);
-                        }
-                    }
-                    
-                    // update vram
-                    new_color.mask |= m_mask_bit_setting.set_mask_while_drawing;
-                    vram_write_hires(x, y, new_color.raw);
-                }
-
-                // update per-fragment attributes in the horizontal direction
-                half_space_x.x += delta_cb.y;
-                half_space_x.y += delta_ac.y;
-                half_space_x.z += delta_ba.y;
-                update_attributes_x(current_attributes, frag_attrs_deltas, 1);
-            }
-
-            // update per-fragment attributes in the vertical direction
-            half_space_y.x += delta_cb.x;
-            half_space_y.y += delta_ac.x;
-            half_space_y.z += delta_ba.x;
-            update_attributes_y(frag_attrs_init, frag_attrs_deltas, 1);
-        }
+        do_polygon_render_internal(args, VRamWidth * VRamHiresScale, VRamHeight * VRamHiresScale, m_vram_hires);
     }
 
     /**
@@ -1601,21 +1293,12 @@ namespace PSX
         }
     }
 
-    void GPU::do_line_render(LineRenderArguments args)
+    void GPU::do_line_render_internal(LineRenderArguments args, u32 vram_width, u32 vram_height, std::span<u16> vram)
     {
-        if(args.start_x > args.end_x)
-        {
-            std::swap(args.start_x, args.end_x);
-        }
-        if(args.start_y > args.end_y)
-        {
-            std::swap(args.start_y, args.end_y);
-        }
-
-        args.start_x = clamp_drawing_area_left(args.start_x);
-        args.start_y = clamp_drawing_area_top(args.start_y);
-        args.end_x = clamp_drawing_area_right(args.end_x);
-        args.end_y = clamp_drawing_area_bottom(args.end_y);
+        args.start_x *= (float)vram_width / (float)VRamWidth;
+        args.start_y *= (float)vram_height / (float)VRamHeight;
+        args.end_x   *= (float)vram_width / (float)VRamWidth;
+        args.end_y   *= (float)vram_height / (float)VRamHeight;
 
         if(args.start_x > args.end_x)
         {
@@ -1626,10 +1309,24 @@ namespace PSX
             std::swap(args.start_y, args.end_y);
         }
 
-        args.start_x = clamp_drawing_area_left(args.start_x);
-        args.start_y = clamp_drawing_area_top(args.start_y);
-        args.end_x = clamp_drawing_area_right(args.end_x);
-        args.end_y = clamp_drawing_area_bottom(args.end_y);
+        args.start_x = clamp_drawing_area_left_internal(args.start_x, vram_width);
+        args.start_y = clamp_drawing_area_top_internal(args.start_y, vram_height);
+        args.end_x = clamp_drawing_area_right_internal(args.end_x, vram_width);
+        args.end_y = clamp_drawing_area_bottom_internal(args.end_y, vram_height);
+
+        if(args.start_x > args.end_x)
+        {
+            std::swap(args.start_x, args.end_x);
+        }
+        if(args.start_y > args.end_y)
+        {
+            std::swap(args.start_y, args.end_y);
+        }
+
+        args.start_x = clamp_drawing_area_left_internal(args.start_x, vram_width);
+        args.start_y = clamp_drawing_area_top_internal(args.start_y, vram_height);
+        args.end_x = clamp_drawing_area_right_internal(args.end_x, vram_width);
+        args.end_y = clamp_drawing_area_bottom_internal(args.end_y, vram_height);
 
         s32 delta_x = (args.end_x - args.start_x);
         s32 delta_y = (args.end_y - args.start_y);
@@ -1652,7 +1349,7 @@ namespace PSX
 
         for(s32 x = args.start_x; x <= args.end_x; x++)
         {
-            auto original_color = Color15Bit(vram_read(swapped ? (y >> 8) : x, swapped ? x : (y >> 8)));
+            auto original_color = Color15Bit(vram_read_internal(swapped ? (y >> 8) : x, swapped ? x : (y >> 8), vram_width, vram_height, vram));
 
             if(m_mask_bit_setting.check_mask_before_draw)
             {
@@ -1693,112 +1390,19 @@ namespace PSX
             
             // update vram
             new_color.mask |= m_mask_bit_setting.set_mask_while_drawing;
-            vram_write(swapped ? (y >> 8) : x, swapped ? x : (y >> 8), new_color.raw);
+            vram_write_internal(swapped ? (y >> 8) : x, swapped ? x : (y >> 8), new_color.raw, vram_width, vram_height, vram);
             y += k;
         }
     }
 
+    void GPU::do_line_render(LineRenderArguments args)
+    {
+        do_line_render_internal(args, VRamWidth, VRamHeight, m_vram);
+    }
+
     void GPU::do_line_render_hires(LineRenderArguments args)
     {
-        if(args.start_x > args.end_x)
-        {
-            std::swap(args.start_x, args.end_x);
-        }
-        if(args.start_y > args.end_y)
-        {
-            std::swap(args.start_y, args.end_y);
-        }
-
-        args.start_x = clamp_drawing_area_left(args.start_x);
-        args.start_y = clamp_drawing_area_top(args.start_y);
-        args.end_x = clamp_drawing_area_right(args.end_x);
-        args.end_y = clamp_drawing_area_bottom(args.end_y);
-
-
-        if(args.start_x > args.end_x)
-        {
-            std::swap(args.start_x, args.end_x);
-        }
-        if(args.start_y > args.end_y)
-        {
-            std::swap(args.start_y, args.end_y);
-        }
-
-        args.start_x = clamp_drawing_area_left(args.start_x);
-        args.start_y = clamp_drawing_area_top(args.start_y);
-        args.end_x = clamp_drawing_area_right(args.end_x);
-        args.end_y = clamp_drawing_area_bottom(args.end_y);
-
-        args.start_x *= VRamHiresScale;
-        args.start_y *= VRamHiresScale;
-        args.end_x   *= VRamHiresScale;
-        args.end_y   *= VRamHiresScale;
-
-        s32 delta_x = (args.end_x - args.start_x);
-        s32 delta_y = (args.end_y - args.start_y);
-
-        bool swapped = false;
-
-        if(std::abs(delta_y) > std::abs(delta_x))
-        {
-            std::swap(delta_x,      delta_y);
-            std::swap(args.start_x, args.start_y);
-            std::swap(args.end_x,   args.end_y);
-            swapped = true;
-        }
-
-        if(delta_x == 0)
-            return;
-
-        s32 y = args.start_y << 8;
-        s32 k = (delta_y << 8) / delta_x;
-
-        for(s32 x = args.start_x; x <= args.end_x; x++)
-        {
-            auto original_color = Color15Bit(vram_read_hires(swapped ? (y >> 8) : x, swapped ? x : (y >> 8)));
-
-            if(m_mask_bit_setting.check_mask_before_draw)
-            {
-                // skip masked fragments
-                if(original_color.mask)
-                {
-                    y += k;
-                    continue;
-                }
-            }
-
-            //TODO: line interpolation
-            auto new_color_from_interpolation = Color24Bit(args.start_color);
-
-            if(m_draw_mode.dither_24_to_15)
-            {
-                new_color_from_interpolation = dither(new_color_from_interpolation, swapped ? (y >> 8) : x, swapped ? x : (y >> 8));
-            }
-
-            auto new_color = Color15Bit();
-            if(args.is_gouraud_shaded)
-            {
-                new_color = Color15Bit::create_from_24bit(new_color_from_interpolation);
-            }
-            else
-            {
-                new_color = Color15Bit::create_from_24bit(args.start_color);
-            }
-
-            // blend if transparent
-            if(args.is_semi_transparent)
-            {
-                if(new_color.mask)
-                {
-                    new_color = Color15Bit::create_blended(original_color, new_color, m_draw_mode.semi_transparency);
-                }
-            }
-            
-            // update vram
-            new_color.mask |= m_mask_bit_setting.set_mask_while_drawing;
-            vram_write_hires(swapped ? (y >> 8) : x, swapped ? x : (y >> 8), new_color.raw);
-            y += k;
-        }
+        do_line_render_internal(args, VRamWidth * VRamHiresScale, VRamHeight * VRamHiresScale, m_vram_hires);
     }
 
     /**
@@ -1905,8 +1509,171 @@ namespace PSX
         }
     }
 
+    void GPU::do_rectangle_render_internal(RectangleRenderArguments args, u32 vram_width, u32 vram_height, std::span<u16> vram)
+    {
+        s32 uv_x = args.uv_x + (clamp_drawing_area_left(args.start_x) - args.start_x) + m_draw_mode.texture_rect_x_flip;
+        s32 uv_y = args.uv_y + (clamp_drawing_area_left(args.start_y) - args.start_y) + m_draw_mode.texture_rect_y_flip;
+
+        args.start_x *= ((float)vram_width / (float)VRamWidth);
+        args.start_y *= ((float)vram_height / (float)VRamHeight);
+        args.width   *= ((float)vram_width / (float)VRamWidth);
+        args.height  *= ((float)vram_height / (float)VRamHeight);
+
+        if(args.width > vram_width - 1 || args.height > vram_height - 1)
+            return;
+
+        if(vram_width == VRamWidth && vram_height == VRamHeight)
+            update_clut_cache(args.color_depth, args.clut_x, args.clut_y);
+
+        s32 min_x = clamp_drawing_area_left_internal(args.start_x, vram_width);
+        s32 min_y = clamp_drawing_area_top_internal(args.start_y, vram_height);
+
+        s32 max_x = clamp_drawing_area_right_internal(args.start_x + args.width - 1, vram_width);
+        s32 max_y = clamp_drawing_area_bottom_internal(args.start_y + args.height - 1, vram_height);
+
+        s32 dir_x = m_draw_mode.texture_rect_x_flip ? -1 : 1;
+        s32 dir_y = m_draw_mode.texture_rect_y_flip ? -1 : 1;
+
+        Color15Bit color_15_bit = Color15Bit::create_from_24bit(args.color);
+
+        for(s32 y = min_y; y <= max_y; y++)
+        {
+            for(s32 x = min_x; x <= max_x; x++)
+            {
+                s32 u = uv_x + (x - min_x) / ((float)vram_width / (float)VRamWidth) * dir_x;
+                s32 v = uv_y + (y - min_y) / ((float)vram_height / (float)VRamHeight) * dir_y;
+
+                Color15Bit original_color = Color15Bit(vram_read_internal(x, y, vram_width, vram_height, vram));
+
+                if(m_mask_bit_setting.check_mask_before_draw)
+                {
+                    if(original_color.mask)
+                        continue;
+                }
+
+                // create new color
+                Color15Bit new_color;
+
+                if(args.color_depth == 0)
+                {
+                    new_color      = color_15_bit;
+                    new_color.mask = 0;
+                }
+                else
+                {
+                    // fetch texture color
+                    new_color = vram_fetch_texture_color
+                    (
+                        args.color_depth, 
+                        mask_texture_u(u), 
+                        mask_texture_v(v), 
+                        args.texpage_x, 
+                        args.texpage_y
+                    );
+
+                    // 16bit texture is fully transparent when the source color is 0
+                    if(new_color.raw == 0x0000)
+                    {
+                        continue;
+                    }
+
+                    // mix texture with the rectangle color
+                    if(!args.is_raw_texture)
+                    {
+                        new_color = Color15Bit::create_mix(args.color, new_color);
+                    }
+                }
+
+                // blend if transparent
+                if(args.is_semi_transparent)
+                {
+                    if(new_color.mask || args.color_depth == 0)
+                    {
+                        new_color = Color15Bit::create_blended(original_color, new_color, m_draw_mode.semi_transparency);
+                    }
+                }
+
+                // update vram
+                new_color.mask |= m_mask_bit_setting.set_mask_while_drawing;
+                vram_write_internal(x, y, new_color.raw, vram_width, vram_height, vram);
+            }
+        }
+
+        return;
+
+        for(s32 y = min_y, v = uv_y; y <= max_y; y++, v += dir_y)
+        {
+            for(s32 x = min_x, u = uv_x; x <= max_x; x++, u += dir_x)
+            {
+                for(s32 res_y = 0; res_y < static_cast<s32>(((float)vram_height / (float)VRamHeight)); res_y++)
+                {
+                    for(s32 res_x = 0; res_x < static_cast<s32>(((float)vram_width / (float)VRamWidth)); res_x++)
+                    {
+                        // get original color for blending
+                        Color15Bit original_color = Color15Bit(vram_read_internal(x + res_x, y + res_y, vram_width, vram_height, vram));
+
+                        if(m_mask_bit_setting.check_mask_before_draw)
+                        {
+                            if(original_color.mask)
+                                continue;
+                        }
+
+                        // create new color
+                        Color15Bit new_color;
+
+                        if(args.color_depth == 0)
+                        {
+                            new_color      = color_15_bit;
+                            new_color.mask = 0;
+                        }
+                        else
+                        {
+                            // fetch texture color
+                            new_color = vram_fetch_texture_color
+                            (
+                                args.color_depth, 
+                                mask_texture_u(u), 
+                                mask_texture_v(v), 
+                                args.texpage_x, 
+                                args.texpage_y
+                            );
+
+                            // 16bit texture is fully transparent when the source color is 0
+                            if(new_color.raw == 0x0000)
+                            {
+                                continue;
+                            }
+
+                            // mix texture with the rectangle color
+                            if(!args.is_raw_texture)
+                            {
+                                new_color = Color15Bit::create_mix(args.color, new_color);
+                            }
+                        }
+
+                        // blend if transparent
+                        if(args.is_semi_transparent)
+                        {
+                            if(new_color.mask || args.color_depth == 0)
+                            {
+                                new_color = Color15Bit::create_blended(original_color, new_color, m_draw_mode.semi_transparency);
+                            }
+                        }
+
+                        // update vram
+                        new_color.mask |= m_mask_bit_setting.set_mask_while_drawing;
+                        vram_write_internal(x + res_x, y + res_y, new_color.raw, vram_width, vram_height, vram);
+                    }
+                }
+            }
+        }
+    }
+
     void GPU::do_rectangle_render(RectangleRenderArguments args)
     {
+        do_rectangle_render_internal(args, VRamWidth, VRamHeight, m_vram);
+        return;
+
         if(args.width > 1023 || args.height > 511)
             return;
 
@@ -1990,6 +1757,9 @@ namespace PSX
 
     void GPU::do_rectangle_render_hires(RectangleRenderArguments args)
     {
+        do_rectangle_render_internal(args, VRamWidth * VRamHiresScale, VRamHeight * VRamHiresScale, m_vram_hires);
+        return;
+
         if(args.width > 1023 || args.height > 511)
             return;
 
@@ -2295,6 +2065,11 @@ namespace PSX
         return std::max(std::max(x, 0), static_cast<s32>(m_drawing_area_left * VRamHiresScale));
     }
 
+    s32 GPU::clamp_drawing_area_left_internal(s32 x, u32 vram_width) const
+    {
+        return std::max(std::max(x, 0), static_cast<s32>(m_drawing_area_left * ((float)vram_width / (float)VRamWidth)));
+    }
+
     /**
      * @brief clamp value to the drawing area 
      */
@@ -2306,6 +2081,11 @@ namespace PSX
     s32 GPU::clamp_drawing_area_right_hires(s32 x) const
     {
         return std::min(std::min(x, static_cast<s32>(VRamWidth * VRamHiresScale)), static_cast<s32>(m_drawing_area_right * VRamHiresScale));
+    }
+
+    s32 GPU::clamp_drawing_area_right_internal(s32 x, u32 vram_width) const
+    {
+        return std::min(std::min(x, static_cast<s32>(vram_width)), static_cast<s32>(m_drawing_area_right * ((float)vram_width / (float)VRamWidth)));
     }
 
     /**
@@ -2321,6 +2101,11 @@ namespace PSX
         return std::max(std::max(y, 0), static_cast<s32>(m_drawing_area_top * VRamHiresScale));
     }
 
+    s32 GPU::clamp_drawing_area_top_internal(s32 y, u32 vram_height) const
+    {
+        return std::max(std::max(y, 0), static_cast<s32>(m_drawing_area_top * ((float)vram_height / (float)VRamHeight)));
+    }
+
     /**
      * @brief clamp value to the drawing area
      */
@@ -2332,6 +2117,11 @@ namespace PSX
     s32 GPU::clamp_drawing_area_bottom_hires(s32 y) const
     {
         return std::min(std::min(y, static_cast<s32>(VRamHeight * VRamHiresScale)), static_cast<s32>(m_drawing_area_bottom * VRamHiresScale));
+    }
+
+    s32 GPU::clamp_drawing_area_bottom_internal(s32 y, u32 vram_height) const
+    {
+        return std::min(std::min(y, static_cast<s32>(vram_height)), static_cast<s32>(m_drawing_area_bottom * ((float)vram_height / (float)VRamHeight)));
     }
 
     /**
@@ -2493,29 +2283,25 @@ namespace PSX
      */
     u16 GPU::vram_read(u32 x, u32 y) const
     {
-        if(x > VRamWidth - 1) 
-        {
-            UNREACHABLE();
-        }
-        if(y > VRamHeight - 1)
-        {
-            UNREACHABLE();
-        }
-        return m_vram[y * VRamWidth + x];
+        return vram_read_internal(x, y, VRamWidth, VRamHeight, m_vram);
     }
 
     u16 GPU::vram_read_hires(u32 x, u32 y) const
     {
-        if(x > VRamWidth * VRamHiresScale - 1) 
+        return vram_read_internal(x, y, VRamWidth * VRamHiresScale, VRamHeight * VRamHiresScale, m_vram_hires);
+    }
+
+    u16 GPU::vram_read_internal(u32 x, u32 y, u32 vram_width, u32 vram_height, std::span<const u16> vram) const
+    {
+        if(x > vram_width - 1) 
         {
             UNREACHABLE();
         }
-        if(y > VRamHeight * VRamHiresScale - 1)
+        if(y > vram_height - 1)
         {
-            printf("WHAT %u %i\n", y, (int)m_current_command);
             UNREACHABLE();
         }
-        return m_vram_hires[y * VRamWidth * VRamHiresScale + x];
+        return vram[y * vram_width + x];
     }
 
     /**
@@ -2523,30 +2309,27 @@ namespace PSX
      */
     void GPU::vram_write(u32 x, u32 y, u16 value)
     {
-        if(x > VRamWidth - 1) 
-        {
-            UNREACHABLE();
-        }
-        if(y > VRamHeight - 1)
-        {
-            UNREACHABLE();
-        }
-        m_vram[y * VRamWidth + x] = value;
+        vram_write_internal(x, y, value, VRamWidth, VRamHeight, m_vram);
     }
 
     void GPU::vram_write_hires(u32 x, u32 y, u16 value)
     {
-        if(x > VRamWidth * VRamHiresScale - 1)
+        vram_write_internal(x, y, value, VRamWidth * VRamHiresScale, VRamHeight * VRamHiresScale, m_vram_hires);
+    }
+
+    void GPU::vram_write_internal(u32 x, u32 y, u16 value, u32 vram_width, u32 vram_height, std::span<u16> vram)
+    {
+        if(x > vram_width - 1)
         {
             UNREACHABLE();
         }
 
-        if(y > VRamHeight * VRamHiresScale - 1)
+        if(y > vram_height - 1)
         {
             UNREACHABLE();
         }
 
-        m_vram_hires[y * VRamWidth * VRamHiresScale + x] = value;
+        vram[y * vram_width + x] = value;
     }
 
     /**
